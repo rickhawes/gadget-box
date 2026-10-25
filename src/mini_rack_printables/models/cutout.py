@@ -1,9 +1,10 @@
 from typing import override
 
 from ..core.elements_2d import Element2D
-from ..core.elements_3d import PrismElement, extrude_tube
+from ..core.elements_3d import PrismElement, TubeElement
 from ..core.feature import Feature, Rib
-from ..core.geometry import Vec2, Bx
+from ..core.geometry import Bx, Vec2
+from ..core.modeler import Modeler
 from ..core.piece import Piece
 
 
@@ -34,11 +35,11 @@ class Cutout(Feature):
     def render(self, plate: Bx) -> list[Piece]:
         """Returns a list of PartOutput structures representing the cutout"""
         # the same rendering formula is used for all types of cutouts
-        hole = PrismElement(self.shape, plate.size.z)
-        result = [Piece(hole.render(), cut=True)]
+        md = Modeler.make_on_bx(plate)
+        md.add_element(PrismElement(self.shape, plate.size.z), cut=True)
 
         if self.rib is not None:
-            rib = extrude_tube(self.shape, self.rib.width, self.rib.depth)
-            result += [Piece(rib)]
+            rib = TubeElement(self.shape, self.rib.width, self.rib.depth)
+            md.add_element(rib)
 
-        return result
+        return md.all_pieces()
