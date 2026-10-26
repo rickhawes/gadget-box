@@ -3,6 +3,7 @@ Classes for specifying features of a `Model`. Features may be related to specifi
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import override
 
@@ -52,8 +53,8 @@ class Feature(ABC):
         """
 
 
-type FeatureList = list[list[Feature]]
-"""A row-column list of features."""
+type FeatureList = Sequence[Sequence[Feature]]
+"""A row-column sequence of features."""
 
 
 @dataclass(frozen=True)
@@ -66,7 +67,7 @@ class Rib:
     depth: Mm
 
 
-class XRayModel(Model):
+class FeatureXRayModel(Model):
     """
     An X-ray model will show the pieces of a Feature without the plate.
     This model is useful for visualizing and debugging the structure of a Feature.
@@ -89,13 +90,11 @@ class XRayModel(Model):
         children: list[Part | Solid] = []
         for piece in pieces:
             if not piece.cut:
-                piece.part.color = Color("blue")
-                piece.part.label = "add"
-                children.append(piece.part)
+                new_piece = piece.copy(color=Color("blue"), label="add")
+                children.append(new_piece.part)
             else:
                 if not self.only_adds:
-                    piece.part.color = Color("red")
-                    piece.part.label = "subtract"
-                    children.append(piece.part)
+                    new_piece = piece.copy(color=Color("red"), label="subtract")
+                    children.append(new_piece.part)
 
         return Model.Rendering(Compound(label="xray", children=children))
