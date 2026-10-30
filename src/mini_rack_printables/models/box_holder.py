@@ -83,12 +83,12 @@ class BoxHolder(Feature):
         return Feature.DesiredSize(size)
 
     @override
-    def render(self, plate: Bx) -> list[Piece]:
+    def render(self, maker: Assembler) -> None:
         # geometry
         dx, dy, r = self.device_size.x, self.device_size.y, self.device_rounding
         holder_depth = (
             self.device_size.z
-            - (plate.size.z if self.style.has_cutout else 0)
+            - (maker.plate_depth if self.style.has_cutout else 0)
             + (self.style.front_lip.depth if self.style.front_lip is not None else 0)
         )
         w = self.style.wall_thickness
@@ -134,12 +134,12 @@ class BoxHolder(Feature):
                             self.style.front_lip.depth,
                             corners=r,
                         ),
-                        PlateElement(dx, dy, plate.size.z - self.style.front_lip.depth, r),
+                        PlateElement(dx, dy, maker.plate_depth - self.style.front_lip.depth, r),
                     ]
                 )
                 cutout_sub.place_element(stack)
             else:
-                cutout_sub.place_element(PlateElement(dx, dy, plate.size.z, r))
+                cutout_sub.place_element(PlateElement(dx, dy, maker.plate_depth, r))
 
         def add_back_lip(maker: Assembler) -> None:
             assert self.style.back_lip is not None
@@ -150,17 +150,14 @@ class BoxHolder(Feature):
             lip = PrismElement(CutoutElement(outer, inner), self.style.back_lip.depth)
             maker.place_element(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
 
-        # basic holder shape
-        maker = Assembler.make(plate)
-        add_corners(maker)
-        add_walls(maker)
-
-        # add the back lip if needed
-        if self.style.back_lip is not None:
-            add_back_lip(maker)
-
-        # add a cutout if needed,
+        # Cutout if needed
         if self.style.has_cutout:
             add_cutout(maker)
 
-        return maker.all_pieces()
+        # Basic holder shape
+        add_corners(maker)
+        add_walls(maker)
+
+        # Add the back lip if needed
+        if self.style.back_lip is not None:
+            add_back_lip(maker)

@@ -1,15 +1,19 @@
 from collections.abc import Sequence
 
 import pytest
-from build123d import Circle, Location, Rectangle, Sketch
+from build123d import Circle, Location, Plane, Rectangle, Sketch
 
 from mini_rack_printables import (
+    Assembler,
+    BoxElement,
+    Cutout,
     Dir2,
     Feature,
     GridLayout,
     Layout,
     MeasuredRowsColumns,
     ModelLogger,
+    RectangleElement,
     Rc,
     RowColumnCollection,
     RowLayout,
@@ -53,15 +57,18 @@ def test_measured_rows_columns() -> None:
 
 
 def sketch_sections(sections: Sequence[Layout.Section]) -> Sketch:
-    return Sketch(
-        [
-            (
+    sketches: list[Sketch] = []
+    for s in sections:
+        plane = Plane(Location(s.origin.to_vector()))
+        sk = Sketch(
+            plane
+            * (
                 Location(s.bounds.center.to_vector()) * Rectangle(s.bounds.size.x, s.bounds.size.y)
-                - Location(s.origin.to_vector()) * Circle(0.2)
+                - Circle(0.2)
             )
-            for s in sections
-        ]
-    )
+        )
+        sketches.append(sk)
+    return Sketch(sketches)
 
 
 def test_row_heights_values() -> None:
@@ -118,9 +125,11 @@ def test_equal_widths() -> None:
     plate = Rc(60, 60)
     sections = layout.layout_features([[p1, p2, p3]], plate)
     assert len(sections) == 3
-    assert sections[0].bounds == Rc(20, 60, -20, 0)
-    assert sections[1].bounds == Rc(20, 60, 0, 0)
-    assert sections[2].bounds == Rc(20, 60, 20, 0)
+    assert sections[0].bounds == Rc(20, 60)
+    assert sections[0].origin == Vec2(-20, 0)
+    assert sections[1].bounds == Rc(20, 60)
+    assert sections[2].bounds == Rc(20, 60)
+    assert sections[2].origin == Vec2(20, 0)
 
 
 def test_align_cell(viewer_logger: ModelLogger) -> None:
@@ -130,16 +139,16 @@ def test_align_cell(viewer_logger: ModelLogger) -> None:
 
     l1: RowLayout = RowLayout(place=Dir2.CENTER, spacing=2)
     sections = l1.layout_features([[p1, p2]], plate)
-    assert sections[0].bounds == Rc(12, 36, -12, 0)
-    assert sections[1].bounds == Rc(22, 36, 7, 0)
+    assert sections[0].bounds == Rc(12, 36)
+    assert sections[1].bounds == Rc(22, 36)
     assert sections[0].origin == Vec2(-12, 0)
     assert sections[1].origin == Vec2(7, 0)
     viewer_logger.log(sketch_sections(sections), ALIGN_CELL)
 
     l2 = RowLayout(place=Dir2.SIDE_TOP, spacing=2)
     sections = l2.layout_features([[p1, p2]], plate)
-    assert sections[0].bounds == Rc(12, 36, -12, 0)
-    assert sections[1].bounds == Rc(22, 36, 7, 0)
+    assert sections[0].bounds == Rc(12, 36, 0, -15.5)
+    assert sections[1].bounds == Rc(22, 36, 0, -10.5)
     assert sections[0].origin == Vec2(-12, 15.5)
     assert sections[1].origin == Vec2(7, 10.5)
     viewer_logger.log(sketch_sections(sections), ALIGN_CELL)
@@ -364,3 +373,19 @@ def test_sparse_equal_grid(viewer_logger: ModelLogger) -> None:
     plate = Rc(60, 60)
     sections = layout.layout_features([[p1, p2, p3], [p1, p2], [p1]], plate)
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
+
+def test_render_features(viewer_logger: ModelLogger) -> None:
+    c1 = Cutout(RectangleElement(5, 5))
+
+    # center 
+    m1 = Assembler.make_with_element(BoxElement(60, 60, 10))
+    l1 = RowLayout()
+    l1.render_features([[c1, c1]], m1)
+    r1 = m1.make_rendering()
+    viewer_logger.log(r1.part)
+
+    m2 = Assembler.make_with_element(BoxElement(60, 60, 10))
+    l2 = RowLayout(place=Dir2.SIDE_BOTTOM, spacing=5)
+    l2.render_features([[c1, c1]], m1)
+    r2 = m2.make_rendering()
+    viewer_logger.log(r2.part)

@@ -32,15 +32,12 @@ class Cutout(Feature):
         return Feature.DesiredSize(size, False)
 
     @override
-    def render(self, plate: Bx) -> list[Piece]:
+    def render(self, maker: Assembler) -> None:
         """Returns a list of PartOutput structures representing the cutout"""
         # the same rendering formula is used for all types of cutouts
-        maker = Assembler.make(plate)
         cutout_maker = maker.make_cutout_sub()
-        cutout_maker.place_element(PrismElement(self.shape, plate.size.z))
+        cutout_maker.place_element(PrismElement(self.shape, maker.plate_depth))
 
         if self.rib is not None:
             rib = TubeElement(self.shape, self.rib.width, self.rib.depth)
             maker.place_element(rib)
-
-        return maker.all_pieces()

@@ -3,18 +3,18 @@ from importlib.resources import as_file, files
 from pathlib import Path
 from typing import override
 
+from ..core.assembler import Assembler
 from ..core.elements_3d import BoxElement, ImportElement
 from ..core.feature import Feature
 from ..core.geometry import Bx
 from ..core.piece import Piece
-from ..core.assembler import Assembler
 
 
 class ImportFeature(Feature):
-    """ A Feature formed using a STL or BREP file
-    """
+    """A Feature formed using a STL or BREP file"""
+
     ASSET_PATH: str = "mini_rack_printables.assets"
-    
+
     cutout: bool = True
     element: ImportElement
 
@@ -45,19 +45,14 @@ class ImportFeature(Feature):
         return Feature.DesiredSize(self.element.size.to_2d(), False)
 
     @override
-    def render(self, plate: Bx) -> list[Piece]:
-        maker = Assembler.make(plate)
-
+    def render(self, maker: Assembler) -> None:
         if self.cutout:
-            cutout_maker = maker.make_cutout_sub()
             # Cutout the plate first
-            box = BoxElement(dx=self.element.size.x, dy=self.element.size.y, dz=plate.size.z)
+            cutout_maker = maker.make_cutout_sub()
+            box = BoxElement(dx=self.element.size.x, dy=self.element.size.y, dz=maker.plate_depth)
             cutout_maker.place_element(box)
-            # Add the import element in the cutout
-            cutout_maker.place_element(self.element)
+            # Add the import element in the cutout (explicitly override the cut mode)
+            cutout_maker.place_element(self.element, cut=False)
         else:
             # Add the iport element on the plate
             maker.place_element(self.element)
-
-        return maker.all_pieces()
-

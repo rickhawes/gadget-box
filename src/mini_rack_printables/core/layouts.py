@@ -9,6 +9,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import override
 
+from .assembler import Assembler
 from .feature import Feature, FeatureList
 from .geometry import Dir2, Mm, Rc, Vec2
 from .print_dims import E
@@ -38,6 +39,17 @@ class Layout(ABC):
             features (Feature): The features to layout
             area (Rc): The area to place the features on
         """
+
+    def render_features(self, features: FeatureList, maker: Assembler, area: Rc | None = None, ) -> None:
+        """
+        Render all `features` using the given `plate` and `layout` algorithm.
+        """
+        if area is None:
+            area = maker.plate_rc
+        sections = self.layout_features(features, area)
+        for section in sections:
+            section_mkr = maker.make_section_sub(section.bounds, section.origin)
+            section.feature.render(section_mkr)
 
 
 @dataclass(frozen=True)
@@ -147,7 +159,8 @@ class RowLayout(Layout):
                 bounds = Rc.from_edges(left, right, bottom, top)
                 min_size = Rc(feature.desired_size().min_size)
                 origin = bounds.place_center(min_size, self.place)
-                section = Layout.Section(bounds, origin, feature)
+                relative_bounds = bounds.move_to(bounds.center - origin)
+                section = Layout.Section(relative_bounds, origin, feature)
                 result.append(section)
 
                 left = right + s
@@ -224,7 +237,8 @@ class GridLayout(RowLayout):
                     bounds = Rc.from_edges(left, right, bottom, top)
                     min_size = Rc(feature.desired_size().min_size)
                     origin = bounds.place_center(min_size, self.place)
-                    section = Layout.Section(bounds, origin, feature)
+                    relative_bounds = bounds.move_to(bounds.center - origin)
+                    section = Layout.Section(relative_bounds, origin, feature)
                     result.append(section)
 
                 left = right + s

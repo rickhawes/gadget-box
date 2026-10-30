@@ -21,7 +21,9 @@ from .core.elements_2d import (
 from .core.elements_3d import (
     BoxElement,
     ConeElement,
+    CylinderElement,
     Element3D,
+    ImportElement,
     PrismElement,
 )
 from .core.feature import Feature, FeatureList, FeatureXRayModel, Rib
@@ -29,6 +31,7 @@ from .core.geometry import Ax2, Ax3, AxDir, AxDir2, AxDir3, Bx, Degree, Dir2, Mm
 from .core.hole_patterns import CircleFill, HexFill, HolePattern, SquareFill
 from .core.layouts import GridLayout, Layout, MeasuredRowsColumns, RowLayout
 from .core.model import Model, ModelLogger
+from .core.piece import Piece
 from .core.row_column_collection import RowColumnCollection
 from .models.box_holder import BoxHolder
 from .models.corner_holder import CornerHolder
@@ -62,6 +65,7 @@ __all__ = [
     "Corners",
     "Cutout",
     "CutoutElement",
+    "CylinderElement",
     "Degree",
     "Dir2",
     "Element2D",
@@ -75,10 +79,12 @@ __all__ = [
     "HolePattern",
     "GridLayout",
     "HexFill",
+    "ImportElement",
     "ImportFeature",
     "InsetCorners",
     "JetKVM",
     "Keystone",
+    "Piece",
     "layout_rack_screw_holes",
     "MeasuredRowsColumns",
     "Mm",

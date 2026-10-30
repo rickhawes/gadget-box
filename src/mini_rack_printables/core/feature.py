@@ -9,7 +9,8 @@ from typing import override
 
 from build123d import Color, Compound, Part, Solid
 
-from .geometry import Bx, Mm, Vec2, Vec3
+from .assembler import Assembler
+from .geometry import AxDir3, Bx, Mm, Vec2, Vec3
 from .model import Model
 from .piece import Piece
 
@@ -44,12 +45,9 @@ class Feature(ABC):
         """
 
     @abstractmethod
-    def render(self, plate: Bx) -> list[Piece]:
+    def render(self, maker: Assembler) -> None:
         """
-        Render the feature origin at (0, 0) on top of the passed in plate
-
-        Returns:
-            A list of pieces representing the solids to be added to the plate.
+        Render the feature into the passed in Assembler using the base as plate
         """
 
 
@@ -79,16 +77,17 @@ class FeatureXRayModel(Model):
 
     def __init__(self, part: Feature, size: Vec3 | None = None, only_adds: bool = True):
         self.feature = part
-        self.size = size if size is not None else Vec3(100, 100, 3.5)
+        self.size = size if size is not None else Vec3(100, 100, 5)
         self.only_adds = only_adds
 
     @override
     def render(self) -> Model.Rendering:
         plate = Bx(self.size, Vec3(0, 0, self.size.z / 2))
+        maker = Assembler(plate, z_dir=AxDir3.TOP)
 
-        pieces = self.feature.render(plate)
+        self.feature.render(maker)
         children: list[Part | Solid] = []
-        for piece in pieces:
+        for piece in maker.all_pieces():
             if not piece.cut:
                 new_piece = piece.set(color=Color("blue"), label="add")
                 children.append(new_piece.part)

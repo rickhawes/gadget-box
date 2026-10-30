@@ -385,10 +385,28 @@ class Rc:
     #     mirror = Rc(self.size, Vec2(-self.center.x, -self.center.y))
     #     return Rc.union(self, mirror)
 
-    def form_bx(self, front: Mm, back: Mm) -> Bx:
+    def to_bx(
+        self,
+        dz: Mm | None = None,
+        z: Mm | None = None,
+        bottom: Mm | None = None,
+        top: Mm | None = None,
+    ) -> Bx:
+        if (dz is not None or z is not None) and (bottom is not None or top is not None):
+            raise ValueError("Over specified, either (dz, z) or (front or back) must be None")
+        if (bottom is not None and top is None) or (bottom is None and top is not None):
+            raise ValueError("Both top and bottom must be specified if one is specified")
+        if bottom is not None and top is not None:
+            dz = top - bottom
+            z = (top + bottom) / 2
+        if z is None:
+            z = 0
+        if dz is None:
+            dz = 0
+        assert dz is not None and z is not None
         return Bx(
-            Vec3(self.size.x, self.size.y, back - front),
-            Vec3(self.center.x, self.center.y, (back + front) / 2),
+            Vec3(self.size.x, self.size.y, dz),
+            Vec3(self.center.x, self.center.y, z),
         )
 
     @staticmethod
@@ -827,6 +845,26 @@ class Bx:
             Vec3(right - left, back - front, top - bottom),
             Vec3((right + left) / 2, (back + front) / 2, (top + bottom) / 2),
         )
+
+    @classmethod
+    def from_side_rc(
+        cls,
+        side: AxDir3,
+        rc: Rc,
+        depth: Mm = 0,
+        offset: Mm = 0,
+    ) -> Bx:
+        """Create a from a side, rc, and depth."""
+        center = offset
+        match side:
+            case AxDir3.X_MINUS | AxDir3.X_PLUS:
+                return Bx(depth, rc.size.x, rc.size.y, center, rc.center.x, rc.center.y)
+            case AxDir3.Y_MINUS | AxDir3.Y_PLUS:
+                return Bx(rc.size.x, depth, rc.size.y, rc.center.x, center, rc.center.y)
+            case AxDir3.Z_MINUS | AxDir3.Z_PLUS:
+                return Bx(rc.size.x, rc.size.y, depth, rc.center.x, rc.center.y, center)
+            case _:
+                raise ValueError("unexpected side")
 
     @classmethod
     def union(cls, r1: Bx, r2: Bx) -> Self:

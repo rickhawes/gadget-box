@@ -117,6 +117,6 @@ class Faceplate(Model):
 
         # features
         if self.features is not None:
-            maker.add_features(self.features, feature_area, self.layout)
+            self.layout.render_features(self.features, maker, feature_area)
 
-        return maker.render()
+        return maker.make_rendering()
