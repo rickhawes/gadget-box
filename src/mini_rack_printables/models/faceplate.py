@@ -4,9 +4,9 @@ from typing import final, override
 from mini_rack_printables.core.elements_3d import PlateElement
 
 from ..core.assembler import Assembler
-from ..core.elements_2d import TrapezoidElement
 from ..core.elements_3d import PlateElement, PrismElement
 from ..core.feature import FeatureList, Rib
+from ..core.figures import TrapezoidFigure
 from ..core.geometry import AxDir3, Dir2, Mm, Rc, Vec2, Vec3
 from ..core.layouts import Layout, RowLayout
 from ..core.model import Model
@@ -109,7 +109,7 @@ class Faceplate(Model):
                 # place the sub assembly on the side
                 rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
                 rib_maker = maker.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
-                rib_elem = PrismElement(TrapezoidElement(rib_size.x, rib_size.z, 30), rib_size.y)
+                rib_elem = PrismElement(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
                 rib_maker.place_element(rib_elem)
 
             add_rib(Dir2.Y_PLUS)

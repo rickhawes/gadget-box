@@ -1,9 +1,9 @@
 from typing import override
 
 from ..core.assembler import Assembler
-from ..core.elements_2d import Element2D
 from ..core.elements_3d import PrismElement, TubeElement
 from ..core.feature import Feature, Rib
+from ..core.figures import Figure
 from ..core.geometry import Bx, Vec2
 from ..core.piece import Piece
 
@@ -13,10 +13,10 @@ class Cutout(Feature):
     A cutout of a plate. It can also be outlined with a rib.
     """
 
-    shape: Element2D
+    shape: Figure
     rib: Rib | None
 
-    def __init__(self, shape: Element2D, rib: Rib | None = None) -> None:
+    def __init__(self, shape: Figure, rib: Rib | None = None) -> None:
         """
         Args:
             shape (Element): The 2D shape to cut out.

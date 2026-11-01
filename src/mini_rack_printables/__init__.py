@@ -7,17 +7,6 @@ from .core.corners import (
     SelectedCorners,
     SquareCorners,
 )
-from .core.elements_2d import (
-    AlignedElement,
-    CircleElement,
-    CutoutElement,
-    Element2D,
-    LocatedElement,
-    RectangleElement,
-    RightTriangleElement,
-    SlotElement,
-    TrapezoidElement,
-)
 from .core.elements_3d import (
     BoxElement,
     ConeElement,
@@ -27,6 +16,19 @@ from .core.elements_3d import (
     PrismElement,
 )
 from .core.feature import Feature, FeatureList, FeatureXRayModel, Rib
+from .core.figures import (
+    AlignedFigure,
+    CircleFigure,
+    CombinedFigure,
+    CutoutFigure,
+    Figure,
+    Op2,
+    RectangleFigure,
+    RotatedFigure,
+    SlotFigure,
+    TrapezoidFigure,
+    TriangleFigure,
+)
 from .core.geometry import Ax2, Ax3, AxDir, AxDir2, AxDir3, Bx, Degree, Dir2, Mm, Rc, Vec2, Vec3
 from .core.hole_patterns import CircleFill, HexFill, HolePattern, SquareFill
 from .core.layouts import GridLayout, Layout, MeasuredRowsColumns, RowLayout
@@ -42,7 +44,7 @@ from .models.jetkvm import JetKVM
 from .models.keystone import Keystone
 from .models.puck_holder import PuckHolder
 from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims
-from .models.rack_holes import RackHoleElement, RackHolePattern, layout_rack_screw_holes
+from .models.rack_holes import RackHoleFigure, RackHolePattern, layout_rack_screw_holes
 from .models.shelf import Shelf
 from .models.spacer import Spacer
 
@@ -53,28 +55,28 @@ __all__ = [
     "AxDir",
     "AxDir2",
     "AxDir3",
-    "AlignedElement",
+    "AlignedFigure",
     "BeveledCorners",
     "BoxElement",
     "BoxHolder",
     "Bx",
-    "CircleElement",
+    "CircleFigure",
     "CircleFill",
     "ConeElement",
     "CornerHolder",
     "Corners",
     "Cutout",
-    "CutoutElement",
+    "CutoutFigure",
     "CylinderElement",
     "Degree",
     "Dir2",
-    "Element2D",
+    "Figure",
     "Element3D",
     "Faceplate",
     "Feature",
     "FeatureXRayModel",
     "Layout",
-    "LocatedElement",
+    "CombinedFigure",
     "FeatureList",
     "HolePattern",
     "GridLayout",
@@ -94,23 +96,25 @@ __all__ = [
     "PuckHolder",
     "RackDims",
     "RackScrewDims",
-    "RackHoleElement",
+    "RackHoleFigure",
     "RackHolePattern",
     "Rc",
-    "RectangleElement",
+    "RectangleFigure",
+    "RotatedFigure",
     "Rib",
-    "RightTriangleElement",
+    "Op2",
+    "TriangleFigure",
     "RoundedCorners",
     "RowColumnCollection",
     "RowLayout",
     "Screw1032Dims",
     "SelectedCorners",
     "Shelf",
-    "SlotElement",
+    "SlotFigure",
     "Spacer",
     "SquareCorners",
     "SquareFill",
-    "TrapezoidElement",
+    "TrapezoidFigure",
     "Vec2",
     "Vec3",
 ]

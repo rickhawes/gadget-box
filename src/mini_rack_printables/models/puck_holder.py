@@ -4,8 +4,8 @@ from typing import override
 from build123d import Box, BuildSketch, Location, Mode, Part, Pos, extrude, insert
 
 from ..core.corners import InsetCorners, RoundedCorners, SelectedCorners
-from ..core.elements_2d import RectangleElement
 from ..core.feature import Feature
+from ..core.figures import RectangleFigure
 from ..core.geometry import Bx, Mm, Vec2, Vec3
 from ..core.hole_patterns import HexFill
 from ..core.piece import Piece
@@ -97,13 +97,13 @@ class PuckHolder(Feature):
             """
             with BuildSketch() as sk:
                 _ = insert(
-                    RectangleElement(dx + 2 * w, dy + 2 * w, self.style.corner_rounding).sketch()
+                    RectangleFigure(dx + 2 * w, dy + 2 * w, self.style.corner_rounding).sketch()
                 )
                 _ = insert(
-                    RectangleElement(dx + 2 * w, dy + 2 * w, InsetCorners(w + e)).sketch(),
+                    RectangleFigure(dx + 2 * w, dy + 2 * w, InsetCorners(w + e)).sketch(),
                     mode=Mode.SUBTRACT,
                 )
-                _ = insert(RectangleElement(dx, dy).sketch())
+                _ = insert(RectangleFigure(dx, dy).sketch())
             assert sk.sketch is not None
             # pyrefly: ignore[bad-argument-type]
             return Location((0, 0, walls_z)) * extrude(sk.sketch, amount=walls_depth)
@@ -132,12 +132,12 @@ class PuckHolder(Feature):
             base_loc = select_location(device_box, Direction.BOTTOM, flip=True)
             # puck shape by selectively using rounded corners
             corners = SelectedCorners(RoundedCorners(r), top_left=True, bottom_left=True)
-            base_sketch = RectangleElement(dx, dz, corners).sketch()
+            base_sketch = RectangleFigure(dx, dz, corners).sketch()
             return Part(base_loc * extrude(base_sketch, amount=dy))
 
         # basic holder shape
         holder = extrude_element(
-            RectangleElement(dx + 2 * w, dy + 2 * w, self.style.corner_rounding),
+            RectangleFigure(dx + 2 * w, dy + 2 * w, self.style.corner_rounding),
             walls_z,
         )
         holder += make_block_with_corners()

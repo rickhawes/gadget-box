@@ -4,7 +4,8 @@
 
 import math
 from abc import ABC, abstractmethod
-from typing import override
+from dataclasses import dataclass
+from typing import Sequence, override
 
 from build123d import (
     BuildLine,
@@ -13,6 +14,7 @@ from build123d import (
     Face,
     Line,
     Location,
+    Mode,
     Polyline,
     Rectangle,
     RectangleRounded,
@@ -24,26 +26,64 @@ from build123d import (
 )
 
 from .corners import Corners, RoundedCorners, SquareCorners
-from .geometry import Ax2, AxDir, Mm, Rc, Vec2
+from .geometry import Ax2, AxDir, Degree, Mm, Rc, Vec2
 from .hole_patterns import HolePattern
 from .print_dims import E
 
+#
+# region Base classes
+#
 
-class Element2D(ABC):
-    """ABC for the 2d shapes that are used for parts."""
+
+@dataclass(frozen=True)
+class Op2:
+    figure: Figure
+    """Figure to combine"""
+    pos: Vec2 = Vec2(0, 0)
+    """offset the figure"""
+    angle: Degree = 0
+    """rotate the figure"""
+    cut: bool = False
+    """cut (i.e. subtract) the figure"""
+
+    def to_location(self) -> Location:
+        return Location((self.pos.y, self.pos.y), angle=self.angle)
+
+    def to_mode(self) -> Mode:
+        return Mode.SUBTRACT if self.cut else Mode.ADD
+
+    def to_bounds(self) -> Rc:
+        """Return the bounding rectangle of the shape with the given `op`"""
+        sin = math.sin(math.radians(self.angle))
+        cos = math.cos(math.radians(self.angle))
+        size = self.figure.size
+        dx = abs(size.y * sin + size.x * cos)
+        dy = abs(size.y * cos + size.x * sin)
+        return Rc(Vec2(dx, dy), self.pos)
+
+
+class Figure(ABC):
+    """ABC for the 2d shapes that are used to form 3d shapes."""
 
     @property
     @abstractmethod
     def size(self) -> Vec2:
-        """Returns the size of the shape in 2d."""
+        """Returns the size of the shape in 2d without any rotation"""
 
     @abstractmethod
     def sketch(self) -> Sketch:
-        """Draw the outline of the shape."""
+        """Draw the outline of the shape according to the `op` ignoring the `op.element` field."""
 
 
-class CircleElement(Element2D):
-    """A circle element"""
+# endregion
+
+#
+# region Specific elemental figures
+#
+
+
+class CircleFigure(Figure):
+    """A circle figure with a `radius`."""
 
     radius: Mm
 
@@ -64,7 +104,7 @@ class CircleElement(Element2D):
         return Circle(self.radius)
 
 
-class RectangleElement(Element2D):
+class RectangleFigure(Figure):
     """A rectangle shape or rounded rectangle shape."""
 
     width: Mm
@@ -139,6 +179,7 @@ class RectangleElement(Element2D):
 
         def hole_fill() -> Sketch:
             assert self.holes is not None, "fill must be provided"
+
             # make a sketch of the holes
             #
             outline = solid_fill().wire()
@@ -153,7 +194,7 @@ class RectangleElement(Element2D):
             return hole_fill()
 
 
-class SlotElement(Element2D):
+class SlotFigure(Figure):
     """A slot shape."""
 
     width: Mm
@@ -178,7 +219,7 @@ class SlotElement(Element2D):
         return SlotOverall(self.width, self.height)
 
 
-class TrapezoidElement(Element2D):
+class TrapezoidFigure(Figure):
     """A trapezoid shape with the major width on the bottom and minor on the top."""
 
     width: Mm
@@ -186,7 +227,6 @@ class TrapezoidElement(Element2D):
     angle1: float
     angle2: float | None = None
     minor_width: Mm | None = None
-    rotate: float = 0
 
     def __init__(
         self,
@@ -195,7 +235,6 @@ class TrapezoidElement(Element2D):
         angle1: float | None = 90,
         angle2: float | None = None,
         minor_width: Mm | None = None,
-        rotate: Mm = 0,
     ) -> None:
         """
         A trapezoid shape with the major width on the bottom and minor on the top.
@@ -206,7 +245,6 @@ class TrapezoidElement(Element2D):
             angle1 (Mm): The interior angle of the first side. Defaults to 90.
             angle2 (Mm): The interior angle of the second side. Defaults to angle1.
             minor_width (Mm): The width of the minor side. Defaults to None.
-            rotate (bool): Whether to rotate the trapezoid. Defaults to False.
         """
         if angle1 is not None and angle2 is not None and minor_width is not None:
             raise ValueError("angle1, angle2, and minor_width cannot all be set")
@@ -231,46 +269,6 @@ class TrapezoidElement(Element2D):
         self.height = height
         self.angle1 = angle1
         self.angle2 = angle2
-        self.rotate = rotate
-
-    @property
-    @override
-    def size(self) -> Vec2:
-        dx = self.height * math.sin(math.radians(self.rotate)) + self.width * math.cos(
-            math.radians(self.rotate)
-        )
-        dy = self.height * math.cos(math.radians(self.rotate)) + self.width * math.sin(
-            math.radians(self.rotate)
-        )
-        return Vec2(dx, dy)
-
-    @override
-    def sketch(self) -> Sketch:
-        return Trapezoid(
-            self.width,
-            self.height,
-            left_side_angle=self.angle1,
-            right_side_angle=self.angle2,
-            rotation=self.rotate,
-        )
-
-
-class RightTriangleElement(Element2D):
-    """A right triangle shape."""
-
-    width: Mm
-    height: Mm
-    flip: bool
-
-    def __init__(self, width: Mm, height: Mm, flip: bool = False) -> None:
-        """
-        Args:
-            width (Mm): The width of the triangle.
-            height (Mm): The height of the triangle.
-        """
-        self.width = width
-        self.height = height
-        self.flip = flip
 
     @property
     @override
@@ -279,154 +277,119 @@ class RightTriangleElement(Element2D):
 
     @override
     def sketch(self) -> Sketch:
+        return Trapezoid(
+            self.width, self.height, left_side_angle=self.angle1, right_side_angle=self.angle2
+        )
+
+
+class TriangleFigure(Figure):
+    """A triangle shape, by default it is an iso-triangle"""
+
+    width: Mm
+    height: Mm
+    tip_ratio: float
+
+    def __init__(self, width: Mm, height: Mm, tip_ratio: float = 0.0) -> None:
+        """
+        Args:
+            width (Mm): The width of the triangle.
+            height (Mm): The height of the triangle.
+        """
+        self.width = width
+        self.height = height
+        self.tip_ratio = tip_ratio
+
+    @property
+    @override
+    def size(self) -> Vec2:
+        return Vec2(max(self.width, abs(self.tip_ratio * self.width / 2)), self.height)
+
+    @override
+    def sketch(self) -> Sketch:
         dx, dy = self.width / 2, self.height / 2
-        pts = [(-dx, -dy), (-dx, dy), (dx, -dy)] if self.flip else [(-dx, -dy), (dx, dy), (dx, -dy)]
+        tip_x = self.tip_ratio * dx
+        pts = [(-dx, -dy), (tip_x, dy), (dx, -dy)]
         return make_face(Polyline(pts, close=True))
 
 
-class AlignedElement(Element2D):
-    """A combined element shape"""
+# endregion
 
-    elements: list[Element2D]
+#
+# region Figures that combine other figures together
+#
+
+
+class CombinedFigure(Figure):
+    ops: Sequence[Op2]
+
+    def __init__(self, ops: Sequence[Op2]) -> None:
+        self.ops = ops
+
+    @override
+    @property
+    def size(self) -> Vec2:
+        return Rc.union(*(op.to_bounds() for op in self.ops)).size
+
+    @override
+    def sketch(self) -> Sketch:
+        # TODO: Reduce fusing operations by combining runs of single modes together first
+        sk = Sketch()
+        for op in self.ops:
+            if op.cut:
+                sk = Sketch(
+                    sk - (Location(op.pos.to_vector(), angle=op.angle) * op.figure.sketch())
+                )
+            else:
+                sk = Sketch(sk + Location(op.pos.to_vector(), angle=op.angle) * op.figure.sketch())
+        return Sketch(sk)
+
+
+class AlignedFigure(CombinedFigure):
+    """A combined figure with all the figures aligned along an axis."""
+
     axis: Ax2
     align: AxDir
 
     def __init__(
-        self, elements: list[Element2D], axis: Ax2 = Ax2.X, align: AxDir = AxDir.CENTER
+        self, figures: Sequence[Figure], axis: Ax2 = Ax2.X, align: AxDir = AxDir.CENTER
     ) -> None:
-        self.elements = elements
         self.axis = axis
         self.align = align
 
-    @property
-    @override
-    def size(self) -> Vec2:
-        if self.axis == Ax2.X:
-            return Vec2(sum(e.size.x for e in self.elements), max(e.size.y for e in self.elements))
-        else:
-            return Vec2(max(e.size.x for e in self.elements), sum(e.size.y for e in self.elements))
-
-    def arrange(self) -> list[Location]:
-        """
-        Arranges a list of elements along an axis, returning their locations.
-        """
-        elem_rects = [Rc(el.size) for el in self.elements]
-        arranged_rects = Rc.arrange(self.axis, self.align, *elem_rects)
-        return [Location(position=rect.center.to_vector()) for rect in arranged_rects]
-
-    @override
-    def sketch(self) -> Sketch:
-        locations = self.arrange()
-        moved_elements: list[Sketch] = [
-            locations[i] * self.elements[i].sketch() for i in range(len(locations))
-        ]
-        # do the fusing all at once
-        return Sketch(moved_elements)
+        fig_rcs = [Rc(fig.size) for fig in figures]
+        arranged_rcs = Rc.arrange(axis, align, *fig_rcs)
+        fig_ops = [Op2(fig, rc.center) for rc, fig in zip(arranged_rcs, figures)]
+        super().__init__(fig_ops)
 
 
-class LocatedElement(Element2D):
-    """An element formed by list of elements with independent locations.
-
-    Args:
-        elements (list[Element2D]): The list of elements or a single element that is repeated.
-        locations (list[Location]): The list of locations.
-    """
-
-    elements: list[Element2D]
-    locations: list[Vec2]
-    _union_rc: Rc
-
-    def __init__(self, elements: list[Element2D] | Element2D, locations: list[Vec2]) -> None:
-        if not isinstance(elements, list):
-            elements = [elements] * len(locations)
-        if len(elements) != len(locations):
-            raise ValueError("locations and elements must have the same length")
-        self.elements = elements
-        self.locations = locations
-        rcs = [Rc(e.size, l) for e, l in zip(self.elements, self.locations)]
-        self._union_rc = Rc.union(*rcs)
-
-    @property
-    def size(self) -> Vec2:
-        return self._union_rc.size
-
-    def sketch(self) -> Sketch:
-        moved_elements: list[Sketch] = [
-            Location((l - self._union_rc.center).to_vector()) * e.sketch()
-            for e, l in zip(self.elements, self.locations)
-        ]
-        return Sketch(moved_elements)
-
-
-class CutoutElement(Element2D):
+class CutoutFigure(CombinedFigure):
     """Create an element that has a `base` with a `cutout` elements"""
 
-    base: Element2D
-    cutout: Element2D
-    cutout_offset: Vec2
+    base: Figure
+    cutout: Figure
 
-    def __init__(self, base: Element2D, cutout: Element2D, offset: Vec2 | None = None) -> None:
-        if offset is None:
-            offset = Vec2(0, 0)
-        if not Rc(cutout.size, offset).is_within(Rc(base.size)):
-            raise ValueError("cutout must be within base")
+    def __init__(self, base: Figure, cutout: Figure) -> None:
+        fig_ops = [Op2(base), Op2(cutout, cut=True)]
+        super().__init__(fig_ops)
         self.base = base
         self.cutout = cutout
-        self.cutout_offset = offset
-
-    @property
-    def size(self) -> Vec2:
-        return self.base.size
-
-    def sketch(self) -> Sketch:
-        return Sketch(
-            self.base.sketch() - Location(self.cutout_offset.to_vector()) * self.cutout.sketch()
-        )
 
 
-class RingElement(Element2D):
-    """Create an element that has a `base` with a `cutout` elements"""
-
-    base: Element2D
-    """The base shape"""
-    outset: Mm
-    """The outset amount (may be negative for an inset)"""
-
-    def __init__(self, base: Element2D, outset: Mm) -> None:
-        if abs(outset) < E:
-            raise ValueError("outset must not be 0")
-        self.base = base
-        self.outset = outset
-
-    @property
-    def size(self) -> Vec2:
-        return (
-            self.base.size
-            if self.outset < 0
-            else self.base.size + Vec2(2 * self.outset, 2 * self.outset)
-        )
-
-    def sketch(self) -> Sketch:
-        base = self.base.sketch()
-        outset = offset(base, self.outset)
-        inner, outer = (base, outset) if self.outset > 0 else (outset, base)
-        return Sketch(outer - inner)
-
-
-class OutsetElement(Element2D):
+class OutsetFigure(Figure):
     """Create an element that is a `base` element that is outset by `amount`"""
 
-    base: Element2D
+    base: Figure
     """The base shape"""
     outset: Mm
     """The outset amount (may be negative for an inset)"""
 
-    def __init__(self, base: Element2D, outset: Mm) -> None:
+    def __init__(self, base: Figure, outset: Mm) -> None:
         if abs(outset) < E:
             raise ValueError("outset must not be 0")
         self.base = base
         self.outset = outset
 
+    @override
     @property
     def size(self) -> Vec2:
         return (
@@ -435,6 +398,49 @@ class OutsetElement(Element2D):
             else self.base.size + Vec2(2 * self.outset, 2 * self.outset)
         )
 
+    @override
     def sketch(self) -> Sketch:
         base = self.base.sketch()
         return Sketch(offset(base, self.outset))
+
+
+class RotatedFigure(Figure):
+    """Create an figure that is a `base` rotated by `angle`"""
+
+    base: Figure
+    """The base shape"""
+    angle: Degree
+    """The outset amount (may be negative for an inset)"""
+    _op2: Op2
+
+    def __init__(self, base: Figure, angle: Degree) -> None:
+        self.base = base
+        self.angle = angle
+        self._op2 = Op2(base, angle=angle)
+
+    @override
+    @property
+    def size(self) -> Vec2:
+        return self._op2.to_bounds().size
+
+    @override
+    def sketch(self) -> Sketch:
+        return self._op2.to_location() * self.base.sketch()
+
+
+class RingFigure(CombinedFigure):
+    """Create a figure that is a ring of a `base` figure."""
+
+    base: Figure
+    outset: Mm
+
+    def __init__(self, base: Figure, outset: Mm) -> None:
+        outset_fig = OutsetFigure(base, outset)
+        outer, inner = (outset_fig, base) if outset > 0 else (base, outset_fig)
+        fig_ops = [Op2(outer), Op2(inner, cut=True)]
+        super().__init__(fig_ops)
+        self.base = base
+        self.outset = outset
+
+
+# endregion

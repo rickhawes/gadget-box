@@ -40,7 +40,12 @@ class Layout(ABC):
             area (Rc): The area to place the features on
         """
 
-    def render_features(self, features: FeatureList, maker: Assembler, area: Rc | None = None, ) -> None:
+    def render_features(
+        self,
+        features: FeatureList,
+        maker: Assembler,
+        area: Rc | None = None,
+    ) -> None:
         """
         Render all `features` using the given `plate` and `layout` algorithm.
         """

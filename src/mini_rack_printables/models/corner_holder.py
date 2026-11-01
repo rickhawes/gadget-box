@@ -5,12 +5,12 @@ are cut out of holder's shape.
 
 from typing import override
 
+from ..core.assembler import Assembler
 from ..core.corners import InsetCorners
-from ..core.elements_2d import CutoutElement, Element2D, RectangleElement, RingElement
 from ..core.elements_3d import PrismElement
 from ..core.feature import Feature
-from ..core.geometry import Bx, Mm, Vec2
-from ..core.piece import Piece
+from ..core.figures import CutoutFigure, Figure, RectangleFigure, RingFigure
+from ..core.geometry import Mm, Vec2
 
 
 class CornerHolder(Feature):
@@ -19,7 +19,7 @@ class CornerHolder(Feature):
     are cut out of holder's shape.
     """
 
-    shape: Element2D
+    shape: Figure
     corner_width: Mm
     corner_height: Mm
     wall_depth: Mm
@@ -27,7 +27,7 @@ class CornerHolder(Feature):
 
     def __init__(
         self,
-        shape: Element2D,
+        shape: Figure,
         corner_width: Mm = 10.0,
         corner_height: Mm = 10.0,
         wall_depth: Mm = 5.0,
@@ -37,7 +37,7 @@ class CornerHolder(Feature):
         Initialize a holder with the given style, device size, and optional label, align, shift, and padding.
 
         Args:
-            shape (Element2D): The shape of the device to hold.
+            shape (Figure): The shape of the device to hold.
             corner_width (float): The width of the corner cutout. Defaults to 5.0.
             corner_height (float): The height of the corner cutout. Defaults to 5.0.
             wall_depth (float): The depth of the holder's corner. Defaults to 5.0.
@@ -66,14 +66,14 @@ class CornerHolder(Feature):
         return Feature.DesiredSize(size, False)
 
     @override
-    def render(self, plate: Bx) -> list[Piece]:
+    def render(self, maker: Assembler) -> None:
         # dimensions
         w, d = self.wall_thickness, self.wall_depth
         cw = self.corner_width
         size = self.shape.size
 
         # sketch the holder shape
-        cross = RectangleElement(size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w))
-        holder = RingElement(self.shape, w)
-        sk = CutoutElement(holder, cross)
-        return [PrismElement(sk, d).render()]
+        cross = RectangleFigure(size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w))
+        holder = RingFigure(self.shape, w)
+        co = CutoutFigure(holder, cross)
+        maker.place_element(PrismElement(co, d))

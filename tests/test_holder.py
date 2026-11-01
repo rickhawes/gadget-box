@@ -4,7 +4,7 @@ from mini_rack_printables import (
     FeatureXRayModel,
     ModelLogger,
     PuckHolder,
-    RectangleElement,
+    RectangleFigure,
     Vec3,
 )
 
@@ -46,7 +46,7 @@ def test_puck_holder(viewer_logger: ModelLogger) -> None:
 
 
 def test_corner_holder(viewer_logger: ModelLogger) -> None:
-    holder = CornerHolder(RectangleElement(80, 30, 2))
+    holder = CornerHolder(RectangleFigure(80, 30, 2))
     xray = FeatureXRayModel(holder, only_adds=False)
     compound = xray.render()
     rendering = xray.render()

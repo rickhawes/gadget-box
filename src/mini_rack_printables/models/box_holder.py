@@ -3,9 +3,9 @@ from typing import override
 
 from ..core.assembler import Assembler
 from ..core.corners import InsetCorners
-from ..core.elements_2d import CutoutElement, OutsetElement, RectangleElement, RingElement
 from ..core.elements_3d import PlateElement, PrismElement, StackElement
 from ..core.feature import Feature, Rib
+from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure, RingFigure
 from ..core.geometry import AxDir3, Bx, Dir2, Mm, Vec2, Vec3
 from ..core.hole_patterns import HexFill
 from ..core.piece import Piece
@@ -100,9 +100,9 @@ class BoxHolder(Feature):
             Make the corners of the holder by sketching a ring and subtracting a cross where walls will go.
             """
             corners = PrismElement(
-                CutoutElement(
-                    base=RingElement(RectangleElement(dx, dy, r), w),
-                    cutout=RectangleElement(dx + 2 * w, dy + 2 * w, InsetCorners(w + e + r)),
+                CutoutFigure(
+                    base=RingFigure(RectangleFigure(dx, dy, r), w),
+                    cutout=RectangleFigure(dx + 2 * w, dy + 2 * w, InsetCorners(w + e + r)),
                 ),
                 holder_depth,
             )
@@ -144,10 +144,10 @@ class BoxHolder(Feature):
         def add_back_lip(maker: Assembler) -> None:
             assert self.style.back_lip is not None
             # start with the device and form the outer wall and the inner lip
-            device = RectangleElement(dx, dy, r)
-            outer = OutsetElement(device, w)
-            inner = OutsetElement(device, -self.style.back_lip.width)
-            lip = PrismElement(CutoutElement(outer, inner), self.style.back_lip.depth)
+            device = RectangleFigure(dx, dy, r)
+            outer = OutsetFigure(device, w)
+            inner = OutsetFigure(device, -self.style.back_lip.width)
+            lip = PrismElement(CutoutFigure(outer, inner), self.style.back_lip.depth)
             maker.place_element(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
 
         # Cutout if needed

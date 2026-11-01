@@ -1,9 +1,9 @@
 from typing import override
 
+from ..core.assembler import Assembler
 from ..core.feature import Feature
 from ..core.geometry import Bx, Mm, Vec2
 from ..core.piece import Piece
-from ..core.assembler import Assembler
 
 
 class Spacer(Feature):

@@ -1,11 +1,11 @@
 from mini_rack_printables import (
-    CircleElement,
+    CircleFigure,
     Cutout,
     Dir2,
     Faceplate,
-    RectangleElement,
+    RectangleFigure,
     RowLayout,
-    SlotElement,
+    SlotFigure,
 )
 
 #
@@ -14,9 +14,9 @@ from mini_rack_printables import (
 #
 
 # Cutout
-partLeft = Cutout(CircleElement(5.0))
-partCenter = Cutout(RectangleElement(10.0, 5.0))
-partRight = Cutout(SlotElement(10.0, 5.0), rib=Faceplate.STD_RIB)
+partLeft = Cutout(CircleFigure(5.0))
+partCenter = Cutout(RectangleFigure(10.0, 5.0))
+partRight = Cutout(SlotFigure(10.0, 5.0), rib=Faceplate.STD_RIB)
 
 # A basic faceplate with row layout
 plate = Faceplate(

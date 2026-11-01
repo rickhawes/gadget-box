@@ -1,10 +1,10 @@
-from mini_rack_printables import CircleElement, Cutout, Faceplate
+from mini_rack_printables import CircleFigure, Cutout, Faceplate
 
 #
 # Minimal example of a faceplate with a circle cutout feature
 #
 
-cutout = Cutout(CircleElement(10.0), rib=Faceplate.STD_RIB)
+cutout = Cutout(CircleFigure(10.0), rib=Faceplate.STD_RIB)
 plate = Faceplate(rack_units=1.0, features=[[cutout, cutout]]).render()
 
 plate.show()

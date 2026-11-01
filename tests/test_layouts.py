@@ -13,8 +13,8 @@ from mini_rack_printables import (
     Layout,
     MeasuredRowsColumns,
     ModelLogger,
-    RectangleElement,
     Rc,
+    RectangleFigure,
     RowColumnCollection,
     RowLayout,
     Spacer,
@@ -374,10 +374,11 @@ def test_sparse_equal_grid(viewer_logger: ModelLogger) -> None:
     sections = layout.layout_features([[p1, p2, p3], [p1, p2], [p1]], plate)
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
-def test_render_features(viewer_logger: ModelLogger) -> None:
-    c1 = Cutout(RectangleElement(5, 5))
 
-    # center 
+def test_render_features(viewer_logger: ModelLogger) -> None:
+    c1 = Cutout(RectangleFigure(5, 5))
+
+    # center
     m1 = Assembler.make_with_element(BoxElement(60, 60, 10))
     l1 = RowLayout()
     l1.render_features([[c1, c1]], m1)
@@ -386,6 +387,6 @@ def test_render_features(viewer_logger: ModelLogger) -> None:
 
     m2 = Assembler.make_with_element(BoxElement(60, 60, 10))
     l2 = RowLayout(place=Dir2.SIDE_BOTTOM, spacing=5)
-    l2.render_features([[c1, c1]], m1)
+    l2.render_features([[c1, c1]], m2)
     r2 = m2.make_rendering()
     viewer_logger.log(r2.part)

@@ -4,7 +4,7 @@ from mini_rack_printables import (
     CylinderElement,
     Model,
     PrismElement,
-    SlotElement,
+    SlotFigure,
     Vec2,
     Vec3,
 )
@@ -15,7 +15,7 @@ class PlateWithHoles(Model):
 
     def render(self) -> Model.Rendering:
         base = BoxElement(self.size.x, self.size.y, self.size.z)
-        hole = PrismElement(SlotElement(10, 5), self.size.z)
+        hole = PrismElement(SlotFigure(10, 5), self.size.z)
         stand = CylinderElement(5, 10)
 
         # Assembler is used to assemble this model

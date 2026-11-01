@@ -2,7 +2,7 @@
 3D Elements for models and parts. Elements are the primitives that are to form a model.
 
 See Also:
-    Elements2d - for the two equivalent
+    `Figure` - for the 2d equivalent
 """
 
 from abc import ABC, abstractmethod
@@ -29,7 +29,7 @@ from build123d import (
 )
 
 from .corners import Corners
-from .elements_2d import Element2D, RectangleElement, RingElement
+from .figures import Figure, RectangleFigure, RingFigure
 from .geometry import Degree, Mm, Vec3
 from .hole_patterns import HolePattern
 from .piece import Piece
@@ -51,11 +51,11 @@ class Element3D(ABC):
 class PrismElement(Element3D):
     """A prism element is just an extrusion of a 2d shape."""
 
-    element: Element2D
+    element: Figure
     amount: Mm
     taper: Degree
 
-    def __init__(self, element: Element2D, amount: Mm, taper: Degree = 0) -> None:
+    def __init__(self, element: Figure, amount: Mm, taper: Degree = 0) -> None:
         self.element = element
         self.amount = amount
         self.taper = taper
@@ -75,15 +75,15 @@ class PrismElement(Element3D):
 
 
 class TubeElement(PrismElement):
-    def __init__(self, base: Element2D, thickness: Mm, amount: Mm) -> None:
-        super().__init__(RingElement(base, thickness), amount)
+    def __init__(self, base: Figure, thickness: Mm, amount: Mm) -> None:
+        super().__init__(RingFigure(base, thickness), amount)
 
 
 class BoxElement(PrismElement):
     """A box element is a 3d cuboid"""
 
     def __init__(self, dx: Mm, dy: Mm, dz: Mm) -> None:
-        super().__init__(RectangleElement(dx, dy), dz)
+        super().__init__(RectangleFigure(dx, dy), dz)
 
 
 class PlateElement(PrismElement):
@@ -97,7 +97,7 @@ class PlateElement(PrismElement):
         corners: Mm | Corners | None = None,
         holes: HolePattern | None = None,
     ) -> None:
-        super().__init__(RectangleElement(width, height, corners, holes), depth)
+        super().__init__(RectangleFigure(width, height, corners, holes), depth)
 
 
 class CylinderElement(Element3D):

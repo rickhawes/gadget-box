@@ -7,8 +7,8 @@ from mini_rack_printables.models.rack_dims import RackDims, ShelfTabDims, rack_u
 
 # from mini_rack_printables.models.holes import sketch_rack_holes
 from ..core.corners import SquareCorners
-from ..core.elements_2d import Element2D, RectangleElement, TrapezoidElement
 from ..core.feature import FeatureList
+from ..core.figures import Figure, RectangleFigure, TrapezoidFigure
 from ..core.geometry import Ax3, Bx, Dir2, Mm, Vec3
 from ..core.hole_patterns import HexFill
 from ..core.layouts import GridLayout, Layout
@@ -107,21 +107,21 @@ class Shelf(Model):
                 )
                 .rotated((180, 0, 0))
             )
-            wall_base = RectangleElement(inset, 2 * base_size.z)
-            wall_trans = TrapezoidElement(
+            wall_base = RectangleFigure(inset, 2 * base_size.z)
+            wall_trans = TrapezoidFigure(
                 wall_size.y,
                 wall_size.x / 2 - inset,
                 angle1=90,
                 minor_width=2 * base_size.z,
                 rotate=90,
             )
-            wall_holes = RectangleElement(
+            wall_holes = RectangleFigure(
                 wall_size.x / 2,
                 wall_size.y,
                 fill=HexFill(),
                 corners=SquareCorners(base_size.z),  # insets the fill area a bit
             )
-            wall_sketch = Element2D.combine([wall_base, wall_trans, wall_holes], Ax3.X, Dir2.BOTTOM)
+            wall_sketch = Figure.combine([wall_base, wall_trans, wall_holes], Ax3.X, Dir2.BOTTOM)
             return wall_plane * extrude(wall_sketch, wall_size.z)
 
         # add face
@@ -134,14 +134,14 @@ class Shelf(Model):
             face_plane = select_plane(base_plate, Direction.MIN_Y).moved(
                 Location((0, (face_size.y - base_size.z) / 2, -face_size.z))
             )
-            face_sketch = RectangleElement(
+            face_sketch = RectangleFigure(
                 face_size.x, face_size.y, self.style.face_rounding
             ).sketch()
             face_sketch -= sketch_rack_holes(
                 self.rack_units, self.style.middle_holes, self.style.half_height_bottom
             )
             if self.style.open_face:
-                face_sketch -= RectangleElement(
+                face_sketch -= RectangleFigure(
                     ShelfTabDims.MAX_DX_TABS - 2 * self.style.wall_thickness, face_size.y
                 ).sketch()
 
@@ -150,7 +150,7 @@ class Shelf(Model):
         # shelf
         def make_shelf() -> Part:
             s = Part()
-            base_plate = extrude_element(RectangleElement(base_size.x, base_size.y), base_size.z)
+            base_plate = extrude_element(RectangleFigure(base_size.x, base_size.y), base_size.z)
             s += base_plate
             wall = make_wall(base_plate)
             s += wall

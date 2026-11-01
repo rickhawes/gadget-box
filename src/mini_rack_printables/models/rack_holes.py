@@ -6,7 +6,7 @@ import math
 
 from build123d import Location, LocationList, Sketch
 
-from ..core.elements_2d import SlotElement
+from ..core.figures import SlotFigure
 from ..core.geometry import Mm, Vec2
 from ..core.hole_patterns import HolePattern
 from .rack_dims import (
@@ -89,7 +89,7 @@ def layout_rack_screw_holes(
     ]
 
 
-class RackHoleElement(SlotElement):
+class RackHoleFigure(SlotFigure):
     """A single hole for a rack faceplate"""
 
     def __init__(self) -> None:
@@ -112,4 +112,4 @@ class RackHolePattern(HolePattern):
         return LocationList([Location(l.to_vector()) for l in locs])
 
     def sketch(self) -> Sketch:
-        return RackHoleElement().sketch()
+        return RackHoleFigure().sketch()
