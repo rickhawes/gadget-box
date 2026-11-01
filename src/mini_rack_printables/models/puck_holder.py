@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import override
 
-from build123d import Box, BuildSketch, Location, Mode, Part, Pos, extrude, insert
-
-from ..core.corners import InsetCorners, RoundedCorners, SelectedCorners
+from ..core.assembler import Assembler
+from ..core.corners import RoundedCorners, SelectedCorners
+from ..core.elements_3d import PrismElement
 from ..core.feature import Feature
 from ..core.figures import RectangleFigure
-from ..core.geometry import Bx, Mm, Vec2, Vec3
-from ..core.hole_patterns import HexFill
-from ..core.piece import Piece
+from ..core.geometry import AxDir3, Bx, Mm, Vec2, Vec3
+from .basic_holder import BasicHolderStyle, make_basic_holder
 
 
 class PuckHolder(Feature):
@@ -23,11 +22,11 @@ class PuckHolder(Feature):
     """
 
     device_size: Vec3
-    """The size of the device from the front perspective."""
+    """The size of the device from the front perspective (XY plane)"""
     device_rounding: Mm
     """The rounding of the corners of the device"""
     style: Style
-    """The style of the corner"""
+    """The style of the holder"""
 
     @dataclass
     class Style:
@@ -36,9 +35,7 @@ class PuckHolder(Feature):
         """
 
         has_cutout: bool = True
-        """Does the holder have a cutout for the device?"""
-        corner_rounding: Mm = 1.0
-        """The rounding of the holder's corners."""
+        """Does the holder have a cutout for the front of the device?"""
         corner_edges: Mm = 1.0
         """The extra width of the corner edges."""
         wall_thickness: Mm = 2.5
@@ -81,69 +78,41 @@ class PuckHolder(Feature):
         return Feature.DesiredSize(size)
 
     @override
-    def render(self, plate: Bx) -> list[Piece]:
+    def render(self, maker: Assembler) -> None:
         # geometry
         dx, dy, dz = self.device_size.to_tuple()
+        pd = maker.plate_depth
         r = self.device_rounding
-        walls_depth = self.device_size.z - r
-        walls_z = r - (plate.size.z if self.style.has_cutout else 0)
         w = self.style.wall_thickness
-        e = self.style.corner_edges
-        dc = e  # corner width
+        ce = self.style.corner_edges
 
-        def make_block_with_corners() -> Part:
+        def add_front_block(plate_maker: Assembler, front_size: Vec3) -> None:
             """
             Make the block of the holder by sketching the device block + extra for the corners.
             """
-            with BuildSketch() as sk:
-                _ = insert(
-                    RectangleFigure(dx + 2 * w, dy + 2 * w, self.style.corner_rounding).sketch()
-                )
-                _ = insert(
-                    RectangleFigure(dx + 2 * w, dy + 2 * w, InsetCorners(w + e)).sketch(),
-                    mode=Mode.SUBTRACT,
-                )
-                _ = insert(RectangleFigure(dx, dy).sketch())
-            assert sk.sketch is not None
-            # pyrefly: ignore[bad-argument-type]
-            return Location((0, 0, walls_z)) * extrude(sk.sketch, amount=walls_depth)
+            block = PrismElement(
+                RectangleFigure(front_size.x + 2 * w, front_size.y + 2 * w, w), front_size.z
+            )
+            plate_maker.place_element(block)
 
-        def make_walls() -> Part:
-            """
-            Make the walls of the holder as 4 plates with room for the corners.
-            """
-            top = make_plate(Vec3(walls_depth, dx - 2 * dc, w), HexFill())
-            side = make_plate(Vec3(walls_depth, dy - 2 * dc, w), HexFill())
-            # place around a box the size of the device
-            device_box = Pos(0, 0, walls_depth / 2 + walls_z) * Box(dx, dy, walls_depth)
-            # side_locs = select_locations(device_box, [Direction.RIGHT, Direction.LEFT])
-            # top_locs = select_locations(device_box, [Direction.TOP, Direction.BOTTOM])
-            # with BuildPart() as pb:
-            #     _ = insert(top_locs[0] * top)
-            #     _ = insert(side_locs[0] * side)
-            #     _ = insert(top_locs[1] * top)
-            #     _ = insert(side_locs[1] * side)
-            assert pb.part is not None
-            return pb.part
-
-        def make_puck_cutout() -> Part:
-            device_dz = dz / 2 if self.style.has_cutout else dz / 2 + plate_planes.depth
-            device_box = Pos(0, 0, device_dz) * Box(dx, dy, dz)
-            base_loc = select_location(device_box, Direction.BOTTOM, flip=True)
+        def sub_device_cutout(maker: Assembler) -> None:
+            device_center = Vec3(0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2))
+            device_cutout_bx = Bx(self.device_size, device_center).side_bx(AxDir3.Y_MINUS)
+            device_cutout_maker = maker.make_sub(
+                device_cutout_bx, z_dir=AxDir3.Y_PLUS, cutout_mode=True
+            )
             # puck shape by selectively using rounded corners
-            corners = SelectedCorners(RoundedCorners(r), top_left=True, bottom_left=True)
-            base_sketch = RectangleFigure(dx, dz, corners).sketch()
-            return Part(base_loc * extrude(base_sketch, amount=dy))
+            corners = SelectedCorners(RoundedCorners(r), bottom_left=True, bottom_right=True)
+            cutout = PrismElement(RectangleFigure(dx, dz, corners), dy)
+            device_cutout_maker.place_element(cutout)
 
-        # basic holder shape
-        holder = extrude_element(
-            RectangleFigure(dx + 2 * w, dy + 2 * w, self.style.corner_rounding),
-            walls_z,
+        front_dz = max(r - pd if self.style.has_cutout else r, 0)
+        front_size = Vec3(dx, dy, front_dz)
+        add_front_block(maker, front_size)
+        wall_maker = maker.make_sub(Bx(front_size, Vec3(0, 0, front_dz / 2)))
+        make_basic_holder(
+            wall_maker,
+            Vec3(dx, dy, dz - r),
+            BasicHolderStyle(outer_radius=w, corner_edge=ce, wall_thickness=w),
         )
-        holder += make_block_with_corners()
-        holder += make_walls()
-
-        return [
-            Piece(plate_planes.top_plane * holder),
-            Piece(plate_planes.bottom_plane * make_puck_cutout(), cut=True),
-        ]
+        sub_device_cutout(maker)

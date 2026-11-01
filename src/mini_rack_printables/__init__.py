@@ -43,7 +43,7 @@ from .models.import_feature import ImportFeature
 from .models.jetkvm import JetKVM
 from .models.keystone import Keystone
 from .models.puck_holder import PuckHolder
-from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims
+from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims, rack_units_to_mm
 from .models.rack_holes import RackHoleFigure, RackHolePattern, layout_rack_screw_holes
 from .models.shelf import Shelf
 from .models.spacer import Spacer
@@ -94,6 +94,7 @@ __all__ = [
     "ModelLogger",
     "PrismElement",
     "PuckHolder",
+    "rack_units_to_mm",
     "RackDims",
     "RackScrewDims",
     "RackHoleFigure",

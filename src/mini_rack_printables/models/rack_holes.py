@@ -33,7 +33,7 @@ def layout_rack_screw_holes(
         half_height_bottom: The bottom will start on the middle hole
 
     Returns:
-            A list of offsets (y values) from the bottom of the rack. A single rack unit will have a
+            A list of vecs from the bottom of  from the bottom of the rack. A single rack unit will have a
             top and bottom hole and if `middle_holes` is `True`, a middle hole will be returned as well.
     """
 

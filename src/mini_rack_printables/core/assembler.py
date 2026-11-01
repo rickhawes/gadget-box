@@ -142,9 +142,9 @@ class Assembler:
         """Create a sub-assembler with defaults of the current assembler.
 
         Args:
-            plate (Bx) - plate in global
+            plate (Bx) - plate in relative to self
             side (AxDir3) - Side in realtive
-            cut_default -
+            cutout_mode - The maker should
         """
         if plate is None:
             # take the current plate which is global and make a local copy

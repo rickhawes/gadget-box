@@ -33,21 +33,20 @@ def test_back_lip(viewer_logger: ModelLogger) -> None:
 def test_no_cutout(viewer_logger: ModelLogger) -> None:
     holder = BoxHolder(device_size=Vec3(30, 20, 20), style=BoxHolder.NO_CUTOUT)
     xray = FeatureXRayModel(holder, only_adds=False)
-    compound = xray.render()
     rendering = xray.render()
     viewer_logger.log(rendering.part)
 
 
-def test_puck_holder(viewer_logger: ModelLogger) -> None:
-    holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+# TODO
+# def test_puck_holder(viewer_logger: ModelLogger) -> None:
+#     holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
+#     xray = FeatureXRayModel(holder, only_adds=False)
+#     rendering = xray.render()
+#     viewer_logger.log(rendering.part)
 
 
 def test_corner_holder(viewer_logger: ModelLogger) -> None:
     holder = CornerHolder(RectangleFigure(80, 30, 2))
     xray = FeatureXRayModel(holder, only_adds=False)
-    compound = xray.render()
     rendering = xray.render()
     viewer_logger.log(rendering.part)

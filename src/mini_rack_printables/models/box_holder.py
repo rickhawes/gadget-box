@@ -1,14 +1,15 @@
 from dataclasses import dataclass
 from typing import override
 
+from mini_rack_printables.models.basic_holder import make_basic_holder
+
 from ..core.assembler import Assembler
 from ..core.corners import InsetCorners
 from ..core.elements_3d import PlateElement, PrismElement, StackElement
 from ..core.feature import Feature, Rib
 from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure, RingFigure
 from ..core.geometry import AxDir3, Bx, Dir2, Mm, Vec2, Vec3
-from ..core.hole_patterns import HexFill
-from ..core.piece import Piece
+from .basic_holder import BasicHolderStyle, make_basic_holder
 
 
 class BoxHolder(Feature):
@@ -29,7 +30,7 @@ class BoxHolder(Feature):
     style: Style
     """Style of the holder."""
 
-    @dataclass
+    @dataclass(frozen=True)
     class Style:
         """
         Represents the style of a wall holder, including cutout presence and lip dimensions.
@@ -95,31 +96,6 @@ class BoxHolder(Feature):
         e = 1.0  # corner edge
         dc = e + r  # corner width
 
-        def add_corners(maker: Assembler) -> None:
-            """
-            Make the corners of the holder by sketching a ring and subtracting a cross where walls will go.
-            """
-            corners = PrismElement(
-                CutoutFigure(
-                    base=RingFigure(RectangleFigure(dx, dy, r), w),
-                    cutout=RectangleFigure(dx + 2 * w, dy + 2 * w, InsetCorners(w + e + r)),
-                ),
-                holder_depth,
-            )
-            maker.place_element(corners)
-
-        def add_walls(maker: Assembler) -> None:
-            """
-            Make the walls of the holder as 4 plates with room for the corners.
-            """
-            # build around the a box defined by the device
-            device_bx = maker.place_bounds(size=Vec3(dx, dy, holder_depth))
-            for side in [AxDir3.X_PLUS, AxDir3.X_MINUS, AxDir3.Y_PLUS, AxDir3.Y_MINUS]:
-                plate_sub = maker.make_sub(device_bx, side)
-                size = device_bx.side_size(side) - Vec2(2 * r, 0)
-                block = PlateElement(size.x, size.y, w, holes=HexFill())
-                plate_sub.place_element(block)
-
         def add_cutout(maker: Assembler) -> None:
             """
             Make the cutout for the holder.
@@ -155,8 +131,16 @@ class BoxHolder(Feature):
             add_cutout(maker)
 
         # Basic holder shape
-        add_corners(maker)
-        add_walls(maker)
+        make_basic_holder(
+            maker,
+            Vec3(dx, dy, holder_depth),
+            BasicHolderStyle(
+                outer_radius=r + w,
+                inner_radius=r,
+                wall_thickness=self.style.wall_thickness,
+                corner_edge=e,
+            ),
+        )
 
         # Add the back lip if needed
         if self.style.back_lip is not None:
