@@ -13,12 +13,15 @@ from .piece import Piece
 class Assembler:
     """Helper to assemble elements for models and features.
 
-    TODO: explain...
-
     See Also:
         `Model` - Used by Model subclasses to assemble elements together
         `Feature` - Used by Feature subclasses to assemble elements together
         `Element3D` - the building blocks that are assembled together
+
+    TODO:
+        - Improve help
+        - Rename to Maker
+        - Calculate the bounding box of the assembled pieces
     """
 
     # the base to place things on
@@ -42,8 +45,6 @@ class Assembler:
     """Assemblers attached to this model"""
     _pieces: list[Piece] | None = None
     """If this is a top-level assembler, all the pieces"""
-    _last_element_bx: Bx | None = None
-    """The the bounds of the last element that was placed. Useful for creating subs."""
 
     # properties
     @property

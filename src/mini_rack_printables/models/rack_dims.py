@@ -28,6 +28,8 @@ class RackDims(float, Enum):
     """Depth of a 10 inch (tecmojo variety)"""
     HEIGHT_1U = 44.50
     """Height of a 1u rack"""
+    SHELF_WIDTH = 222.25
+    """The width of the shelf"""
 
 
 class RackScrewDims(float, Enum):

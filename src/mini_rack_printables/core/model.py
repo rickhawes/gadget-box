@@ -1,4 +1,8 @@
-"""Classes to model a 3D printable"""
+"""Classes to model a 3D printable
+
+TODO:
+    - Replace models with functions that produce a top-level Rendering, rename module to rendering.py
+"""
 
 import sys
 from abc import ABC, abstractmethod

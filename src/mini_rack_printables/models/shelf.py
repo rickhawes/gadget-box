@@ -1,18 +1,23 @@
 from dataclasses import dataclass
 from typing import final, override
 
-from build123d import Location, Part, Plane, Sketch, extrude, mirror
-
-from mini_rack_printables.models.rack_dims import RackDims, ShelfTabDims, rack_units_to_mm
-
-# from mini_rack_printables.models.holes import sketch_rack_holes
+from ..core.assembler import Assembler
 from ..core.corners import SquareCorners
+from ..core.elements_3d import PlateElement, PrismElement
 from ..core.feature import FeatureList
-from ..core.figures import Figure, RectangleFigure, TrapezoidFigure
-from ..core.geometry import Ax3, Bx, Dir2, Mm, Vec3
+from ..core.figures import (
+    AlignedFigure,
+    CutoutFigure,
+    RectangleFigure,
+    RotatedFigure,
+    TrapezoidFigure,
+)
+from ..core.geometry import Ax2, AxDir, AxDir3, Bx, Mm, Vec3
 from ..core.hole_patterns import HexFill
 from ..core.layouts import GridLayout, Layout
 from ..core.model import Model
+from .rack_dims import RackDims, ShelfTabDims, rack_units_to_mm
+from .rack_holes import RackHolePattern
 
 
 @final
@@ -33,8 +38,8 @@ class Shelf(Model):
         """Rounding of the face of the rack shelf."""
         shelf_depth: Mm = RackDims.DEPTH_8INCH
         """Whether the rack shelf has a ten inch depth."""
-        wall_inset: float = 20
-        """Inset of the from the back of the rack shelf."""
+        shelf_back_depth: float = 20
+        """The back of the shelf has a small inset."""
         open_face: bool = True
         """Whether the face of the rack shelf is open or closed."""
         middle_holes: bool = True
@@ -68,100 +73,75 @@ class Shelf(Model):
         self.style = style
         self.shelf_features = shelf_features
         self.shelf_layout = shelf_layout if shelf_layout is not None else GridLayout()
-        assert 4 * style.wall_inset < style.shelf_depth, (
+        assert 4 * style.shelf_back_depth < style.shelf_depth, (
             "wall_inset must be less than shelf_depth / 4"
         )
 
     @override
     def render(self) -> Model.Rendering:
         # geometry
-        base_size = Vec3(
-            ShelfTabDims.MAX_DX_TABS,
+        plate_size = Vec3(
+            RackDims.SHELF_WIDTH,
             self.style.shelf_depth,
             self.style.base_thickness,
         )
-        plate_size = Vec3(
-            base_size.x - 2 * self.style.wall_thickness,
-            base_size.y - self.style.face_thickness,
-            base_size.z,
-        )
+        exterior_dz = rack_units_to_mm(self.rack_units)
+        exterior_bx = Bx(plate_size.x, plate_size.y, exterior_dz, 0, 0, exterior_dz / 2)
+        interior_dz = rack_units_to_mm(self.rack_units) - plate_size.z
+        interior_dx = plate_size.x - 2 * self.style.wall_thickness
+        interior_bx = Bx(interior_dx, plate_size.y, interior_dz, 0, 0, interior_dz / 2)
 
         # wall
-        def make_wall(base_plate: Part) -> Part:
-            wall_size = Vec3(
-                base_size.y,
-                rack_units_to_mm(self.rack_units),
-                self.style.wall_thickness,
-            )
-            inset = self.style.wall_inset
-            wall_plane = (
-                select_plane(base_plate, Direction.MIN_X)
-                .moved(
-                    Location(
-                        (
-                            (wall_size.x - base_size.y) / 2,
-                            -wall_size.y / 2 + base_size.z / 2,
-                            -wall_size.z,
-                        )
-                    )
-                )
-                .rotated((180, 0, 0))
-            )
-            wall_base = RectangleFigure(inset, 2 * base_size.z)
-            wall_trans = TrapezoidFigure(
+        def make_walls(plate_maker: Assembler) -> None:
+            # Make a wall block that is a combination of of figures
+            wall_size = Vec3(plate_size.y, interior_dz, self.style.wall_thickness)
+            shelf_back = self.style.shelf_back_depth
+            wall_back = RectangleFigure(shelf_back, 2 * plate_size.z)
+            wall_trap = TrapezoidFigure(
                 wall_size.y,
-                wall_size.x / 2 - inset,
+                wall_size.x / 2 - shelf_back,
                 angle1=90,
-                minor_width=2 * base_size.z,
-                rotate=90,
+                minor_width=2 * plate_size.z,
             )
+            wall_trap = RotatedFigure(wall_trap, angle=90)
             wall_holes = RectangleFigure(
                 wall_size.x / 2,
                 wall_size.y,
-                fill=HexFill(),
-                corners=SquareCorners(base_size.z),  # insets the fill area a bit
+                holes=HexFill(),
+                corners=SquareCorners(wall_size.z),  # insets the fill area a bit
             )
-            wall_sketch = Figure.combine([wall_base, wall_trans, wall_holes], Ax3.X, Dir2.BOTTOM)
-            return wall_plane * extrude(wall_sketch, wall_size.z)
+            wall_figure = AlignedFigure([wall_back, wall_trap, wall_holes], Ax2.X, AxDir.MINUS)
+            wall = PrismElement(wall_figure, wall_size.z)
+
+            # Place the walls on the plate
+            wall_plate_bx_minus = interior_bx.side_bx(AxDir3.X_MINUS)
+            wall_plate_bx_plus = wall_plate_bx_minus.move(
+                Vec3(interior_bx.size.x + wall_size.z, 0, 0)
+            )
+            for plate_bx in [wall_plate_bx_minus, wall_plate_bx_plus]:
+                wall_sub = plate_maker.make_sub(plate_bx, AxDir3.X_MINUS)
+                wall_sub.place_element(wall)
 
         # add face
-        def make_face_plate(base_plate: Part) -> Part:
-            face_size = Vec3(
-                RackDims.WIDTH_10INCH,
-                rack_units_to_mm(self.rack_units),
-                self.style.face_thickness,
-            )
-            face_plane = select_plane(base_plate, Direction.MIN_Y).moved(
-                Location((0, (face_size.y - base_size.z) / 2, -face_size.z))
-            )
-            face_sketch = RectangleFigure(
-                face_size.x, face_size.y, self.style.face_rounding
-            ).sketch()
-            face_sketch -= sketch_rack_holes(
-                self.rack_units, self.style.middle_holes, self.style.half_height_bottom
-            )
+        def make_faceplate(base_maker: Assembler) -> None:
+            size = Vec3(RackDims.WIDTH_10INCH, exterior_dz, self.style.face_thickness)
+            holes = RackHolePattern(self.rack_units)
+            figure = RectangleFigure(size.x, size.y, self.style.face_rounding, holes)
             if self.style.open_face:
-                face_sketch -= RectangleFigure(
-                    ShelfTabDims.MAX_DX_TABS - 2 * self.style.wall_thickness, face_size.y
-                ).sketch()
-
-            return face_plane * extrude(Sketch(face_sketch), face_size.z)
+                open_dx = ShelfTabDims.MAX_DX_TABS - 2 * self.style.wall_thickness
+                figure = CutoutFigure(figure, RectangleFigure(open_dx, size.y))
+            face = PrismElement(figure, size.z)
+            sub = base_maker.make_sub(exterior_bx, AxDir3.Y_MINUS)
+            sub.place_element(face)
 
         # shelf
-        def make_shelf() -> Part:
-            s = Part()
-            base_plate = extrude_element(RectangleFigure(base_size.x, base_size.y), base_size.z)
-            s += base_plate
-            wall = make_wall(base_plate)
-            s += wall
-            s += mirror(wall, about=Plane.YZ)
-            s += make_face_plate(base_plate)
-            s.label = "shelf"
-            return s
+        maker = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
+        make_faceplate(maker)
+        plate = PlateElement(plate_size.x, plate_size.y, plate_size.z)
+        plate_maker = maker.stack_element(plate)
+        make_walls(plate_maker)
+        make_faceplate(maker)
+        if self.shelf_features is not None:
+            self.shelf_layout.render_features(self.shelf_features, maker)
 
-        shelf = make_shelf()
-        if self.shelf_features:
-            shelf_plate = Bx(size=plate_size, center=Vec3(0, 0, plate_size.z / 2))
-            pieces = Layout.render_pieces(self.shelf_features, shelf_plate, self.shelf_layout)
-            shelf = Layout.assemble_pieces(shelf, pieces)
-        return shelf
+        return maker.make_rendering()

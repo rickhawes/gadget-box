@@ -7,7 +7,7 @@ import timeit
 from build123d import *
 
 
-def fuse_each_object():
+def fuse_each_object() -> None:
     diam = 80
     holes = Sketch()
     r = Rectangle(2, 2)
@@ -25,7 +25,7 @@ fuse_each_object()
 print(f"Fuse each object time: {timeit.default_timer() - each_object_start:0.3f}s")
 
 
-def fuse_once():
+def fuse_once() -> None:
     diam = 80
     r = Rectangle(2, 2)
     holes = [

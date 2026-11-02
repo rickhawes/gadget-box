@@ -2,6 +2,10 @@
 
 See Also:
     RectangleElement
+
+TODO:
+    - Generalize to different shapes
+    - Add an inset
 """
 
 import math

@@ -46,6 +46,7 @@ tasks:
     cmds:
       - uv run pyrefly check .
       - uv run ruff format --check .
+      - uv run ruff check --select I
 
   format:
     desc: "Fix linting issues and auto-format code with ruff"

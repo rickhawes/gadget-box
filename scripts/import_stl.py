@@ -5,7 +5,7 @@ from typing import cast
 import build123d as bd
 
 
-def convert_stl_to_brep(input_path: str, output_path: str):
+def convert_stl_to_brep(input_path: str, output_path: str) -> None:
     importer = bd.Mesher(unit=bd.Unit.MM)
     full_mesh = importer.read(input_path)[0]
     center = bd.Shape.combined_center([full_mesh], center_of=bd.CenterOf.BOUNDING_BOX)  # pyright: ignore[reportPrivateImportUsage]

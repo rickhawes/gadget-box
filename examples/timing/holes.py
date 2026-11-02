@@ -9,7 +9,7 @@ from build123d import *
 major_r = 10
 
 
-def algebra_mode():
+def algebra_mode() -> None:
     # 1. Calculate hole locations (e.g., 625 holes in a hex grid)
     hole_locs = HexLocations(major_r, 25, 25)
 
@@ -30,13 +30,13 @@ algebra_mode()
 print(f"Algebra Time: {timeit.default_timer() - algebra_start:0.3f}s")
 
 
-def builder_mode():
+def builder_mode() -> None:
     with BuildPart() as grid_part:
         with BuildSketch() as sketch:
-            Rectangle(500, 600)
+            _ = Rectangle(500, 600)
             with HexLocations(major_r, 25, 25):
-                RegularPolygon(major_r - 1, 6, mode=Mode.SUBTRACT)
-        extrude(amount=1)
+                _ = RegularPolygon(major_r - 1, 6, mode=Mode.SUBTRACT)
+        _ = extrude(amount=1)
     _ = grid_part.part
 
 

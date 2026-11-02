@@ -48,6 +48,11 @@ class Layout(ABC):
     ) -> None:
         """
         Render all `features` using the given `plate` and `layout` algorithm.
+
+        Args:
+            features (FeatureList) - The features to render
+            maker (Assembler) - The maker to add the features to
+            area: (Rc) - The area that is used for the feature, if None use the area of the maker's plate
         """
         if area is None:
             area = maker.plate_rc
