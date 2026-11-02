@@ -37,12 +37,11 @@ def test_no_cutout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(rendering.part)
 
 
-# TODO
-# def test_puck_holder(viewer_logger: ModelLogger) -> None:
-#     holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
-#     xray = FeatureXRayModel(holder, only_adds=False)
-#     rendering = xray.render()
-#     viewer_logger.log(rendering.part)
+def test_puck_holder(viewer_logger: ModelLogger) -> None:
+    holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
+    xray = FeatureXRayModel(holder, only_adds=False)
+    rendering = xray.render()
+    viewer_logger.log(rendering.part)
 
 
 def test_corner_holder(viewer_logger: ModelLogger) -> None:

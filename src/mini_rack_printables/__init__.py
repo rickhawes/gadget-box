@@ -1,4 +1,12 @@
 from .core.assembler import Assembler
+from .core.block import (
+    Block,
+    BoxBlock,
+    ConeBlock,
+    CylinderBlock,
+    ExtrudedBlock,
+    ImportBlock,
+)
 from .core.corners import (
     BeveledCorners,
     Corners,
@@ -6,14 +14,6 @@ from .core.corners import (
     RoundedCorners,
     SelectedCorners,
     SquareCorners,
-)
-from .core.elements_3d import (
-    BoxElement,
-    ConeElement,
-    CylinderElement,
-    Element3D,
-    ImportElement,
-    PrismElement,
 )
 from .core.feature import Feature, FeatureList, FeatureXRayModel, Rib
 from .core.figures import (
@@ -57,21 +57,21 @@ __all__ = [
     "AxDir3",
     "AlignedFigure",
     "BeveledCorners",
-    "BoxElement",
+    "BoxBlock",
     "BoxHolder",
     "Bx",
     "CircleFigure",
     "CircleFill",
-    "ConeElement",
+    "ConeBlock",
     "CornerHolder",
     "Corners",
     "Cutout",
     "CutoutFigure",
-    "CylinderElement",
+    "CylinderBlock",
     "Degree",
     "Dir2",
     "Figure",
-    "Element3D",
+    "Block",
     "Faceplate",
     "Feature",
     "FeatureXRayModel",
@@ -81,7 +81,7 @@ __all__ = [
     "HolePattern",
     "GridLayout",
     "HexFill",
-    "ImportElement",
+    "ImportBlock",
     "ImportFeature",
     "InsetCorners",
     "JetKVM",
@@ -92,7 +92,7 @@ __all__ = [
     "Mm",
     "Model",
     "ModelLogger",
-    "PrismElement",
+    "ExtrudedBlock",
     "PuckHolder",
     "rack_units_to_mm",
     "RackDims",

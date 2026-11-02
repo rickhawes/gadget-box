@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import override
 
 from ..core.assembler import Assembler
-from ..core.elements_3d import BoxElement, ImportElement
+from ..core.block import BoxBlock, ImportBlock
 from ..core.feature import Feature
 from ..core.geometry import Bx
 from ..core.piece import Piece
@@ -16,7 +16,7 @@ class ImportFeature(Feature):
     ASSET_PATH: str = "mini_rack_printables.assets"
 
     cutout: bool = True
-    element: ImportElement
+    block: ImportBlock
 
     def __init__(
         self,
@@ -34,25 +34,25 @@ class ImportFeature(Feature):
         """
         self.cutout = cutout
         if file is not None:
-            self.element = ImportElement(file=Path(file))
+            self.block = ImportBlock(file=Path(file))
         elif asset is not None:
-            self.element = ImportElement(asset=Path(ImportFeature.ASSET_PATH + "/" + asset))
+            self.block = ImportBlock(asset=Path(ImportFeature.ASSET_PATH + "/" + asset))
         else:
             raise ValueError("Either path or asset must be provided")
 
     @override
     def desired_size(self) -> Feature.DesiredSize:
-        return Feature.DesiredSize(self.element.size.to_2d(), False)
+        return Feature.DesiredSize(self.block.size.to_2d(), False)
 
     @override
     def render(self, asm: Assembler) -> None:
         if self.cutout:
             # Cutout the plate first
             cutout_asm = asm.make_cutout_sub()
-            box = BoxElement(dx=self.element.size.x, dy=self.element.size.y, dz=asm.plate_depth)
-            cutout_asm.place_element(box)
-            # Add the import element in the cutout (explicitly override the cut mode)
-            cutout_asm.place_element(self.element, cut=False)
+            box = BoxBlock(dx=self.block.size.x, dy=self.block.size.y, dz=asm.plate_depth)
+            cutout_asm.place_block(box)
+            # Add the import block in the cutout (explicitly override the cut mode)
+            cutout_asm.place_block(self.block, cut=False)
         else:
             # Add the imported block on the plate
-            asm.place_element(self.element)
+            asm.place_block(self.block)

@@ -3,8 +3,7 @@
 Contains 1D, 2D and 3D sections.
 
 See Also:
-    Placement - Enums to position and align boxes and rectangles
-    Element2D, Element3D - Main user of geometry
+    `Figure`, `Block` - Main user of geometry
 
 """
 

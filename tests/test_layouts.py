@@ -5,7 +5,7 @@ from build123d import Circle, Location, Plane, Rectangle, Sketch
 
 from mini_rack_printables import (
     Assembler,
-    BoxElement,
+    BoxBlock,
     Cutout,
     Dir2,
     Feature,
@@ -379,13 +379,13 @@ def test_render_features(viewer_logger: ModelLogger) -> None:
     c1 = Cutout(RectangleFigure(5, 5))
 
     # center
-    m1 = Assembler.make_with_element(BoxElement(60, 60, 10))
+    m1 = Assembler.make_with_block(BoxBlock(60, 60, 10))
     l1 = RowLayout()
     l1.render_features([[c1, c1]], m1)
     r1 = m1.make_rendering()
     viewer_logger.log(r1.part)
 
-    m2 = Assembler.make_with_element(BoxElement(60, 60, 10))
+    m2 = Assembler.make_with_block(BoxBlock(60, 60, 10))
     l2 = RowLayout(place=Dir2.SIDE_BOTTOM, spacing=5)
     l2.render_features([[c1, c1]], m2)
     r2 = m2.make_rendering()

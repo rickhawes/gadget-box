@@ -22,13 +22,11 @@ from build123d import (
     Mesher,
     Part,
     Shape,
-    Sketch,
     TopoDS_Solid,
     Unit,
     Vector,
     extrude,
     import_brep,
-    offset,
 )
 
 from .corners import Corners
@@ -37,8 +35,12 @@ from .geometry import Degree, Mm, Vec3
 from .hole_patterns import HolePattern
 from .piece import Piece
 
+#
+# region block interface and general Extrusion
+#
 
-class Element3D(ABC):
+
+class Block(ABC):
     """3d shapes that are composable by an `Assembler`"""
 
     @property
@@ -51,80 +53,63 @@ class Element3D(ABC):
         """Extrudes the shape centered on the plane and the z-axis of the plane"""
 
 
-class PrismElement(Element3D):
-    """A prism block is an extrusion of a 2d figure."""
+class ExtrudedBlock(Block):
+    """A prism block is an extrusion of a 2d figure.
 
-    element: Figure
+    Attributes:
+        figure: Base 2d figure
+        amount: Depth of the extrusion
+        taper: The degree of taper. Default 0.
+
+    See Also:
+        Figure - For figures that can be extruded
+    """
+
+    figure: Figure
     amount: Mm
     taper: Degree
 
-    def __init__(self, element: Figure, amount: Mm, taper: Degree = 0) -> None:
-        self.element = element
+    def __init__(self, figure: Figure, amount: Mm, taper: Degree = 0) -> None:
+        self.figure = figure
         self.amount = amount
         self.taper = taper
 
     @property
     @override
     def size(self) -> Vec3:
-        size2d = self.element.size
+        size2d = self.figure.size
         return Vec3(size2d.x, size2d.y, self.amount)
 
     @override
     def render(self, cut: bool = False) -> Piece:
-        part = Location((0, 0, -self.amount / 2)) * extrude(
-            self.element.sketch(), amount=self.amount, taper=self.taper
-        )
+        extrusion = extrude(self.figure.sketch(), self.amount, taper=self.taper)
+        part = Location((0, 0, -self.amount / 2)) * extrusion
         return Piece(part, cut)
 
 
-class TubeElement(PrismElement):
-    def __init__(self, base: Figure, thickness: Mm, amount: Mm) -> None:
-        super().__init__(RingFigure(base, thickness), amount)
+# endregion
+#
+# region Specific block classes
+#
 
 
-class BoxElement(PrismElement):
-    """A box element is a 3d cuboid"""
+class BoxBlock(ExtrudedBlock):
+    """A basic box block with no rounding.
+
+    See Also:
+        `PlateBlock` - If rounding is needed
+    """
 
     def __init__(self, dx: Mm, dy: Mm, dz: Mm) -> None:
         super().__init__(RectangleFigure(dx, dy), dz)
 
 
-class PlateElement(PrismElement):
-    """A extruded RectangleElement"""
+class ConeBlock(Block):
+    """A cone block with a circular top and base.
 
-    def __init__(
-        self,
-        width: Mm,
-        height: Mm,
-        depth: Mm,
-        corners: Mm | Corners | None = None,
-        holes: HolePattern | None = None,
-    ) -> None:
-        super().__init__(RectangleFigure(width, height, corners, holes), depth)
-
-
-class CylinderElement(Element3D):
-    """A cylinder element."""
-
-    radius: Mm
-    height: Mm
-
-    def __init__(self, radius: Mm, height: Mm) -> None:
-        self.radius = radius
-        self.height = height
-
-    @property
-    @override
-    def size(self) -> Vec3:
-        return Vec3(2 * self.radius, 2 * self.radius, self.height)
-
-    @override
-    def render(self, cut: bool = False) -> Piece:
-        return Piece(Cylinder(self.radius, self.height), cut)
-
-
-class ConeElement(Element3D):
-    """A cone element."""
+    See Also:
+        `CylinderBlock` - for zero taper cones.
+    """
 
     base_radius: Mm
     top_radius: Mm
@@ -149,36 +134,49 @@ class ConeElement(Element3D):
         return Piece(part, cut)
 
 
-class StackElement(Element3D):
-    """TODO: Make dir and align work features for this stack"""
+class CylinderBlock(Block):
+    """A cylinder block.
 
-    elements: Sequence[Element3D]
+    See Also:
+        `ConeBlock` - for tapered cyclinder
+    """
 
-    def __init__(self, elements: Sequence[Element3D]) -> None:
-        self.elements = elements
+    radius: Mm
+    height: Mm
+
+    def __init__(self, radius: Mm, height: Mm) -> None:
+        self.radius = radius
+        self.height = height
 
     @property
     @override
     def size(self) -> Vec3:
-        return Vec3(
-            max(e.size.x for e in self.elements),
-            max(e.size.y for e in self.elements),
-            sum(e.size.z for e in self.elements),
-        )
+        return Vec3(2 * self.radius, 2 * self.radius, self.height)
 
+    @override
     def render(self, cut: bool = False) -> Piece:
-        size = self.size
-        stack_dz = -size.z / 2
-        stack = Part()
-        for element in self.elements:
-            stack += (
-                Location((0, 0, stack_dz + element.size.z / 2)) * element.render(cut=False).part
-            )
-            stack_dz += element.size.z
-        return Piece(stack, cut=cut)
+        return Piece(Cylinder(self.radius, self.height), cut)
 
 
-class ImportElement(Element3D):
+class PlateBlock(ExtrudedBlock):
+    """A extruded Rectangle figure
+
+    See Also:
+        BoxBlock - If rounding, holes and corners is not needed
+    """
+
+    def __init__(
+        self,
+        width: Mm,
+        height: Mm,
+        depth: Mm,
+        corners: Mm | Corners | None = None,
+        holes: HolePattern | None = None,
+    ) -> None:
+        super().__init__(RectangleFigure(width, height, corners, holes), depth)
+
+
+class ImportBlock(Block):
     """An block formed from a BREP file or an STL file.
 
     BREP files are imported rapidly, while STL files are converted to a BREP model using the `Mesher` library which may take some time.
@@ -198,7 +196,7 @@ class ImportElement(Element3D):
         asset: Path | None = None,
     ) -> None:
         """
-        Initialize the ImportElement with the given path or asset name and optional parameters.
+        Initialize the ImportBlock with the given path or asset name and optional parameters.
 
         Args:
             file (Path): The path to the BREP or STL file.
@@ -262,3 +260,46 @@ class ImportElement(Element3D):
     @override
     def render(self, cut: bool = False) -> Piece:
         return Piece(self.shape.solid(), cut)
+
+
+class StackBlock(Block):
+    """TODO: Make dir and align work features for this stack"""
+
+    blocks: Sequence[Block]
+
+    def __init__(self, blocks: Sequence[Block]) -> None:
+        self.blocks = blocks
+
+    @property
+    @override
+    def size(self) -> Vec3:
+        return Vec3(
+            max(e.size.x for e in self.blocks),
+            max(e.size.y for e in self.blocks),
+            sum(e.size.z for e in self.blocks),
+        )
+
+    def render(self, cut: bool = False) -> Piece:
+        size = self.size
+        stack_dz = -size.z / 2
+        stack = Part()
+        for blk in self.blocks:
+            stack += Location((0, 0, stack_dz + blk.size.z / 2)) * blk.render(cut=False).part
+            stack_dz += blk.size.z
+        return Piece(stack, cut=cut)
+
+
+class TubeBlock(ExtrudedBlock):
+    """Using the `base` figure create extruded ring block.
+
+    Attributes:
+        base (Figure) - base figure for the tubes inner shape
+        thickness (Mm) - thickness of the tube's walls
+        depth (Mm) - the z-dimension of the tube.
+    """
+
+    def __init__(self, base: Figure, thickness: Mm, depth: Mm) -> None:
+        super().__init__(RingFigure(base, thickness), depth)
+
+
+# endregion

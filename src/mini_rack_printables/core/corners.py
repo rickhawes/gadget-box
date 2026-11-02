@@ -2,7 +2,7 @@
 A collection of classes to render the corners of a rectangle.
 
 See Also:
-    `RectangleElement` for the corner parameter
+    `RectangleBlock` for the corner parameter
 """
 
 from abc import ABC, abstractmethod

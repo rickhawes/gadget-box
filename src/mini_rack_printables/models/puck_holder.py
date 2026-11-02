@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import override
 
 from ..core.assembler import Assembler
+from ..core.block import ExtrudedBlock
 from ..core.corners import RoundedCorners, SelectedCorners
-from ..core.elements_3d import PrismElement
 from ..core.feature import Feature
 from ..core.figures import RectangleFigure
 from ..core.geometry import AxDir3, Bx, Mm, Vec2, Vec3
@@ -90,10 +90,10 @@ class PuckHolder(Feature):
             """
             Make the block of the holder by sketching the device block + extra for the corners.
             """
-            block = PrismElement(
+            block = ExtrudedBlock(
                 RectangleFigure(front_size.x + 2 * w, front_size.y + 2 * w, w), front_size.z
             )
-            plate_asm.place_element(block)
+            plate_asm.place_block(block)
 
         def sub_device_cutout(asm: Assembler) -> None:
             device_center = Vec3(0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2))
@@ -103,8 +103,8 @@ class PuckHolder(Feature):
             )
             # puck shape by selectively using rounded corners
             corners = SelectedCorners(RoundedCorners(r), bottom_left=True, bottom_right=True)
-            cutout = PrismElement(RectangleFigure(dx, dz, corners), dy)
-            device_cutout_asm.place_element(cutout)
+            cutout = ExtrudedBlock(RectangleFigure(dx, dz, corners), dy)
+            device_cutout_asm.place_block(cutout)
 
         front_dz = max(r - pd if self.style.has_cutout else r, 0)
         front_size = Vec3(dx, dy, front_dz)

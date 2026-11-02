@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import override
 
 from ..core.assembler import Assembler
-from ..core.elements_3d import PlateElement, PrismElement, StackElement
+from ..core.block import ExtrudedBlock, PlateBlock, StackBlock
 from ..core.feature import Feature, Rib
 from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure
 from ..core.geometry import Mm, Vec2, Vec3
@@ -98,20 +98,20 @@ class BoxHolder(Feature):
             """
             cutout_sub = asm.make_cutout_sub()
             if self.style.front_lip is not None:
-                stack = StackElement(
+                stack = StackBlock(
                     [
-                        PlateElement(
+                        PlateBlock(
                             dx - 2 * self.style.front_lip.width,
                             dy - 2 * self.style.front_lip.width,
                             self.style.front_lip.depth,
                             corners=r,
                         ),
-                        PlateElement(dx, dy, asm.plate_depth - self.style.front_lip.depth, r),
+                        PlateBlock(dx, dy, asm.plate_depth - self.style.front_lip.depth, r),
                     ]
                 )
-                cutout_sub.place_element(stack)
+                cutout_sub.place_block(stack)
             else:
-                cutout_sub.place_element(PlateElement(dx, dy, asm.plate_depth, r))
+                cutout_sub.place_block(PlateBlock(dx, dy, asm.plate_depth, r))
 
         def add_back_lip() -> None:
             assert self.style.back_lip is not None
@@ -119,8 +119,8 @@ class BoxHolder(Feature):
             device = RectangleFigure(dx, dy, r)
             outer = OutsetFigure(device, w)
             inner = OutsetFigure(device, -self.style.back_lip.width)
-            lip = PrismElement(CutoutFigure(outer, inner), self.style.back_lip.depth)
-            asm.place_element(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
+            lip = ExtrudedBlock(CutoutFigure(outer, inner), self.style.back_lip.depth)
+            asm.place_block(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
 
         # Cutout if needed
         if self.style.has_cutout:

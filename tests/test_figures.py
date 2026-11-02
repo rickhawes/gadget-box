@@ -20,7 +20,7 @@ from mini_rack_printables import (
 )
 from mini_rack_printables.core.figures import CombinedFigure, CutoutFigure, RingFigure
 
-# test by rendering a bunch of elements
+# test by rendering a bunch of figures
 
 RECT = "Rectangle tests"
 FILL = "Fill tests"

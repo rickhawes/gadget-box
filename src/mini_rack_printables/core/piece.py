@@ -8,7 +8,7 @@ from .geometry import Vec2, Vec3
 class Piece:
     """The rendered the piece of a model.
 
-    Created by elements and features as the output of rendering.
+    Created by block and features as the output of rendering.
     This is a mutable class which is expected to
 
     Attributes:

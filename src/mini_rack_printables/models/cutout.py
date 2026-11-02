@@ -1,7 +1,7 @@
 from typing import override
 
 from ..core.assembler import Assembler
-from ..core.elements_3d import PrismElement, TubeElement
+from ..core.block import ExtrudedBlock, TubeBlock
 from ..core.feature import Feature, Rib
 from ..core.figures import Figure
 from ..core.geometry import Bx, Vec2
@@ -19,7 +19,7 @@ class Cutout(Feature):
     def __init__(self, shape: Figure, rib: Rib | None = None) -> None:
         """
         Args:
-            shape (Element): The 2D shape to cut out.
+            shape (Figure): The 2D shape to cut out.
             rib (Rib | None): The rib to outline the cutout with.
         """
         self.shape = shape
@@ -35,8 +35,8 @@ class Cutout(Feature):
     def render(self, asm: Assembler) -> None:
         # the same rendering formula is used for all types of cutouts
         cutout_asm = asm.make_cutout_sub()
-        cutout_asm.place_element(PrismElement(self.shape, asm.plate_depth))
+        cutout_asm.place_block(ExtrudedBlock(self.shape, asm.plate_depth))
 
         if self.rib is not None:
-            rib = TubeElement(self.shape, self.rib.width, self.rib.depth)
-            asm.place_element(rib)
+            rib = TubeBlock(self.shape, self.rib.width, self.rib.depth)
+            asm.place_block(rib)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import final, override
 
 from ..core.assembler import Assembler
-from ..core.elements_3d import PlateElement, PrismElement
+from ..core.block import ExtrudedBlock, PlateBlock
 from ..core.feature import FeatureList, Rib
 from ..core.figures import TrapezoidFigure
 from ..core.geometry import AxDir3, Dir2, Mm, Rc, Vec2, Vec3
@@ -85,7 +85,7 @@ class Faceplate(Model):
         feature_area = Rc(ShelfTabDims.MAX_DX_TABS, plate_size.y - 2 * self.style.rib.width)
 
         # form a round-rect base with cutout for the holes of the rack screws
-        base = PlateElement(
+        base = PlateBlock(
             plate_size.x,
             plate_size.y,
             self.style.thickness,
@@ -95,8 +95,8 @@ class Faceplate(Model):
             ),
         )
 
-        # create an assembler to place the other elements
-        asm = Assembler.make_with_element(base)
+        # create an assembler to place the other blocks
+        asm = Assembler.make_with_block(base)
 
         # ribs
         if self.style.rib.depth > 0:
@@ -107,8 +107,8 @@ class Faceplate(Model):
                 # place the sub assembly on the side
                 rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
                 rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
-                rib_elem = PrismElement(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
-                rib_asm.place_element(rib_elem)
+                rib_elem = ExtrudedBlock(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
+                rib_asm.place_block(rib_elem)
 
             add_rib(Dir2.Y_PLUS)
             add_rib(Dir2.Y_MINUS)

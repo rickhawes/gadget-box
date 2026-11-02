@@ -6,8 +6,8 @@ are cut out of holder's shape.
 from typing import override
 
 from ..core.assembler import Assembler
+from ..core.block import ExtrudedBlock
 from ..core.corners import InsetCorners
-from ..core.elements_3d import PrismElement
 from ..core.feature import Feature
 from ..core.figures import CutoutFigure, Figure, RectangleFigure, RingFigure
 from ..core.geometry import Mm, Vec2
@@ -76,4 +76,4 @@ class CornerHolder(Feature):
         cross = RectangleFigure(size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w))
         holder = RingFigure(self.shape, w)
         co = CutoutFigure(holder, cross)
-        asm.place_element(PrismElement(co, d))
+        asm.place_block(ExtrudedBlock(co, d))

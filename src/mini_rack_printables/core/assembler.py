@@ -3,7 +3,7 @@ from typing import Sequence, final
 
 from build123d import BuildPart, Location, Mode, Plane, insert
 
-from .elements_3d import Element3D
+from .block import Block
 from .geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
 from .model import Model
 from .piece import Piece
@@ -11,16 +11,14 @@ from .piece import Piece
 
 @final
 class Assembler:
-    """Helper to assemble elements for models and features.
+    """Helper to assemble blocks for models and features.
 
     See Also:
-        `Model` - Used by Model subclasses to assemble elements together
-        `Feature` - Used by Feature subclasses to assemble elements together
-        `Element3D` - the building blocks that are assembled together
+        `Model` - Used by Model subclasses to assemble blocks together
+        `Feature` - Used by Feature subclasses to assemble blocks together
+        `Block` - the building blocks that are assembled together
 
     TODO:
-        - Improve help
-        - Rename to asm
         - Calculate the bounding box of the assembled pieces
     """
 
@@ -30,13 +28,13 @@ class Assembler:
     plate_side: AxDir3
     """The side of the base to place other objects"""
     cutout_mode: bool
-    """The default for the cut parameter for pieces rendered by elements"""
+    """The default for the cut parameter for pieces rendered by blocks"""
 
     # the orientation of the plane
     z_dir: AxDir3
     """The direction of the Assembler's plane"""
     _plane: Plane
-    """The plane of the model to place elements (global coordinates)"""
+    """The plane of the model to place blocks (global coordinates)"""
 
     # Output
     parent: Assembler | None = None
@@ -76,11 +74,13 @@ class Assembler:
         cutout_mode: bool = False,
         parent: Assembler | None = None,
     ) -> None:
-        """
+        """Create an assembler or sub-assembler.
+        
         Args:
-            plate: the base box on which everything is placed in global
-            z_dir: the orientation for the placement (and the z_dir)
-            cutout_mode: the default cut value for element placement and the base is above the plane
+            plate: the base box on which everything is placed in global.
+            z_dir: the orientation for the placement (and the z_dir).
+            cutout_mode: the default cut value for block placement and the base is above the plane.
+            parent: the parent assembler if any.
         """
         self.base = plate
         self.z_dir = z_dir
@@ -99,7 +99,7 @@ class Assembler:
         self.sub_assemblers = []
         self.parent = parent
 
-    # #region Create assemblers and sub-assemblers
+    # region Create assemblers and sub-assemblers
 
     @classmethod
     def make(
@@ -108,29 +108,31 @@ class Assembler:
         z_dir: AxDir3 = AxDir3.Z_PLUS,
         cutout_mode: bool = False,
     ) -> Assembler:
-        """Create a assembler.
+        """Create a top-level assembler.
 
-        TODO: ...
-
+        Args:
+            plate: the base box on which everything is placed in global.
+            z_dir: the orientation for the placement (and the z_dir).
+            cutout_mode: the default cut value for block placement and the base is above the plane.
         """
         return Assembler(base, z_dir, cutout_mode, parent=None)
 
     @classmethod
-    def make_with_element(
-        cls, element: Element3D, center: Vec3 | None = None, z_dir: AxDir3 = AxDir3.Z_PLUS
+    def make_with_block(
+        cls, block: Block, center: Vec3 | None = None, z_dir: AxDir3 = AxDir3.Z_PLUS
     ) -> Assembler:
-        """Create top-level assembler with the element as the plate.
+        """Create top-level assembler with the block as the plate.
 
         Args:
-            element (Element3D) - the base object relative to the XY plane
+            block (Block) - the base object relative to the XY plane
             center (Vec3) - relative to the XY plane
             z_dir (AxDir3) - the side of the base to form the assembler
         """
         if center is None:
-            center = Vec3(0, 0, element.size.z / 2)
-        bx = Bx(element.size, center)
+            center = Vec3(0, 0, block.size.z / 2)
+        bx = Bx(block.size, center)
         asm = Assembler.make(bx, z_dir)
-        piece = element.render(cut=False).moved(center)
+        piece = block.render(cut=False).moved(center)
         asm._append_piece(piece)
         return asm
 
@@ -191,28 +193,26 @@ class Assembler:
         center = origin + offset + Vec3(0, 0, size.z / 2)
         return Bx(size, center)
 
-    def place_element(
-        self, element: Element3D, places: Places = Place(), cut: bool | None = None
-    ) -> None:
-        """Place an element"""
+    def place_block(self, block: Block, places: Places = Place(), cut: bool | None = None) -> None:
+        """Place an block"""
         if isinstance(places, Assembler.Place):
             places = [places]
         if len(places) == 0:
             raise ValueError("`place` must not be an empty list")
         resolved_cut = cut if cut is not None else self.cutout_mode
         for p in places:
-            center = self.place_bounds(element.size, p).center
-            piece = element.render(resolved_cut)
+            center = self.place_bounds(block.size, p).center
+            piece = block.render(resolved_cut)
             self.add_piece(piece, center)
 
-    def stack_element(
-        self, element: Element3D, place: Place = Place(), sub_z_dir: AxDir3 = AxDir3.Z_PLUS
+    def stack_block(
+        self, block: Block, place: Place = Place(), sub_z_dir: AxDir3 = AxDir3.Z_PLUS
     ) -> Assembler:
-        """Place an element and create a sub-assembler on the placed."""
-        center = self.place_bounds(element.size, place).center
-        piece = element.render(cut=False)
+        """Place an block and create a sub-assembler on the placed."""
+        center = self.place_bounds(block.size, place).center
+        piece = block.render(cut=False)
         self.add_piece(piece, center)
-        return self.make_sub(Bx(element.size, center), z_dir=sub_z_dir)
+        return self.make_sub(Bx(block.size, center), z_dir=sub_z_dir)
 
     def add_piece(self, piece: Piece, position: Vec3 = Vec3(0, 0, 0)) -> None:
         """Add pieces to the model at `position` relative to the assembler's plane."""

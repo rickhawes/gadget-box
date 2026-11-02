@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from mini_rack_printables import HolePattern
 
 from ..core.assembler import Assembler
+from ..core.block import ExtrudedBlock, PlateBlock, StackBlock
 from ..core.corners import InsetCorners
-from ..core.elements_3d import PlateElement, PrismElement, StackElement
 from ..core.feature import Feature, Rib
 from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure, RingFigure
 from ..core.geometry import AxDir3, Bx, Dir2, Mm, Vec2, Vec3
@@ -36,7 +36,7 @@ def build_basic_holder(
     dc = ir + e  # corner width
 
     # add corners
-    corners = PrismElement(
+    corners = ExtrudedBlock(
         CutoutFigure(
             base=CutoutFigure(
                 RectangleFigure(dx + 2 * w, dy + 2 * w, cr), RectangleFigure(dx, dy, ir)
@@ -45,7 +45,7 @@ def build_basic_holder(
         ),
         dz,
     )
-    asm.place_element(corners)
+    asm.place_block(corners)
 
     # add walls
     # build around a box defined by the device
@@ -53,5 +53,5 @@ def build_basic_holder(
     for side in [AxDir3.X_PLUS, AxDir3.X_MINUS, AxDir3.Y_PLUS, AxDir3.Y_MINUS]:
         plate_sub = asm.make_sub(device_bx, side)
         size = device_bx.side_size(side) - Vec2(2 * dc, 0)
-        block = PlateElement(size.x, size.y, w, holes=style.holes)
-        plate_sub.place_element(block)
+        block = PlateBlock(size.x, size.y, w, holes=style.holes)
+        plate_sub.place_block(block)

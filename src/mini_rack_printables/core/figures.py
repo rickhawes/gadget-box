@@ -1,5 +1,5 @@
 """
-2d Elements for models. Elements are the primitives that make up models and parts. They are built to be easily combined and rendered.
+2d figures for models. Figures are the primitives that make up models and parts. They are built to be easily combined and rendered.
 """
 
 import math
@@ -72,13 +72,13 @@ class Figure(ABC):
 
     @abstractmethod
     def sketch(self) -> Sketch:
-        """Draw the outline of the shape according to the `op` ignoring the `op.element` field."""
+        """Draw the outline of the shape according to the `op` ignoring the `op.block` field."""
 
 
 # endregion
 
 #
-# region Specific elemental figures
+# region Specific figures
 #
 
 
@@ -363,7 +363,7 @@ class AlignedFigure(CombinedFigure):
 
 
 class CutoutFigure(CombinedFigure):
-    """Create an element that has a `base` with a `cutout` elements"""
+    """Create an figure that has a `base` with a `cutout` figures"""
 
     base: Figure
     cutout: Figure
@@ -376,7 +376,7 @@ class CutoutFigure(CombinedFigure):
 
 
 class OutsetFigure(Figure):
-    """Create an element that is a `base` element that is outset by `amount`"""
+    """Create an figure that is a `base` figure that is outset by `amount`"""
 
     base: Figure
     """The base shape"""

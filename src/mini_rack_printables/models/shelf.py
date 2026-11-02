@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import final, override
 
 from ..core.assembler import Assembler
+from ..core.block import ExtrudedBlock, PlateBlock
 from ..core.corners import SquareCorners
-from ..core.elements_3d import PlateElement, PrismElement
 from ..core.feature import FeatureList
 from ..core.figures import (
     AlignedFigure,
@@ -111,7 +111,7 @@ class Shelf(Model):
                 corners=SquareCorners(wall_size.z),  # insets the fill area a bit
             )
             wall_figure = AlignedFigure([wall_back, wall_trap, wall_holes], Ax2.X, AxDir.MINUS)
-            wall = PrismElement(wall_figure, wall_size.z)
+            wall = ExtrudedBlock(wall_figure, wall_size.z)
 
             # Place the walls on the plate
             wall_plate_bx_minus = interior_bx.side_bx(AxDir3.X_MINUS)
@@ -120,7 +120,7 @@ class Shelf(Model):
             )
             for plate_bx in [wall_plate_bx_minus, wall_plate_bx_plus]:
                 wall_sub = plate_asm.make_sub(plate_bx, AxDir3.X_MINUS)
-                wall_sub.place_element(wall)
+                wall_sub.place_block(wall)
 
         # add face
         def build_faceplate(base_asm: Assembler) -> None:
@@ -130,15 +130,15 @@ class Shelf(Model):
             if self.style.open_face:
                 open_dx = ShelfTabDims.MAX_DX_TABS - 2 * self.style.wall_thickness
                 figure = CutoutFigure(figure, RectangleFigure(open_dx, size.y))
-            face = PrismElement(figure, size.z)
+            face = ExtrudedBlock(figure, size.z)
             sub = base_asm.make_sub(exterior_bx, AxDir3.Y_MINUS)
-            sub.place_element(face)
+            sub.place_block(face)
 
         # shelf
         asm = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
         build_faceplate(asm)
-        plate = PlateElement(plate_size.x, plate_size.y, plate_size.z)
-        plate_asm = asm.stack_element(plate)
+        plate = PlateBlock(plate_size.x, plate_size.y, plate_size.z)
+        plate_asm = asm.stack_block(plate)
         build_walls()
         build_faceplate(asm)
         if self.shelf_features is not None:

@@ -1,7 +1,7 @@
 """Classes to generate a fill pattern of holes in a plate.
 
 See Also:
-    RectangleElement
+    `RectangleFigure` - Main user of holes
 
 TODO:
     - Generalize to different shapes
@@ -26,7 +26,7 @@ from .geometry import Mm, Vec2
 
 
 class HolePattern(ABC):
-    """Some elements can support hole patterns"""
+    """Some figures can support hole patterns"""
 
     @abstractmethod
     def locations(self, size: Vec2, inset: Vec2) -> LocationList:
