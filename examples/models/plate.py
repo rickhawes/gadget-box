@@ -19,15 +19,15 @@ class PlateWithHoles(Model):
         stand = CylinderElement(5, 10)
 
         # Assembler is used to assemble this model
-        maker = Assembler.make_with_element(base)
-        cutout_maker = maker.make_cutout_sub()
+        asm = Assembler.make_with_element(base)
+        cutout_asm = asm.make_cutout_sub()
         # made with top side as the plane
-        maker.place_element(stand, [Assembler.Place(offset=p) for p in self.stand_centers()])
+        asm.place_element(stand, [Assembler.Place(offset=p) for p in self.stand_centers()])
 
         # place the holes on the base using the cut mode
-        cutout_maker.place_element(hole, [Assembler.Place(offset=p) for p in self.hole_centers()])
+        cutout_asm.place_element(hole, [Assembler.Place(offset=p) for p in self.hole_centers()])
 
-        return maker.make_rendering()
+        return asm.make_rendering()
 
     def hole_centers(self) -> list[Vec2]:
         dx = self.size.x / 2 - 10

@@ -64,14 +64,14 @@ def test_make_with_element() -> None:
 def test_assemble_two_boxes(viewer_logger: ModelLogger) -> None:
     base = BoxElement(30, 20, 10)
 
-    def place_nodes(maker: Assembler) -> None:
+    def place_nodes(asm: Assembler) -> None:
         node = BoxElement(2, 1.5, 1)
         # place the same node at multiple places on the assembler's plane
         add_places = [Assembler.Place(origin=dir2) for dir2 in [Dir2.CENTER, Dir2.CORNER_RT_TP]]
-        maker.place_element(node, add_places, cut=False)
+        asm.place_element(node, add_places, cut=False)
         # cut out a node use the cut mode and the offset placement to render inside the base
         sub_places = [Assembler.Place(origin=Dir2.CORNER_LF_BT, offset=Vec3(0, 0, -1))]
-        maker.place_element(node, sub_places, cut=True)
+        asm.place_element(node, sub_places, cut=True)
 
     # place the nodes on the base using a assembler
     m1 = Assembler.make_with_element(base, z_dir=AxDir3.TOP)
@@ -136,9 +136,9 @@ class TestFeature(Feature):
         return Feature.DesiredSize(Vec2(10, 10))
 
     @override
-    def render(self, maker: Assembler) -> None:
-        maker_cutout = maker.make_cutout_sub()
-        maker_cutout.place_element(BoxElement(10, 10, 10))
+    def render(self, asm: Assembler) -> None:
+        cutout_asm = asm.make_cutout_sub()
+        cutout_asm.place_element(BoxElement(10, 10, 10))
 
 
 def test_add_feature(viewer_logger: ModelLogger) -> None:
@@ -156,14 +156,14 @@ def test_add_feature(viewer_logger: ModelLogger) -> None:
 
 def test_add_feature_twice(viewer_logger: ModelLogger) -> None:
     # Create a L shaped base out of two boxes stacked
-    top_maker = Assembler.make_with_element(BoxElement(50, 50, 10), z_dir=AxDir3.TOP)
-    side_maker = top_maker.stack_element(
+    top_asm = Assembler.make_with_element(BoxElement(50, 50, 10), z_dir=AxDir3.TOP)
+    side_asm = top_asm.stack_element(
         BoxElement(10, 50, 50), Assembler.Place(origin=Dir2.X_PLUS), AxDir3.X_PLUS
     )
 
     # Use the test feature to cut holes into the base
     tf = TestFeature()
-    tf.render(top_maker)
-    tf.render(side_maker)
-    r1 = top_maker.make_rendering()
+    tf.render(top_asm)
+    tf.render(side_asm)
+    r1 = top_asm.make_rendering()
     viewer_logger.log(r1.part)

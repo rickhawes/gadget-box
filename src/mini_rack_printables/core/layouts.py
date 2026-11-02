@@ -43,7 +43,7 @@ class Layout(ABC):
     def render_features(
         self,
         features: FeatureList,
-        maker: Assembler,
+        asm: Assembler,
         area: Rc | None = None,
     ) -> None:
         """
@@ -51,15 +51,15 @@ class Layout(ABC):
 
         Args:
             features (FeatureList) - The features to render
-            maker (Assembler) - The maker to add the features to
-            area: (Rc) - The area that is used for the feature, if None use the area of the maker's plate
+            asm (Assembler) - The assembler to add the features to
+            area: (Rc) - The area that is used for the feature, if None use the area of the assembler's plate
         """
         if area is None:
-            area = maker.plate_rc
+            area = asm.plate_rc
         sections = self.layout_features(features, area)
         for section in sections:
-            section_mkr = maker.make_section_sub(section.bounds, section.origin)
-            section.feature.render(section_mkr)
+            section_asm = asm.make_section_sub(section.bounds, section.origin)
+            section.feature.render(section_asm)
 
 
 @dataclass(frozen=True)

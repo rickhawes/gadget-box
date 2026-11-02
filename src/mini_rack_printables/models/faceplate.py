@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import final, override
 
-from mini_rack_printables.core.elements_3d import PlateElement
-
 from ..core.assembler import Assembler
 from ..core.elements_3d import PlateElement, PrismElement
 from ..core.feature import FeatureList, Rib
@@ -97,26 +95,26 @@ class Faceplate(Model):
             ),
         )
 
-        # create a assembler to place the other elements
-        maker = Assembler.make_with_element(base)
+        # create an assembler to place the other elements
+        asm = Assembler.make_with_element(base)
 
         # ribs
         if self.style.rib.depth > 0:
 
             def add_rib(dir2: Dir2) -> None:
                 rib_size = Vec3(feature_area.size.x, self.style.rib.width, self.style.rib.depth)
-                rib_bx = maker.place_bounds(rib_size, Assembler.Place(origin=dir2))
+                rib_bx = asm.place_bounds(rib_size, Assembler.Place(origin=dir2))
                 # place the sub assembly on the side
                 rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
-                rib_maker = maker.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
+                rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
                 rib_elem = PrismElement(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
-                rib_maker.place_element(rib_elem)
+                rib_asm.place_element(rib_elem)
 
             add_rib(Dir2.Y_PLUS)
             add_rib(Dir2.Y_MINUS)
 
         # features
         if self.features is not None:
-            self.layout.render_features(self.features, maker, feature_area)
+            self.layout.render_features(self.features, asm, feature_area)
 
-        return maker.make_rendering()
+        return asm.make_rendering()

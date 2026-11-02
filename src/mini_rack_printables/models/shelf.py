@@ -92,8 +92,8 @@ class Shelf(Model):
         interior_bx = Bx(interior_dx, plate_size.y, interior_dz, 0, 0, interior_dz / 2)
 
         # wall
-        def make_walls(plate_maker: Assembler) -> None:
-            # Make a wall block that is a combination of of figures
+        def build_walls() -> None:
+            # Make a wall block that is a combination of figures
             wall_size = Vec3(plate_size.y, interior_dz, self.style.wall_thickness)
             shelf_back = self.style.shelf_back_depth
             wall_back = RectangleFigure(shelf_back, 2 * plate_size.z)
@@ -119,11 +119,11 @@ class Shelf(Model):
                 Vec3(interior_bx.size.x + wall_size.z, 0, 0)
             )
             for plate_bx in [wall_plate_bx_minus, wall_plate_bx_plus]:
-                wall_sub = plate_maker.make_sub(plate_bx, AxDir3.X_MINUS)
+                wall_sub = plate_asm.make_sub(plate_bx, AxDir3.X_MINUS)
                 wall_sub.place_element(wall)
 
         # add face
-        def make_faceplate(base_maker: Assembler) -> None:
+        def build_faceplate(base_asm: Assembler) -> None:
             size = Vec3(RackDims.WIDTH_10INCH, exterior_dz, self.style.face_thickness)
             holes = RackHolePattern(self.rack_units)
             figure = RectangleFigure(size.x, size.y, self.style.face_rounding, holes)
@@ -131,17 +131,17 @@ class Shelf(Model):
                 open_dx = ShelfTabDims.MAX_DX_TABS - 2 * self.style.wall_thickness
                 figure = CutoutFigure(figure, RectangleFigure(open_dx, size.y))
             face = PrismElement(figure, size.z)
-            sub = base_maker.make_sub(exterior_bx, AxDir3.Y_MINUS)
+            sub = base_asm.make_sub(exterior_bx, AxDir3.Y_MINUS)
             sub.place_element(face)
 
         # shelf
-        maker = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
-        make_faceplate(maker)
+        asm = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
+        build_faceplate(asm)
         plate = PlateElement(plate_size.x, plate_size.y, plate_size.z)
-        plate_maker = maker.stack_element(plate)
-        make_walls(plate_maker)
-        make_faceplate(maker)
+        plate_asm = asm.stack_element(plate)
+        build_walls()
+        build_faceplate(asm)
         if self.shelf_features is not None:
-            self.shelf_layout.render_features(self.shelf_features, maker)
+            self.shelf_layout.render_features(self.shelf_features, asm)
 
-        return maker.make_rendering()
+        return asm.make_rendering()

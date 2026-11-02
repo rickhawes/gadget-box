@@ -45,14 +45,14 @@ class ImportFeature(Feature):
         return Feature.DesiredSize(self.element.size.to_2d(), False)
 
     @override
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         if self.cutout:
             # Cutout the plate first
-            cutout_maker = maker.make_cutout_sub()
-            box = BoxElement(dx=self.element.size.x, dy=self.element.size.y, dz=maker.plate_depth)
-            cutout_maker.place_element(box)
+            cutout_asm = asm.make_cutout_sub()
+            box = BoxElement(dx=self.element.size.x, dy=self.element.size.y, dz=asm.plate_depth)
+            cutout_asm.place_element(box)
             # Add the import element in the cutout (explicitly override the cut mode)
-            cutout_maker.place_element(self.element, cut=False)
+            cutout_asm.place_element(self.element, cut=False)
         else:
-            # Add the iport element on the plate
-            maker.place_element(self.element)
+            # Add the imported block on the plate
+            asm.place_element(self.element)

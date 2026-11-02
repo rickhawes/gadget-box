@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Sequence, cast, final
+from typing import Sequence, final
 
 from build123d import BuildPart, Location, Mode, Plane, insert
 
@@ -20,7 +20,7 @@ class Assembler:
 
     TODO:
         - Improve help
-        - Rename to Maker
+        - Rename to asm
         - Calculate the bounding box of the assembled pieces
     """
 
@@ -78,7 +78,7 @@ class Assembler:
     ) -> None:
         """
         Args:
-            base: the base box on which everything is placed in global
+            plate: the base box on which everything is placed in global
             z_dir: the orientation for the placement (and the z_dir)
             cutout_mode: the default cut value for element placement and the base is above the plane
         """
@@ -124,15 +124,15 @@ class Assembler:
         Args:
             element (Element3D) - the base object relative to the XY plane
             center (Vec3) - relative to the XY plane
-            side (AxDir3) - the side of the base to form the assembler
+            z_dir (AxDir3) - the side of the base to form the assembler
         """
         if center is None:
             center = Vec3(0, 0, element.size.z / 2)
         bx = Bx(element.size, center)
-        maker = Assembler.make(bx, z_dir)
+        asm = Assembler.make(bx, z_dir)
         piece = element.render(cut=False).moved(center)
-        maker._append_piece(piece)
-        return maker
+        asm._append_piece(piece)
+        return asm
 
     def make_sub(
         self,
@@ -144,8 +144,8 @@ class Assembler:
 
         Args:
             plate (Bx) - plate in relative to self
-            side (AxDir3) - Side in realtive
-            cutout_mode - The maker should
+            z_dir (AxDir3) - the sub's z_dir and side of plate to use
+            cutout_mode (bool) - The assembler should default to cutting from the plate
         """
         if plate is None:
             # take the current plate which is global and make a local copy
@@ -182,7 +182,7 @@ class Assembler:
         offset: Vec2 | Vec3 = Vec2(0, 0)
         """The offset of the center."""
 
-    type Places = Place | Sequence[Place]
+    type Places = Assembler.Place | Sequence[Assembler.Place]
 
     def place_bounds(self, size: Vec3, place: Place = Place()) -> Bx:
         """The bounding box of `size` relative the assembler's plane"""
@@ -194,7 +194,7 @@ class Assembler:
     def place_element(
         self, element: Element3D, places: Places = Place(), cut: bool | None = None
     ) -> None:
-        """Place a element"""
+        """Place an element"""
         if isinstance(places, Assembler.Place):
             places = [places]
         if len(places) == 0:

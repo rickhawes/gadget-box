@@ -24,8 +24,8 @@ class BasicHolderStyle:
     holes: HolePattern | None = HexFill()
 
 
-def make_basic_holder(
-    maker: Assembler, device_size: Vec3, style: BasicHolderStyle = BasicHolderStyle()
+def build_basic_holder(
+    asm: Assembler, device_size: Vec3, style: BasicHolderStyle = BasicHolderStyle()
 ) -> None:
     # geometry
     dx, dy, dz = device_size.to_tuple()
@@ -45,13 +45,13 @@ def make_basic_holder(
         ),
         dz,
     )
-    maker.place_element(corners)
+    asm.place_element(corners)
 
     # add walls
-    # build around the a box defined by the device
-    device_bx = maker.place_bounds(size=Vec3(dx, dy, dz))
+    # build around a box defined by the device
+    device_bx = asm.place_bounds(size=Vec3(dx, dy, dz))
     for side in [AxDir3.X_PLUS, AxDir3.X_MINUS, AxDir3.Y_PLUS, AxDir3.Y_MINUS]:
-        plate_sub = maker.make_sub(device_bx, side)
+        plate_sub = asm.make_sub(device_bx, side)
         size = device_bx.side_size(side) - Vec2(2 * dc, 0)
         block = PlateElement(size.x, size.y, w, holes=style.holes)
         plate_sub.place_element(block)

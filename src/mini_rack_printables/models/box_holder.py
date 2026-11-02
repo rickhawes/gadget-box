@@ -1,21 +1,18 @@
 from dataclasses import dataclass
 from typing import override
 
-from mini_rack_printables.models.basic_holder import make_basic_holder
-
 from ..core.assembler import Assembler
-from ..core.corners import InsetCorners
 from ..core.elements_3d import PlateElement, PrismElement, StackElement
 from ..core.feature import Feature, Rib
-from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure, RingFigure
-from ..core.geometry import AxDir3, Bx, Dir2, Mm, Vec2, Vec3
-from .basic_holder import BasicHolderStyle, make_basic_holder
+from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure
+from ..core.geometry import Mm, Vec2, Vec3
+from .basic_holder import BasicHolderStyle, build_basic_holder
 
 
 class BoxHolder(Feature):
     """A holder for a box-shaped device on a faceplate.
 
-    Box holders are used to hold many different types of box-shaped devices in a electronic rack. This feature is
+    Box holders are used to hold many different types of box-shaped devices in an electronic rack. This feature is
     commonly used in a Faceplate model. Devices are held by friction from side, top and bottom plates.
 
     See Also:
@@ -84,23 +81,22 @@ class BoxHolder(Feature):
         return Feature.DesiredSize(size)
 
     @override
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         # geometry
         dx, dy, r = self.device_size.x, self.device_size.y, self.device_rounding
         holder_depth = (
             self.device_size.z
-            - (maker.plate_depth if self.style.has_cutout else 0)
+            - (asm.plate_depth if self.style.has_cutout else 0)
             + (self.style.front_lip.depth if self.style.front_lip is not None else 0)
         )
         w = self.style.wall_thickness
         e = 1.0  # corner edge
-        dc = e + r  # corner width
 
-        def add_cutout(maker: Assembler) -> None:
+        def build_cutout() -> None:
             """
             Make the cutout for the holder.
             """
-            cutout_sub = maker.make_cutout_sub()
+            cutout_sub = asm.make_cutout_sub()
             if self.style.front_lip is not None:
                 stack = StackElement(
                     [
@@ -110,38 +106,34 @@ class BoxHolder(Feature):
                             self.style.front_lip.depth,
                             corners=r,
                         ),
-                        PlateElement(dx, dy, maker.plate_depth - self.style.front_lip.depth, r),
+                        PlateElement(dx, dy, asm.plate_depth - self.style.front_lip.depth, r),
                     ]
                 )
                 cutout_sub.place_element(stack)
             else:
-                cutout_sub.place_element(PlateElement(dx, dy, maker.plate_depth, r))
+                cutout_sub.place_element(PlateElement(dx, dy, asm.plate_depth, r))
 
-        def add_back_lip(maker: Assembler) -> None:
+        def add_back_lip() -> None:
             assert self.style.back_lip is not None
             # start with the device and form the outer wall and the inner lip
             device = RectangleFigure(dx, dy, r)
             outer = OutsetFigure(device, w)
             inner = OutsetFigure(device, -self.style.back_lip.width)
             lip = PrismElement(CutoutFigure(outer, inner), self.style.back_lip.depth)
-            maker.place_element(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
+            asm.place_element(lip, Assembler.Place(offset=Vec3(0, 0, holder_depth)))
 
         # Cutout if needed
         if self.style.has_cutout:
-            add_cutout(maker)
+            build_cutout()
 
         # Basic holder shape
-        make_basic_holder(
-            maker,
-            Vec3(dx, dy, holder_depth),
-            BasicHolderStyle(
-                outer_radius=r + w,
-                inner_radius=r,
-                wall_thickness=self.style.wall_thickness,
-                corner_edge=e,
-            ),
+        basic_style = BasicHolderStyle(
+            outer_radius=r + w,
+            inner_radius=r,
+            wall_thickness=self.style.wall_thickness,
+            corner_edge=e,
         )
-
+        build_basic_holder(asm, Vec3(dx, dy, holder_depth), basic_style)
         # Add the back lip if needed
         if self.style.back_lip is not None:
-            add_back_lip(maker)
+            add_back_lip()

@@ -16,14 +16,14 @@ Model render method for a FacePlate
 ```python
 class FacePlate(Model):
     def render(self) -> Rendering:
-        maker = Assembler()
-        maker.place()
+        asm = Assembler()
+        asm.place()
         if self.ribs:
             rib = _make_rib()
-            maker.place_element(rib, side_plane=Place.BOTTOM)
-            maker.mirror_last(Ax.Y)
+            asm.place_element(rib, side_plane=Place.BOTTOM)
+            asm.mirror_last(Ax.Y)
         if self.features:
-            maker.assemble(self.features, self.layout, size=Vec2())
+            asm.assemble(self.features, self.layout, size=Vec2())
         
     def _make_plate(self):
         
@@ -41,20 +41,20 @@ Model rendering for a Shelf
 
 
 class RackShelf(Model):
-    def render(self, maker: Modler) -> None:
-        maker.place_element(self._render_plate(maker))
-        maker.set_base()
-        maker.place_features(self.features)
+    def render(self, asm: Modler) -> None:
+        asm.place_element(self._render_plate(asm))
+        asm.set_base()
+        asm.place_features(self.features)
         
         # front
-        maker.place_element(_make_faceplate(), side_plane=Place.BOTTOM)
-        saved_base = maker.set_base()
-        maker.place_features(self.faceplate_features, self.faceplate_layout, size=Vec())
+        asm.place_element(_make_faceplate(), side_plane=Place.BOTTOM)
+        saved_base = asm.set_base()
+        asm.place_features(self.faceplate_features, self.faceplate_layout, size=Vec())
     
         # walls
-        maker.set_base(saved_base)
-        maker.place_element(_make_wall(), side_plane=Place.LEFT)
-        maker.mirror_last(Ax.X)
+        asm.set_base(saved_base)
+        asm.place_element(_make_wall(), side_plane=Place.LEFT)
+        asm.mirror_last(Ax.X)
         
     
 ```

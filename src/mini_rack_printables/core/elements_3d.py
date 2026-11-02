@@ -1,8 +1,11 @@
 """
-3D Elements for models and parts. Elements are the primitives that are to form a model.
+3D blocks for models and features.
+
+A core concept is the stacking of blocks to construct features and models.
 
 See Also:
     `Figure` - for the 2d equivalent
+    `Assembler` - to place blocks on top of each other
 """
 
 from abc import ABC, abstractmethod
@@ -49,7 +52,7 @@ class Element3D(ABC):
 
 
 class PrismElement(Element3D):
-    """A prism element is just an extrusion of a 2d shape."""
+    """A prism block is an extrusion of a 2d figure."""
 
     element: Figure
     amount: Mm
@@ -259,62 +262,3 @@ class ImportElement(Element3D):
     @override
     def render(self, cut: bool = False) -> Piece:
         return Piece(self.shape.solid(), cut)
-
-
-# def sketch_ring(element: Element2D, wall_thickness: Mm) -> Sketch:
-#     """
-#     Make a 2d ring from the element shape.
-#
-#     Args:
-#         element (Element2D): The shape of the ring.
-#         wall_thickness (Mm): The thickness of the ring wall.
-#
-#     Returns:
-#         Part: The extruded ring of the basic shape.
-#     """
-#     inner = element.sketch()
-#     outer = offset(inner, wall_thickness)
-#     return Sketch(outer - inner)
-#
-#
-# def extrude_tube(element: Element2D, wall_thickness: Mm, amount: Mm) -> Part:
-#     """
-#     Make a 3d tube from the element shape by outsetting the shape and extruding it along the Z axis.
-#
-#     Args:
-#         element (Element2D): The shape of the tube.
-#         wall_thickness (Mm): The thickness of the tube wall.
-#         amount (Mm): The amount to extrude the tube in the Z direction.
-#     Returns:
-#         Part: The extruded tube of the basic shape.
-#     """
-#     sketch = sketch_ring(element, wall_thickness)
-#     return Location((0, 0, -amount / 2)) * extrude(sketch, amount)
-#
-#
-# def extrude_sketch(sketch: Sketch, amount: Mm) -> Part:
-#     """
-#     Extrude a sketch along the Z axis.
-#
-#     Args:
-#         sketch (Sketch): The sketch to extrude.
-#         amount (Mm): The amount to extrude the sketch in the Z direction.
-#     Returns:
-#         Part: The extruded sketch.
-#     """
-#     return Location((0, 0, -amount / 2)) * extrude(sketch, amount)
-#
-#
-# def make_plate(size: Vec3, holes: HolePattern | None = None) -> Part:
-#     """
-#     Make a plate of the given size and fill pattern.
-#
-#     Args:
-#         size (VectorLike): The size of the plate.
-#         holes (HolePattern, optional): The fill pattern of the plate. Defaults to SOLID.
-#
-#     Returns:
-#         Part: The extruded plate.
-#     """
-#     sketch = RectangleElement(size.x, size.y, holes=holes).sketch()
-#     return Location((0, 0, -size.z / 2)) * extrude(sketch, size.z)

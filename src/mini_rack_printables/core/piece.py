@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Self
 
 from build123d import BoundBox, Color, Location, Part, Plane, Solid, Vector
@@ -10,7 +9,7 @@ class Piece:
     """The rendered the piece of a model.
 
     Created by elements and features as the output of rendering.
-    This is a mutabable class which is expected to
+    This is a mutable class which is expected to
 
     Attributes:
         part: Part - the build123d Part

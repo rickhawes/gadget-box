@@ -45,9 +45,12 @@ class Feature(ABC):
         """
 
     @abstractmethod
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         """
-        Render the feature into the passed in Assembler using the base as plate
+        Render the feature into the passed in Assembler.
+
+        Args:
+            asm (Assembler): The Assembler receives the pieces of the feature
         """
 
 
@@ -83,11 +86,11 @@ class FeatureXRayModel(Model):
     @override
     def render(self) -> Model.Rendering:
         plate = Bx(self.size, Vec3(0, 0, self.size.z / 2))
-        maker = Assembler(plate, z_dir=AxDir3.TOP)
+        asm = Assembler(plate, z_dir=AxDir3.TOP)
 
-        self.feature.render(maker)
+        self.feature.render(asm)
         children: list[Part | Solid] = []
-        for piece in maker.all_pieces():
+        for piece in asm.all_pieces():
             if not piece.cut:
                 new_piece = piece.set(color=Color("blue"), label="add")
                 children.append(new_piece.part)

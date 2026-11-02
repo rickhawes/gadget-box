@@ -53,6 +53,7 @@ tasks:
     deps: [init]
     cmds:
       - uv run ruff format .  
+      - uv run ruff check --select I --fix .
 
   viewer:
     desc: "Run the viewer application"

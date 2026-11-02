@@ -66,7 +66,7 @@ class CornerHolder(Feature):
         return Feature.DesiredSize(size, False)
 
     @override
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         # dimensions
         w, d = self.wall_thickness, self.wall_depth
         cw = self.corner_width
@@ -76,4 +76,4 @@ class CornerHolder(Feature):
         cross = RectangleFigure(size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w))
         holder = RingFigure(self.shape, w)
         co = CutoutFigure(holder, cross)
-        maker.place_element(PrismElement(co, d))
+        asm.place_element(PrismElement(co, d))

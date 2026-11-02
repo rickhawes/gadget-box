@@ -7,7 +7,7 @@ from ..core.elements_3d import PrismElement
 from ..core.feature import Feature
 from ..core.figures import RectangleFigure
 from ..core.geometry import AxDir3, Bx, Mm, Vec2, Vec3
-from .basic_holder import BasicHolderStyle, make_basic_holder
+from .basic_holder import BasicHolderStyle, build_basic_holder
 
 
 class PuckHolder(Feature):
@@ -78,41 +78,41 @@ class PuckHolder(Feature):
         return Feature.DesiredSize(size)
 
     @override
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         # geometry
         dx, dy, dz = self.device_size.to_tuple()
-        pd = maker.plate_depth
+        pd = asm.plate_depth
         r = self.device_rounding
         w = self.style.wall_thickness
         ce = self.style.corner_edges
 
-        def add_front_block(plate_maker: Assembler, front_size: Vec3) -> None:
+        def add_front_block(plate_asm: Assembler, front_size: Vec3) -> None:
             """
             Make the block of the holder by sketching the device block + extra for the corners.
             """
             block = PrismElement(
                 RectangleFigure(front_size.x + 2 * w, front_size.y + 2 * w, w), front_size.z
             )
-            plate_maker.place_element(block)
+            plate_asm.place_element(block)
 
-        def sub_device_cutout(maker: Assembler) -> None:
+        def sub_device_cutout(asm: Assembler) -> None:
             device_center = Vec3(0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2))
             device_cutout_bx = Bx(self.device_size, device_center).side_bx(AxDir3.Y_MINUS)
-            device_cutout_maker = maker.make_sub(
+            device_cutout_asm = asm.make_sub(
                 device_cutout_bx, z_dir=AxDir3.Y_PLUS, cutout_mode=True
             )
             # puck shape by selectively using rounded corners
             corners = SelectedCorners(RoundedCorners(r), bottom_left=True, bottom_right=True)
             cutout = PrismElement(RectangleFigure(dx, dz, corners), dy)
-            device_cutout_maker.place_element(cutout)
+            device_cutout_asm.place_element(cutout)
 
         front_dz = max(r - pd if self.style.has_cutout else r, 0)
         front_size = Vec3(dx, dy, front_dz)
-        add_front_block(maker, front_size)
-        wall_maker = maker.make_sub(Bx(front_size, Vec3(0, 0, front_dz / 2)))
-        make_basic_holder(
-            wall_maker,
+        add_front_block(asm, front_size)
+        wall_asm = asm.make_sub(Bx(front_size, Vec3(0, 0, front_dz / 2)))
+        build_basic_holder(
+            wall_asm,
             Vec3(dx, dy, dz - r),
             BasicHolderStyle(outer_radius=w, corner_edge=ce, wall_thickness=w),
         )
-        sub_device_cutout(maker)
+        sub_device_cutout(asm)

@@ -25,5 +25,5 @@ class Spacer(Feature):
         return Feature.DesiredSize(Vec2(self.width, self.height), self.more_x, self.more_y)
 
     @override
-    def render(self, maker: Assembler) -> None:
+    def render(self, asm: Assembler) -> None:
         pass
