@@ -1,5 +1,8 @@
 """
 Fixture to display on OCP Viewer the output of each test
+
+TODO:
+    - Make tests use standard sizes instead of 60
 """
 
 from collections.abc import Generator

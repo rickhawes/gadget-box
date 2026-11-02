@@ -3,11 +3,10 @@ from dataclasses import dataclass
 from mini_rack_printables import HolePattern
 
 from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock, PlateBlock, StackBlock
+from ..core.block import ExtrudedBlock, PlateBlock
 from ..core.corners import InsetCorners
-from ..core.feature import Feature, Rib
-from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure, RingFigure
-from ..core.geometry import AxDir3, Bx, Dir2, Mm, Vec2, Vec3
+from ..core.figures import CutoutFigure, RectangleFigure
+from ..core.geometry import AxDir3, Mm, Vec2, Vec3
 from ..core.hole_patterns import HexFill
 
 

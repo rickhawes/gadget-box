@@ -9,7 +9,7 @@ from build123d import Location, LocationList, Sketch
 from ..core.figures import SlotFigure
 from ..core.geometry import Mm, Vec2
 from ..core.hole_patterns import HolePattern
-from .rack_dims import (
+from mini_rack_printables.models.rack_dims import (
     RackDims,
     RackScrewDims,
     Screw1032Dims,

@@ -35,18 +35,18 @@ from .core.layouts import GridLayout, Layout, MeasuredRowsColumns, RowLayout
 from .core.model import Model, ModelLogger
 from .core.piece import Piece
 from .core.row_column_collection import RowColumnCollection
-from .models.box_holder import BoxHolder
-from .models.corner_holder import CornerHolder
-from .models.cutout import Cutout
+from .features.box_holder import BoxHolder
+from .features.corner_holder import CornerHolder
+from .features.cutout import Cutout
 from .models.faceplate import Faceplate
-from .models.import_feature import ImportFeature
-from .models.jetkvm import JetKVM
-from .models.keystone import Keystone
-from .models.puck_holder import PuckHolder
+from .features.import_feature import ImportFeature
+from .features.jetkvm import JetKVM
+from .features.keystone import Keystone
+from .features.puck_holder import PuckHolder
 from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims, rack_units_to_mm
 from .models.rack_holes import RackHoleFigure, RackHolePattern, layout_rack_screw_holes
 from .models.shelf import Shelf
-from .models.spacer import Spacer
+from .features.spacer import Spacer
 
 __all__ = [
     "Assembler",
