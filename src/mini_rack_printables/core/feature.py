@@ -11,8 +11,8 @@ from build123d import Color, Compound, Part, Solid
 
 from .assembler import Assembler
 from .geometry import AxDir3, Bx, Mm, Vec2, Vec3
-from .model import Model
 from .piece import Piece
+from .rendering import Rendering
 
 
 class Feature(ABC):
@@ -66,37 +66,3 @@ class Rib:
 
     width: Mm
     depth: Mm
-
-
-class FeatureXRayModel(Model):
-    """
-    An X-ray model will show the pieces of a Feature without the plate.
-    This model is useful for visualizing and debugging the structure of a Feature.
-    """
-
-    feature: Feature
-    size: Vec3
-    only_adds: bool
-
-    def __init__(self, part: Feature, size: Vec3 | None = None, only_adds: bool = True):
-        self.feature = part
-        self.size = size if size is not None else Vec3(100, 100, 5)
-        self.only_adds = only_adds
-
-    @override
-    def render(self) -> Model.Rendering:
-        plate = Bx(self.size, Vec3(0, 0, self.size.z / 2))
-        asm = Assembler(plate, z_dir=AxDir3.TOP)
-
-        self.feature.render(asm)
-        children: list[Part | Solid] = []
-        for piece in asm.all_pieces():
-            if not piece.cut:
-                new_piece = piece.set(color=Color("blue"), label="add")
-                children.append(new_piece.part)
-            else:
-                if not self.only_adds:
-                    new_piece = piece.set(color=Color("red"), label="subtract")
-                    children.append(new_piece.part)
-
-        return Model.Rendering(Compound(label="xray", children=children))

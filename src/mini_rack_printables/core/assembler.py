@@ -5,8 +5,8 @@ from build123d import BuildPart, Location, Mode, Plane, insert
 
 from .block import Block
 from .geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
-from .model import Model
 from .piece import Piece
+from .rendering import Rendering
 
 
 @final
@@ -75,7 +75,7 @@ class Assembler:
         parent: Assembler | None = None,
     ) -> None:
         """Create an assembler or sub-assembler.
-        
+
         Args:
             plate: the base box on which everything is placed in global.
             z_dir: the orientation for the placement (and the z_dir).
@@ -247,10 +247,10 @@ class Assembler:
         else:
             return self._pieces
 
-    def make_rendering(self) -> Model.Rendering:
+    def make_rendering(self) -> Rendering:
         with BuildPart() as builder:
             for p in self.all_pieces():
                 mode = Mode.SUBTRACT if p.cut else Mode.ADD
                 _ = insert(p.part, mode=mode)
         assert builder.part is not None
-        return Model.Rendering(builder.part)
+        return Rendering(builder.part)

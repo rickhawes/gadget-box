@@ -1,4 +1,4 @@
-from mini_rack_printables import Faceplate, Keystone
+from mini_rack_printables import Keystone, faceplate
 
 #
 # This example demonstrates a faceplate with a keystone cutout.
@@ -6,7 +6,7 @@ from mini_rack_printables import Faceplate, Keystone
 
 # A basic horizontal layout for 3 keystones
 keystone_part = Keystone()
-plate = Faceplate(rack_units=1.0, features=[[keystone_part for _ in range(3)]]).render()
+plate = faceplate(rack_units=1.0, features=[[keystone_part for _ in range(3)]])
 
 # Show the plate in the OCP viewer
 plate.show()

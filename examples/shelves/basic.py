@@ -1,10 +1,10 @@
-from mini_rack_printables import Shelf
+from mini_rack_printables import shelf
 
 #
 # This example demonstrates a basic shelf with default settings.
 #
 
-shelf = Shelf(rack_units=1.0).render()
+shelf = shelf(rack_units=1.0)
 
 # Show the shelf in the viewer. Run 'task viewer' before.
 shelf.show()

@@ -1,51 +1,45 @@
 from mini_rack_printables import (
     BoxHolder,
     CornerHolder,
-    FeatureXRayModel,
-    ModelLogger,
     PuckHolder,
     RectangleFigure,
+    TestLogger,
     Vec3,
+    feature_xray,
 )
 
 
-def test_default_holder(viewer_logger: ModelLogger) -> None:
+def test_default_holder(viewer_logger: TestLogger) -> None:
     holder = BoxHolder(device_size=Vec3(30, 20, 20))
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_no_rounding(viewer_logger: ModelLogger) -> None:
+def test_no_rounding(viewer_logger: TestLogger) -> None:
     holder = BoxHolder(device_size=Vec3(30, 20, 20), device_rounding=0.0)
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_back_lip(viewer_logger: ModelLogger) -> None:
+def test_back_lip(viewer_logger: TestLogger) -> None:
     holder = BoxHolder(device_size=Vec3(30, 20, 20), style=BoxHolder.BACK_LIP)
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_no_cutout(viewer_logger: ModelLogger) -> None:
+def test_no_cutout(viewer_logger: TestLogger) -> None:
     holder = BoxHolder(device_size=Vec3(30, 20, 20), style=BoxHolder.NO_CUTOUT)
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_puck_holder(viewer_logger: ModelLogger) -> None:
+def test_puck_holder(viewer_logger: TestLogger) -> None:
     holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_corner_holder(viewer_logger: ModelLogger) -> None:
+def test_corner_holder(viewer_logger: TestLogger) -> None:
     holder = CornerHolder(RectangleFigure(80, 30, 2))
-    xray = FeatureXRayModel(holder, only_adds=False)
-    rendering = xray.render()
-    viewer_logger.log(rendering.part)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)

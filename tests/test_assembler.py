@@ -10,9 +10,9 @@ from mini_rack_printables import (
     Bx,
     Dir2,
     Feature,
-    ModelLogger,
     Rc,
     RowLayout,
+    TestLogger,
     Vec2,
     Vec3,
 )
@@ -61,7 +61,7 @@ def test_make_with_block() -> None:
     assert m2._plane.z_dir == Vector(1, 0, 0)
 
 
-def test_assemble_two_boxes(viewer_logger: ModelLogger) -> None:
+def test_assemble_two_boxes(viewer_logger: TestLogger) -> None:
     base = BoxBlock(30, 20, 10)
 
     def place_nodes(asm: Assembler) -> None:
@@ -76,22 +76,22 @@ def test_assemble_two_boxes(viewer_logger: ModelLogger) -> None:
     # place the nodes on the base using a assembler
     m1 = Assembler.make_with_block(base, z_dir=AxDir3.TOP)
     place_nodes(m1)
-    viewer_logger.log(m1.make_rendering().part)
+    viewer_logger.log(m1.make_rendering())
 
     # different side and orientation, but the same placement code works as expected.
     # notice that the placed nodes have an orientation that matches the side's orientation
     m2 = Assembler.make_with_block(base, z_dir=AxDir3.Z_MINUS)
     place_nodes(m2)
-    viewer_logger.log(m2.make_rendering().part)
+    viewer_logger.log(m2.make_rendering())
 
     # different side and orientation, but the same placement code works as expected.
     # notice that the placed nodes have an orientation that matches the side's orientation
     m3 = Assembler.make_with_block(base, z_dir=AxDir3.Y_MINUS)
     place_nodes(m3)
-    viewer_logger.log(m3.make_rendering().part)
+    viewer_logger.log(m3.make_rendering())
 
 
-def test_cutout_mode(viewer_logger: ModelLogger) -> None:
+def test_cutout_mode(viewer_logger: TestLogger) -> None:
     base = BoxBlock(50, 50, 10)
 
     # make a base
@@ -141,7 +141,7 @@ class TestFeature(Feature):
         cutout_asm.place_block(BoxBlock(10, 10, 10))
 
 
-def test_add_feature(viewer_logger: ModelLogger) -> None:
+def test_add_feature(viewer_logger: TestLogger) -> None:
     base = BoxBlock(50, 50, 10)
     m1 = Assembler.make_with_block(base, z_dir=AxDir3.TOP)
     tf = TestFeature()
@@ -154,7 +154,7 @@ def test_add_feature(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(r1.part)
 
 
-def test_add_feature_twice(viewer_logger: ModelLogger) -> None:
+def test_add_feature_twice(viewer_logger: TestLogger) -> None:
     # Create a L shaped base out of two boxes stacked
     top_asm = Assembler.make_with_block(BoxBlock(50, 50, 10), z_dir=AxDir3.TOP)
     side_asm = top_asm.stack_block(

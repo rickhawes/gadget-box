@@ -6,9 +6,6 @@ import math
 
 from build123d import Location, LocationList, Sketch
 
-from ..core.figures import SlotFigure
-from ..core.geometry import Mm, Vec2
-from ..core.hole_patterns import HolePattern
 from mini_rack_printables.models.rack_dims import (
     RackDims,
     RackScrewDims,
@@ -16,6 +13,10 @@ from mini_rack_printables.models.rack_dims import (
     ShelfTabDims,
     rack_units_to_mm,
 )
+
+from ..core.figures import SlotFigure
+from ..core.geometry import Mm, Vec2
+from ..core.hole_patterns import HolePattern
 
 
 def layout_rack_screw_holes(

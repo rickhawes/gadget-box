@@ -11,7 +11,7 @@ import pytest
 from build123d import Align, Color, Compound, Location, Rectangle, Sketch, Text
 from ocp_vscode import Camera, push_object, reset_show, show_objects
 
-from mini_rack_printables import ModelLogger
+from mini_rack_printables import TestLogger
 
 STD_SPACING = 80
 MIN_SPACING = 10
@@ -20,9 +20,9 @@ MAX_ELEMENTS_PER_ROW = 6
 
 
 @pytest.fixture(scope="session")
-def viewer_logger() -> Generator[ModelLogger, None, None]:
+def viewer_logger() -> Generator[TestLogger, None, None]:
     # Start of the session
-    logger = ModelLogger()
+    logger = TestLogger()
     yield logger
 
     # End of the session

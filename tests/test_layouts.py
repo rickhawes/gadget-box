@@ -12,12 +12,12 @@ from mini_rack_printables import (
     GridLayout,
     Layout,
     MeasuredRowsColumns,
-    ModelLogger,
     Rc,
     RectangleFigure,
     RowColumnCollection,
     RowLayout,
     Spacer,
+    TestLogger,
     Vec2,
 )
 
@@ -132,7 +132,7 @@ def test_equal_widths() -> None:
     assert sections[2].origin == Vec2(20, 0)
 
 
-def test_align_cell(viewer_logger: ModelLogger) -> None:
+def test_align_cell(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(15, 15)
     plate = Rc(40, 40)
@@ -162,7 +162,7 @@ def test_align_cell(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ALIGN_CELL)
 
 
-def test_even_col_layout(viewer_logger: ModelLogger) -> None:
+def test_even_col_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(10, 10)
     p2 = Spacer(15, 15)
     p3 = Spacer(20, 20)
@@ -174,7 +174,7 @@ def test_even_col_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), SINGLE_ROW)
 
 
-def test_proportional_col_layout(viewer_logger: ModelLogger) -> None:
+def test_proportional_col_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(10, 10)
     p2 = Spacer(15, 15)
     p3 = Spacer(20, 20)
@@ -186,7 +186,7 @@ def test_proportional_col_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), SINGLE_ROW)
 
 
-def test_expand_col_layout(viewer_logger: ModelLogger) -> None:
+def test_expand_col_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15, more_x=True)
@@ -198,7 +198,7 @@ def test_expand_col_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), SINGLE_ROW)
 
 
-def test_expand_two_col_layout(viewer_logger: ModelLogger) -> None:
+def test_expand_two_col_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5, more_x=True)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15, more_x=True)
@@ -210,7 +210,7 @@ def test_expand_two_col_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), SINGLE_ROW)
 
 
-def test_proportional_layout(viewer_logger: ModelLogger) -> None:
+def test_proportional_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -222,7 +222,7 @@ def test_proportional_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_equal_cols_layout(viewer_logger: ModelLogger) -> None:
+def test_equal_cols_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -234,7 +234,7 @@ def test_equal_cols_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_equal_rows_layout(viewer_logger: ModelLogger) -> None:
+def test_equal_rows_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -246,7 +246,7 @@ def test_equal_rows_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_equal_rows_cols_layout(viewer_logger: ModelLogger) -> None:
+def test_equal_rows_cols_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -258,7 +258,7 @@ def test_equal_rows_cols_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_expanding_cols_layout(viewer_logger: ModelLogger) -> None:
+def test_expanding_cols_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     e1 = Spacer(5, 5, more_x=True)
     p2 = Spacer(10, 10)
@@ -272,7 +272,7 @@ def test_expanding_cols_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_expanding_row_layout(viewer_logger: ModelLogger) -> None:
+def test_expanding_row_layout(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     e1 = Spacer(5, 5, more_y=True)
     p2 = Spacer(10, 10)
@@ -285,7 +285,7 @@ def test_expanding_row_layout(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_explict_row_heights(viewer_logger: ModelLogger) -> None:
+def test_explict_row_heights(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -298,7 +298,7 @@ def test_explict_row_heights(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), ROW_LAYOUT)
 
 
-def test_one_row_grid(viewer_logger: ModelLogger) -> None:
+def test_one_row_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -309,7 +309,7 @@ def test_one_row_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_one_equal_row_grid(viewer_logger: ModelLogger) -> None:
+def test_one_equal_row_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -320,7 +320,7 @@ def test_one_equal_row_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_one_specified_row_grid(viewer_logger: ModelLogger) -> None:
+def test_one_specified_row_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -331,7 +331,7 @@ def test_one_specified_row_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_one_expanded_row_grid(viewer_logger: ModelLogger) -> None:
+def test_one_expanded_row_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10, more_x=True)
     p3 = Spacer(15, 15)
@@ -342,7 +342,7 @@ def test_one_expanded_row_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_sparse_grid(viewer_logger: ModelLogger) -> None:
+def test_sparse_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -353,7 +353,7 @@ def test_sparse_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_sparse_equal_row_grid(viewer_logger: ModelLogger) -> None:
+def test_sparse_equal_row_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -364,7 +364,7 @@ def test_sparse_equal_row_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_sparse_equal_grid(viewer_logger: ModelLogger) -> None:
+def test_sparse_equal_grid(viewer_logger: TestLogger) -> None:
     p1 = Spacer(5, 5)
     p2 = Spacer(10, 10)
     p3 = Spacer(15, 15)
@@ -375,7 +375,7 @@ def test_sparse_equal_grid(viewer_logger: ModelLogger) -> None:
     viewer_logger.log(sketch_sections(sections), GRID_LAYOUT)
 
 
-def test_render_features(viewer_logger: ModelLogger) -> None:
+def test_render_features(viewer_logger: TestLogger) -> None:
     c1 = Cutout(RectangleFigure(5, 5))
 
     # center

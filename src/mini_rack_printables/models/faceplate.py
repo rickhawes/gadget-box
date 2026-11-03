@@ -1,5 +1,7 @@
+"""Facplate function and its parameter types"""
+
 from dataclasses import dataclass
-from typing import final, override
+from typing import ClassVar
 
 from ..core.assembler import Assembler
 from ..core.block import ExtrudedBlock, PlateBlock
@@ -7,114 +9,94 @@ from ..core.feature import FeatureList, Rib
 from ..core.figures import TrapezoidFigure
 from ..core.geometry import AxDir3, Dir2, Mm, Rc, Vec2, Vec3
 from ..core.layouts import Layout, RowLayout
-from ..core.model import Model
+from ..core.rendering import Rendering
 from .rack_dims import RackDims, ShelfTabDims
 from .rack_holes import RackHolePattern
 
 
-@final
-class Faceplate(Model):
+@dataclass(frozen=True)
+class FaceplateStyle:
+    """Style parameters for a faceplate"""
+
+    thickness: Mm = 3.0
+    """Thickness of the plate"""
+    rounding: Mm = 3.0
+    """Rounding applied to corners of a face_plate"""
+    middle_holes: bool = True
+    """Draw middle screw holes"""
+    half_height_bottom: bool = False
+    """Start the bottom with a half unit"""
+    rib: Rib = Rib(2.0, 1.0)
+    """Rib size for the plate"""
+
+    PLAIN: ClassVar["FaceplateStyle"]
+    """Plain or default style"""
+
+    WITH_RIB: ClassVar["FaceplateStyle"]
+    """With Rib style"""
+
+    STD_RIB: ClassVar["Rib"]
+    """The rib size that the faceplate uses."""
+
+
+FaceplateStyle.STD_RIB = Rib(2.0, 1.0)
+FaceplateStyle.PLAIN = FaceplateStyle()
+FaceplateStyle.WITH_RIB = FaceplateStyle(rib=FaceplateStyle.STD_RIB)
+
+
+def faceplate(
+    rack_units: float,
+    style: FaceplateStyle = FaceplateStyle.PLAIN,
+    features: FeatureList | None = None,
+    layout: Layout | None = None,
+) -> Rendering:
     """
-    A mini-rack faceplate model. The model can be customized by
-    rack-unit sizes and features.
+    Render the faceplate according to the parameters.
+
+    Args:
+        rack_units (float): the height of the plate in rack units.
+        style (FaceplateSytle): the sytle used to render the plate, with PLAIN as the default.
+        features (FeatureList): the features to place on the plate.
+        layout (Layout): the layout to use for features. Default is RowLayout.
+
+    Returns:
+        A rendering of the faceplate.
     """
+    if features is not None and layout is None:
+        layout = RowLayout()
+    plate_size = Vec2(RackDims.WIDTH_10INCH, rack_units * RackDims.HEIGHT_1U)
+    feature_area = Rc(ShelfTabDims.MAX_DX_TABS, plate_size.y - 2 * style.rib.width)
 
-    @dataclass(frozen=True)
-    class Style:
-        """Style parameters for the faceplate"""
+    # form a round-rect base with cutout for the holes of the rack screws
+    base = PlateBlock(
+        plate_size.x,
+        plate_size.y,
+        style.thickness,
+        corners=style.rounding,
+        holes=RackHolePattern(rack_units, style.middle_holes, style.half_height_bottom),
+    )
 
-        thickness: Mm = 3.0
-        """Thickness of the plate"""
-        rounding: Mm = 3.0
-        """Rounding applied to corners of a face_plate"""
-        middle_holes: bool = True
-        """Draw middle screw holes"""
-        half_height_bottom: bool = False
-        """Start the bottom with a half unit"""
-        rib: Rib = Rib(2.0, 1.0)
-        """Rib size for the plate"""
+    # create an assembler to place the other blocks
+    asm = Assembler.make_with_block(base)
 
-    STD_RIB = Rib(2.0, 1.0)
-    """Standard rib size"""
+    # ribs
+    if style.rib is not None:
 
-    NO_RIB = Rib(0, 0)
-    """No rib size"""
+        def add_rib(dir2: Dir2) -> None:
+            rib_size = Vec3(feature_area.size.x, style.rib.width, style.rib.depth)
+            rib_bx = asm.place_bounds(rib_size, Assembler.Place(origin=dir2))
+            # place the sub assembly on the side
+            rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
+            rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
+            rib_elem = ExtrudedBlock(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
+            rib_asm.place_block(rib_elem)
 
-    STD_WITH_RIB = Style(rib=Rib(2.0, 1.0))
-    """Standard style with rib"""
+        add_rib(Dir2.Y_PLUS)
+        add_rib(Dir2.Y_MINUS)
 
-    PLAIN = Style(rib=Rib(0, 0))
-    """Standard style without rib"""
+    # features
+    if features is not None:
+        assert layout is not None
+        layout.render_features(features, asm, feature_area)
 
-    rack_units: float
-    """Rack units of the plate"""
-    style: Style
-    features: FeatureList | None = None
-    layout: Layout = RowLayout()
-
-    def __init__(
-        self,
-        rack_units: float,
-        style: Style | None = None,
-        features: FeatureList | None = None,
-        layout: Layout | None = None,
-    ) -> None:
-        """
-        Create a faceplate model
-
-        Args:
-            rack_units: Number of rack units of the plate with half units being acceptable
-            style: Style options for the plate
-            features: The feature to use for the plate. Defaults to None.
-            layout: The layout options for the plate. Defaults to None for a RowLayout
-        """
-        self.rack_units = rack_units
-        self.style = style if style is not None else Faceplate.Style()
-        self.features = features
-        self.layout = layout if layout is not None else RowLayout()
-
-    @override
-    def render(self) -> Model.Rendering:
-        """
-        Render the faceplate
-
-        Returns:
-            A compound shape of the faceplate.
-        """
-        plate_size = Vec2(RackDims.WIDTH_10INCH, self.rack_units * RackDims.HEIGHT_1U)
-        feature_area = Rc(ShelfTabDims.MAX_DX_TABS, plate_size.y - 2 * self.style.rib.width)
-
-        # form a round-rect base with cutout for the holes of the rack screws
-        base = PlateBlock(
-            plate_size.x,
-            plate_size.y,
-            self.style.thickness,
-            corners=self.style.rounding,
-            holes=RackHolePattern(
-                self.rack_units, self.style.middle_holes, self.style.half_height_bottom
-            ),
-        )
-
-        # create an assembler to place the other blocks
-        asm = Assembler.make_with_block(base)
-
-        # ribs
-        if self.style.rib.depth > 0:
-
-            def add_rib(dir2: Dir2) -> None:
-                rib_size = Vec3(feature_area.size.x, self.style.rib.width, self.style.rib.depth)
-                rib_bx = asm.place_bounds(rib_size, Assembler.Place(origin=dir2))
-                # place the sub assembly on the side
-                rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
-                rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
-                rib_elem = ExtrudedBlock(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
-                rib_asm.place_block(rib_elem)
-
-            add_rib(Dir2.Y_PLUS)
-            add_rib(Dir2.Y_MINUS)
-
-        # features
-        if self.features is not None:
-            self.layout.render_features(self.features, asm, feature_area)
-
-        return asm.make_rendering()
+    return asm.make_rendering()

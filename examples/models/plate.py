@@ -3,40 +3,39 @@ from mini_rack_printables import (
     BoxBlock,
     CylinderBlock,
     ExtrudedBlock,
-    Model,
+    Rendering,
     SlotFigure,
     Vec2,
     Vec3,
 )
 
 
-class PlateWithHoles(Model):
+def plate_with_holes() -> Rendering:
     size = Vec3(100, 100, 5)
 
-    def render(self) -> Model.Rendering:
-        base = BoxBlock(self.size.x, self.size.y, self.size.z)
-        hole = ExtrudedBlock(SlotFigure(10, 5), self.size.z)
-        stand = CylinderBlock(5, 10)
-
-        # Assembler is used to assemble this model
-        asm = Assembler.make_with_block(base)
-        cutout_asm = asm.make_cutout_sub()
-        # made with top side as the plane
-        asm.place_block(stand, [Assembler.Place(offset=p) for p in self.stand_centers()])
-
-        # place the holes on the base using the cut mode
-        cutout_asm.place_block(hole, [Assembler.Place(offset=p) for p in self.hole_centers()])
-
-        return asm.make_rendering()
-
-    def hole_centers(self) -> list[Vec2]:
-        dx = self.size.x / 2 - 10
-        dy = self.size.y / 2 - 10
+    def hole_centers() -> list[Vec2]:
+        dx = size.x / 2 - 10
+        dy = size.y / 2 - 10
         return [Vec2(x, y) for x in [dx, -dx] for y in [dy, 0, -dy]]
 
-    def stand_centers(self) -> list[Vec2]:
+    def stand_centers() -> list[Vec2]:
         return [Vec2(x, y) for x in [-10, 10] for y in [0]]
 
+    base = BoxBlock(size.x, size.y, size.z)
+    hole = ExtrudedBlock(SlotFigure(10, 5), size.z)
+    stand = CylinderBlock(5, 10)
 
-rendering = PlateWithHoles().render()
+    # Assembler is used to assemble this model
+    asm = Assembler.make_with_block(base)
+    cutout_asm = asm.make_cutout_sub()
+    # made with top side as the plane
+    asm.place_block(stand, [Assembler.Place(offset=p) for p in stand_centers()])
+
+    # place the holes on the base using the cut mode
+    cutout_asm.place_block(hole, [Assembler.Place(offset=p) for p in hole_centers()])
+
+    return asm.make_rendering()
+
+
+rendering = plate_with_holes()
 rendering.show()

@@ -15,7 +15,7 @@ from .core.corners import (
     SelectedCorners,
     SquareCorners,
 )
-from .core.feature import Feature, FeatureList, FeatureXRayModel, Rib
+from .core.feature import Feature, FeatureList, Rib
 from .core.figures import (
     AlignedFigure,
     CircleFigure,
@@ -32,21 +32,22 @@ from .core.figures import (
 from .core.geometry import Ax2, Ax3, AxDir, AxDir2, AxDir3, Bx, Degree, Dir2, Mm, Rc, Vec2, Vec3
 from .core.hole_patterns import CircleFill, HexFill, HolePattern, SquareFill
 from .core.layouts import GridLayout, Layout, MeasuredRowsColumns, RowLayout
-from .core.model import Model, ModelLogger
 from .core.piece import Piece
+from .core.rendering import Rendering
 from .core.row_column_collection import RowColumnCollection
+from .core.test_fixtures import TestLogger, feature_xray
 from .features.box_holder import BoxHolder
 from .features.corner_holder import CornerHolder
 from .features.cutout import Cutout
-from .models.faceplate import Faceplate
 from .features.import_feature import ImportFeature
 from .features.jetkvm import JetKVM
 from .features.keystone import Keystone
 from .features.puck_holder import PuckHolder
+from .features.spacer import Spacer
+from .models.faceplate import FaceplateStyle, faceplate
 from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims, rack_units_to_mm
 from .models.rack_holes import RackHoleFigure, RackHolePattern, layout_rack_screw_holes
-from .models.shelf import Shelf
-from .features.spacer import Spacer
+from .models.shelf import ShelfStyle, shelf
 
 __all__ = [
     "Assembler",
@@ -72,9 +73,10 @@ __all__ = [
     "Dir2",
     "Figure",
     "Block",
-    "Faceplate",
+    "faceplate",
+    "FaceplateStyle",
     "Feature",
-    "FeatureXRayModel",
+    "feature_xray",
     "Layout",
     "CombinedFigure",
     "FeatureList",
@@ -90,8 +92,7 @@ __all__ = [
     "layout_rack_screw_holes",
     "MeasuredRowsColumns",
     "Mm",
-    "Model",
-    "ModelLogger",
+    "TestLogger",
     "ExtrudedBlock",
     "PuckHolder",
     "rack_units_to_mm",
@@ -103,6 +104,7 @@ __all__ = [
     "RectangleFigure",
     "RotatedFigure",
     "Rib",
+    "Rendering",
     "Op2",
     "TriangleFigure",
     "RoundedCorners",
@@ -110,7 +112,8 @@ __all__ = [
     "RowLayout",
     "Screw1032Dims",
     "SelectedCorners",
-    "Shelf",
+    "shelf",
+    "ShelfStyle",
     "SlotFigure",
     "Spacer",
     "SquareCorners",

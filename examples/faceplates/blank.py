@@ -1,10 +1,10 @@
-from mini_rack_printables import Faceplate
+from mini_rack_printables import faceplate
 
 #
 # This example demonstrates a blank faceplate with a rib.
 #
 
-plate = Faceplate(rack_units=1.0).render()
+plate = faceplate(rack_units=1.0)
 
 # Show the plate in the viewer. Run 'task viewer' before.
 plate.show()

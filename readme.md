@@ -47,17 +47,19 @@ Terms like `width`, `height`, `depth`, `top`, `bottom`, `front`, `back`, `left`,
 
  The project was originally coded in OpenSCAD and BOSL2 which is a common choice in the 3d printing community, but was ported to Python for better software development tools and language features. [build123d](https://github.com/build123d/build123d) was selected for base framework because it has good documentation and an intuitive API for creating 3d models. Every tool and framework choice has its trade-offs, but these choices ended up being the best for the author's enjoyment. 
 
- ## TBD
+ ## TODO
 
  To make a reasonable library requires
 
   - [x] Convert to python and build123d
   - [x] WalledHolder, PuckHolder, CornerHolder parts 
-  - [ ] Shelves
-  - [ ] ValueErrors instead of asserts
+  - [x] Shelves
+  - [x] ValueErrors instead of asserts
   - [ ] SVG primative 
   - [ ] Fill pattern for primatives using intersections
-  - [ ] Layout redesign with spacers 
-  - [ ] Holders for shelves
+  - [x] Layout redesign with spacers 
+  - [x] Holders for shelves
   - [ ] Extract pictures for the readme
   - [ ] Documentation add more examples and usage instructions. Seperated the programming stuff. 
+  - [ ] Assembler: bound box
+  - [ ] Model -> functions

@@ -1,10 +1,10 @@
-from mini_rack_printables import BoxHolder, Faceplate, Vec3
+from mini_rack_printables import BoxHolder, Vec3, faceplate
 
 #
 # This example demonstrates a faceplate with a holder.
 #
 holder = BoxHolder(device_size=Vec3(210.0, 33.1, 30), style=BoxHolder.BACK_LIP)
-plate = Faceplate(rack_units=1.0, features=[[holder]]).render()
+plate = faceplate(rack_units=1.0, features=[[holder]])
 
 # Show the plate in the OCP viewer
 plate.show()

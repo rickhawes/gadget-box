@@ -1,7 +1,7 @@
-from mini_rack_printables import Assembler, AxDir3, BoxBlock, Dir2, Model, Vec3
+from mini_rack_printables import Assembler, AxDir3, BoxBlock, Dir2, Rendering, Vec3
 
 
-def render() -> Model.Rendering:
+def render() -> Rendering:
     base = BoxBlock(30, 20, 10)
     node = BoxBlock(2, 1.5, 1)
 
