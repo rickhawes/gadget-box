@@ -27,7 +27,7 @@ from build123d import (
 
 from .corners import Corners, RoundedCorners, SquareCorners
 from .geometry import Ax2, AxDir, Degree, Mm, Rc, Vec2
-from .hole_patterns import HolePattern
+from .hole_patterns import HolePattern, fill_holes
 from .print_dims import E
 
 #
@@ -74,6 +74,13 @@ class Figure(ABC):
     def sketch(self) -> Sketch:
         """Draw the outline of the shape according to the `op` ignoring the `op.block` field."""
 
+    def calc_interior(self, inset: Vec2) -> Rc:
+        """Calculate an area that is in the interior of this figure with the specified inset.
+
+        Used to optimize hole fills. Return an empty rect if not easily calculated.
+        """
+        return Rc(0, 0)
+
 
 # endregion
 
@@ -87,12 +94,13 @@ class CircleFigure(Figure):
 
     radius: Mm
 
-    def __init__(self, radius: Mm) -> None:
+    def __init__(self, radius: Mm, holes: HolePattern | None = None) -> None:
         """
         Args:
             radius (Mm): The radius of the circle.
         """
         self.radius = radius
+        self.holes = holes
 
     @property
     @override
@@ -101,7 +109,10 @@ class CircleFigure(Figure):
 
     @override
     def sketch(self) -> Sketch:
-        return Circle(self.radius)
+        sk = Circle(self.radius)
+        if self.holes is not None:
+            sk = fill_holes(sk, self.size, self.holes)
+        return sk
 
 
 class RectangleFigure(Figure):
@@ -125,8 +136,6 @@ class RectangleFigure(Figure):
             height (Mm): The height of the rectangle.
             corners (Corners): The corner shape of the rectangle.
                 If a `Mm` > 0, then a Rounded Corner is used.
-            holes (HolePattern): The hole pattern for the inside of the rectangle after
-                insetting the rectangle for the corner size. Defaults to Fill.SOLID.
         """
         self.width = width
         self.height = height
@@ -145,19 +154,6 @@ class RectangleFigure(Figure):
 
     @override
     def sketch(self) -> Sketch:
-        def solid_fill() -> Sketch:
-            """Sketch the rectangle with its corners"""
-            # Optimize for square and rounded corners
-            match self.corners:
-                case SquareCorners():
-                    return Rectangle(self.width, self.height)
-                case RoundedCorners() if self.corners.radius == 0:
-                    return Rectangle(self.width, self.height)
-                case RoundedCorners():
-                    return RectangleRounded(self.width, self.height, self.corners.radius)
-                case _:
-                    return complex_corners()
-
         def complex_corners() -> Sketch:
             cs = self.corners.size
             cw, ch = cs.x, cs.y
@@ -177,21 +173,25 @@ class RectangleFigure(Figure):
                 _ = make_face()
             return Sketch(sk.sketch)
 
-        def hole_fill() -> Sketch:
-            assert self.holes is not None, "fill must be provided"
+        # Optimize the square and rounded corners cases
+        def solid_fill() -> Sketch:
+            match self.corners:
+                case SquareCorners():
+                    return Rectangle(self.width, self.height)
+                case RoundedCorners() if self.corners.radius == 0:
+                    return Rectangle(self.width, self.height)
+                case RoundedCorners():
+                    return RectangleRounded(self.width, self.height, self.corners.radius)
+                case _:
+                    return complex_corners()
 
-            # make a sketch of the holes
-            #
-            outline = solid_fill().wire()
-            holes = self.holes.locations(self.size, self.corners.size) * self.holes.sketch().wire()
-            sk = Sketch()
-            sk += Face(outline, holes)
-            return sk
-
-        if self.holes is None:
-            return solid_fill()
-        else:
-            return hole_fill()
+        sk = solid_fill()
+        if self.holes is not None:
+            interior_size = self.size - (
+                self.corners.size if self.corners is not None else Vec2(0, 0)
+            )
+            sk = fill_holes(sk, self.size, self.holes, Rc(interior_size))
+        return sk
 
 
 class SlotFigure(Figure):
@@ -199,8 +199,9 @@ class SlotFigure(Figure):
 
     width: Mm
     height: Mm
+    holes: HolePattern | None
 
-    def __init__(self, width: Mm, height: Mm) -> None:
+    def __init__(self, width: Mm, height: Mm, holes: HolePattern | None = None) -> None:
         """
         Args:
             width (Mm): The width of the slot.
@@ -208,6 +209,7 @@ class SlotFigure(Figure):
         """
         self.width = width
         self.height = height
+        self.holes = holes
 
     @property
     @override
@@ -216,7 +218,10 @@ class SlotFigure(Figure):
 
     @override
     def sketch(self) -> Sketch:
-        return SlotOverall(self.width, self.height)
+        sk = SlotOverall(self.width, self.height)
+        if self.holes is not None:
+            sk = fill_holes(sk, self.size, self.holes)
+        return sk
 
 
 class TrapezoidFigure(Figure):
@@ -227,6 +232,7 @@ class TrapezoidFigure(Figure):
     angle1: float
     angle2: float | None = None
     minor_width: Mm | None = None
+    holes: HolePattern | None
 
     def __init__(
         self,
@@ -235,6 +241,7 @@ class TrapezoidFigure(Figure):
         angle1: float | None = 90,
         angle2: float | None = None,
         minor_width: Mm | None = None,
+        holes: HolePattern | None = None,
     ) -> None:
         """
         A trapezoid shape with the major width on the bottom and minor on the top.
@@ -269,6 +276,7 @@ class TrapezoidFigure(Figure):
         self.height = height
         self.angle1 = angle1
         self.angle2 = angle2
+        self.holes = holes
 
     @property
     @override
@@ -277,9 +285,12 @@ class TrapezoidFigure(Figure):
 
     @override
     def sketch(self) -> Sketch:
-        return Trapezoid(
+        sk = Trapezoid(
             self.width, self.height, left_side_angle=self.angle1, right_side_angle=self.angle2
         )
+        if self.holes is not None:
+            sk = fill_holes(sk, self.size, self.holes)
+        return sk
 
 
 class TriangleFigure(Figure):
@@ -288,8 +299,11 @@ class TriangleFigure(Figure):
     width: Mm
     height: Mm
     tip_ratio: float
+    holes: HolePattern | None
 
-    def __init__(self, width: Mm, height: Mm, tip_ratio: float = 0.0) -> None:
+    def __init__(
+        self, width: Mm, height: Mm, tip_ratio: float = 0.0, holes: HolePattern | None = None
+    ) -> None:
         """
         Args:
             width (Mm): The width of the triangle.
@@ -298,6 +312,7 @@ class TriangleFigure(Figure):
         self.width = width
         self.height = height
         self.tip_ratio = tip_ratio
+        self.holes = holes
 
     @property
     @override
@@ -309,7 +324,10 @@ class TriangleFigure(Figure):
         dx, dy = self.width / 2, self.height / 2
         tip_x = self.tip_ratio * dx
         pts = [(-dx, -dy), (tip_x, dy), (dx, -dy)]
-        return make_face(Polyline(pts, close=True))
+        sk = make_face(Polyline(pts, close=True))
+        if self.holes is not None:
+            sk = fill_holes(sk, self.size, self.holes)
+        return sk
 
 
 # endregion

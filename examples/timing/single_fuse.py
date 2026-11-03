@@ -1,5 +1,5 @@
 """
-In algebra mode, compare use of fuse of single object versus a fuse of a list of object
+In algebra mode, compare use of fuse of single object versus a fuse of a list of object in build123d
 """
 
 import timeit

@@ -71,7 +71,7 @@ tasks:
       Example: task run -- examples/face_plate_with_cutout.py
     deps: [viewer]
     cmds:
-      - uv run {{.CLI_ARGS}}
+      - time uv run {{.CLI_ARGS}}
 
   run-all:
       desc: Run all files in a directory using uv run. Used to run examples.
@@ -85,7 +85,7 @@ tasks:
           for file in {{.DIR}}/**/*.py; do
             if [ -f "$file" ]; then
               echo "Executing: $file"
-              uv run "$file"
+              time uv run "$file"
             fi
           done 
 

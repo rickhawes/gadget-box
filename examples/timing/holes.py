@@ -1,5 +1,5 @@
 """
-Compare the use of builder vs algebra mode for drawing 25x25 grid of holes in a rectangle
+Compare the use of builder vs algebra mode for drawing 25x25 grid of holes in a rectangle in build123d
 """
 
 import timeit

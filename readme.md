@@ -43,10 +43,6 @@ Models are oriented for 3d printing. They are centered in the XY plane and with 
 
 Terms like `width`, `height`, `depth`, `top`, `bottom`, `front`, `back`, `left`, `right` are used in reference to this XYZ orientation. In other words, `left` refers to the negative X direction, `right` refers to the positive X direction, and so on. 
 
-## Choices 
-
- The project was originally coded in OpenSCAD and BOSL2 which is a common choice in the 3d printing community, but was ported to Python for better software development tools and language features. [build123d](https://github.com/build123d/build123d) was selected for base framework because it has good documentation and an intuitive API for creating 3d models. Every tool and framework choice has its trade-offs, but these choices ended up being the best for the author's enjoyment. 
-
  ## TODO
 
  To make a reasonable library requires
@@ -62,4 +58,5 @@ Terms like `width`, `height`, `depth`, `top`, `bottom`, `front`, `back`, `left`,
   - [ ] Extract pictures for the readme
   - [ ] Documentation add more examples and usage instructions. Seperated the programming stuff. 
   - [ ] Assembler: bound box
-  - [ ] Model -> functions
+  - [x] Model -> functions
+  - [ ] Look at import style standard (consider the google style)

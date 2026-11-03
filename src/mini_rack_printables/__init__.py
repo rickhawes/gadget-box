@@ -30,12 +30,17 @@ from .core.figures import (
     TriangleFigure,
 )
 from .core.geometry import Ax2, Ax3, AxDir, AxDir2, AxDir3, Bx, Degree, Dir2, Mm, Rc, Vec2, Vec3
-from .core.hole_patterns import CircleFill, HexFill, HolePattern, SquareFill
+from .core.hole_patterns import (
+    CircleFill,
+    HexFill,
+    HolePattern,
+    SquareFill,
+)
 from .core.layouts import GridLayout, Layout, MeasuredRowsColumns, RowLayout
 from .core.piece import Piece
 from .core.rendering import Rendering
 from .core.row_column_collection import RowColumnCollection
-from .core.test_fixtures import TestLogger, feature_xray
+from .core.test_fixtures import TestLogger, XRayShow, feature_xray
 from .features.box_holder import BoxHolder
 from .features.corner_holder import CornerHolder
 from .features.cutout import Cutout
@@ -121,4 +126,5 @@ __all__ = [
     "TrapezoidFigure",
     "Vec2",
     "Vec3",
+    "XRayShow",
 ]

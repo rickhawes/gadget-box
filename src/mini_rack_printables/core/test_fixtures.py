@@ -3,6 +3,7 @@ Common test fixtures defined in core to be in the import path for tests.
 """
 
 import sys
+from enum import Enum, auto
 from typing import final
 
 from build123d import Color, Compound, Part, Sketch, Solid
@@ -50,13 +51,22 @@ class TestLogger:
 
 
 STD_PLATE_SIZE = Vec3(100, 100, 5)
+"""Standard plate for tests and examples"""
+
+
+class XRayShow(Enum):
+    """Parameter for `feature_xray`."""
+
+    ALL = auto()
+    """Show both adds and cuts"""
+    ONLY_ADDS = auto()
+    """Show only adds"""
+    ONLY_CUTS = auto()
+    """Show only cuts"""
 
 
 def feature_xray(
-    feature: Feature,
-    plate_size: Vec3 = STD_PLATE_SIZE,
-    only_adds: bool = False,
-    only_cuts: bool = False,
+    feature: Feature, plate_size: Vec3 = STD_PLATE_SIZE, show: XRayShow = XRayShow.ALL
 ) -> Rendering:
     """Render the feature with an invisible plate.
 
@@ -65,8 +75,7 @@ def feature_xray(
     Args:
         feature (Feature): The feature to render.
         plate_size (Vec3): The plate_size to pass to the feature's render method.
-        only_adds: Only show the adds from the feature.
-        only_cuts: Only show the cuts from the feature.
+        show (XRayShow): Show adds or cuts
     """
 
     plate = Bx(plate_size, Vec3(0, 0, plate_size.z / 2))
@@ -76,11 +85,11 @@ def feature_xray(
     children: list[Part | Solid] = []
     for piece in asm.all_pieces():
         if not piece.cut:
-            if not only_cuts:
+            if show == XRayShow.ONLY_ADDS or show == XRayShow.ALL:
                 new_piece = piece.set(color=Color("blue"), label="add")
                 children.append(new_piece.part)
         else:
-            if not only_adds:
+            if show == XRayShow.ONLY_CUTS or show == XRayShow.ALL:
                 new_piece = piece.set(color=Color("red"), label="subtract")
                 children.append(new_piece.part)
 

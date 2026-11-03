@@ -56,27 +56,32 @@ def test_selected_corners(viewer_logger: TestLogger) -> None:
 
 
 def test_hex_fill(viewer_logger: TestLogger) -> None:
-    fig = RectangleFigure(width=40, height=20, holes=HexFill())
-    viewer_logger.log(fig.sketch(), FILL)
-    fig = RectangleFigure(width=40, height=20, corners=4, holes=HexFill())
-    viewer_logger.log(fig.sketch(), FILL)
+    fig1 = RectangleFigure(width=40, height=20, holes=HexFill())
+    viewer_logger.log(fig1.sketch(), FILL)
+    fig2 = CircleFigure(15, holes=HexFill())
+    viewer_logger.log(fig2.sketch(), FILL)
+    fig3 = TrapezoidFigure(width=40, height=20, angle1=80, holes=HexFill())
+    viewer_logger.log(fig3.sketch(), FILL)
 
 
 def test_empty_fill(viewer_logger: TestLogger) -> None:
-    fig = RectangleFigure(width=40, height=10, corners=4, holes=HexFill())
+    fig = RectangleFigure(width=40, height=10, corners=4)
     viewer_logger.log(fig.sketch(), FILL)
 
 
 def test_circular_fill(viewer_logger: TestLogger) -> None:
-    fig = RectangleFigure(width=40, height=20, holes=CircleFill())
-    viewer_logger.log(fig.sketch(), FILL)
-    fig = RectangleFigure(width=40, height=20, corners=4, holes=CircleFill())
+    fig = RectangleFigure(width=40, height=30, corners=4, holes=CircleFill())
     viewer_logger.log(fig.sketch(), FILL)
 
 
 def test_square_fill(viewer_logger: TestLogger) -> None:
-    fig = RectangleFigure(width=40, height=20, holes=SquareFill())
+    fig = RectangleFigure(width=40, height=20, corners=4, holes=SquareFill())
     viewer_logger.log(fig.sketch(), FILL)
+
+
+def test_partial_fill(viewer_logger: TestLogger) -> None:
+    fig1 = TriangleFigure(width=40, height=20, holes=SquareFill())
+    viewer_logger.log(fig1.sketch(), FILL)
 
 
 def test_circle_figure(viewer_logger: TestLogger) -> None:
