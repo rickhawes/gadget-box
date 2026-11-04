@@ -17,9 +17,6 @@ class Assembler:
         `Model` - Used by Model subclasses to assemble blocks together
         `Feature` - Used by Feature subclasses to assemble blocks together
         `Block` - the building blocks that are assembled together
-
-    TODO:
-        - Calculate the bounding box of the assembled pieces
     """
 
     # the base to place things on
@@ -43,6 +40,8 @@ class Assembler:
     """Assemblers attached to this model"""
     _pieces: list[Piece] | None = None
     """If this is a top-level assembler, all the pieces"""
+    bounds: Bx | None = None
+    """The bounds of all pieces"""
 
     # properties
     @property
@@ -98,6 +97,7 @@ class Assembler:
         self._pieces = []
         self.sub_assemblers = []
         self.parent = parent
+        self.bounds = None
 
     # region Create assemblers and sub-assemblers
 
@@ -221,6 +221,14 @@ class Assembler:
 
     def _append_piece(self, piece: Piece) -> None:
         """Append `piece` to the top-level assembler's list"""
+        # Update bounds
+        if not piece.cut:
+            relative = piece.bounds.move(-self.origin)
+            if self.bounds is None:
+                self.bounds = relative
+            else:
+                self.bounds = Bx.union(self.bounds, relative)
+        # Place in the top-level list
         if self.parent is None:
             assert self._pieces is not None
             self._pieces.append(piece)

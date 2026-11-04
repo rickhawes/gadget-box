@@ -244,6 +244,10 @@ class Vec2:
     def to_tuple(self) -> tuple[Mm, Mm]:
         return self.x, self.y
 
+    @classmethod
+    def from_vector(cls, vec: Vector) -> Vec2:
+        return Vec2(vec.X, vec.Y)
+
 
 @dataclass(frozen=True, init=False)
 class Rc:
@@ -376,13 +380,6 @@ class Rc:
         Apply padding to the Rc, expanding its size by `padding` amount but not shifting its center.
         """
         return Rc(self.size + Vec2(2 * padding, 2 * padding), self.center)
-
-    # def centered_bounding(self) -> Rc:
-    #     """
-    #     return a rectangle in opposite AxDir of the offset by the amount needed to center a rect.
-    #     """
-    #     mirror = Rc(self.size, Vec2(-self.center.x, -self.center.y))
-    #     return Rc.union(self, mirror)
 
     def to_bx(
         self,
@@ -766,6 +763,10 @@ class Vec3:
 
     def to_tuple(self) -> tuple[Mm, Mm, Mm]:
         return self.x, self.y, self.z
+
+    @classmethod
+    def from_vector(cls, vec: Vector) -> Vec3:
+        return Vec3(vec.X, vec.Y, vec.Z)
 
 
 @dataclass(frozen=True, init=False)

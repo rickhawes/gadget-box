@@ -2,7 +2,7 @@ from typing import Self
 
 from build123d import BoundBox, Color, Location, Part, Plane, Solid, Vector
 
-from .geometry import Vec2, Vec3
+from .geometry import Bx, Vec2, Vec3
 
 
 class Piece:
@@ -20,13 +20,17 @@ class Piece:
     """The part of the model"""
     cut: bool = False
     """Subtract the part, otherwise add the part"""
+    bounds: Bx
+    """Bounds of the piece"""
     _bbox: BoundBox
     """The bounding box of the piece. Used for debugging. """
 
     def __init__(self, part: Part | Solid, cut: bool = False) -> None:
         self.part = part
         self.cut = cut
-        self._bbox = part.bounding_box()
+        bbox = part.bounding_box()
+        self._bbox = bbox
+        self.bounds = Bx(Vec3.from_vector(bbox.size), Vec3.from_vector(bbox.center()))
 
     def moved(self, position: Location | Vec3 | Vec2) -> Piece:
         if isinstance(position, Vec2):

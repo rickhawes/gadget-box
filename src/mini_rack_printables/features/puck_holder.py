@@ -109,7 +109,7 @@ class PuckHolder(Feature):
         front_dz = max(r - pd if self.style.has_cutout else r, 0)
         front_size = Vec3(dx, dy, front_dz)
         add_front_block(asm, front_size)
-        wall_asm = asm.make_sub(Bx(front_size, Vec3(0, 0, front_dz / 2)))
+        wall_asm = asm.make_sub(asm.bounds)
         build_basic_holder(
             wall_asm,
             Vec3(dx, dy, dz - r),

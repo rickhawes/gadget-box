@@ -52,7 +52,7 @@ Terms like `width`, `height`, `depth`, `top`, `bottom`, `front`, `back`, `left`,
   - [x] Shelves
   - [x] ValueErrors instead of asserts
   - [ ] SVG primative 
-  - [ ] Fill pattern for primatives using intersections
+  - [x] Fill pattern for primatives using intersections
   - [x] Layout redesign with spacers 
   - [x] Holders for shelves
   - [ ] Extract pictures for the readme
