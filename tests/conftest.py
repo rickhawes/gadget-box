@@ -55,7 +55,11 @@ def viewer_logger() -> Generator[TestLogger, None, None]:
                     ],
                 )
                 push_object(c, name=entry.function_name)
-                x += STD_SPACING if entry.size.X < STD_SPACING else entry.size.X + MIN_SPACING
+                x += (
+                    STD_SPACING
+                    if entry.size.X < STD_SPACING
+                    else entry.size.X + MIN_SPACING
+                )
             y -= STD_SPACING
             row += 1
     _ = show_objects(reset_camera=Camera.TOP)

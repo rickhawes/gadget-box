@@ -4,7 +4,9 @@ from mini_rack_printables import PuckHolder, Vec3, feature_xray
 # This example demonstrates a corner holder part.
 #
 holder = PuckHolder(
-    device_size=Vec3(100, 40, 100), device_rounding=10, style=PuckHolder.Style(has_cutout=True)
+    device_size=Vec3(100, 40, 100),
+    device_rounding=10,
+    style=PuckHolder.Style(has_cutout=True),
 )
 plate = feature_xray(holder)
 

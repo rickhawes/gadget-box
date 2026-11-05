@@ -44,7 +44,10 @@ class Piece:
             return self
 
     def set(
-        self, color: Color | None = None, label: str | None = None, cut: bool | None = None
+        self,
+        color: Color | None = None,
+        label: str | None = None,
+        cut: bool | None = None,
     ) -> Self:
         """Set the attributes of the piece"""
         if color is not None:

@@ -67,7 +67,9 @@ def test_assemble_two_boxes(viewer_logger: TestLogger) -> None:
     def place_nodes(asm: Assembler) -> None:
         node = BoxBlock(2, 1.5, 1)
         # place the same node at multiple places on the assembler's plane
-        add_places = [Assembler.Place(origin=dir2) for dir2 in [Dir2.CENTER, Dir2.CORNER_RT_TP]]
+        add_places = [
+            Assembler.Place(origin=dir2) for dir2 in [Dir2.CENTER, Dir2.CORNER_RT_TP]
+        ]
         asm.place_block(node, add_places, cut=False)
         # cut out a node use the cut mode and the offset placement to render inside the base
         sub_places = [Assembler.Place(origin=Dir2.CORNER_LF_BT, offset=Vec3(0, 0, -1))]
@@ -122,7 +124,9 @@ def test_cutout_mode(viewer_logger: TestLogger) -> None:
     m2_top = m2.make_sub(
         z_dir=AxDir3.Z_PLUS
     )  # m2 uses the X_PLUS side, for the stack we want the Z_PLUS
-    m3 = m2_top.stack_block(BoxBlock(50, 50, 10), Assembler.Place(origin=Dir2.SIDE_RIGHT))
+    m3 = m2_top.stack_block(
+        BoxBlock(50, 50, 10), Assembler.Place(origin=Dir2.SIDE_RIGHT)
+    )
     c3 = m3.make_cutout_sub()
     c3.place_block(BoxBlock(10, 10, 10))
 

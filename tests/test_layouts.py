@@ -60,13 +60,8 @@ def sketch_sections(sections: Sequence[Layout.Section]) -> Sketch:
     sketches: list[Sketch] = []
     for s in sections:
         plane = Plane(Location(s.origin.to_vector()))
-        sk = Sketch(
-            plane
-            * (
-                Location(s.bounds.center.to_vector()) * Rectangle(s.bounds.size.x, s.bounds.size.y)
-                - Circle(0.2)
-            )
-        )
+        loc = plane * Location(s.bounds.center.to_vector())
+        sk = Sketch(loc * (Rectangle(s.bounds.size.x, s.bounds.size.y) - Circle(0.2)))
         sketches.append(sk)
     return Sketch(sketches)
 

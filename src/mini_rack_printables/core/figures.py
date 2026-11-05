@@ -181,7 +181,9 @@ class RectangleFigure(Figure):
                 case RoundedCorners() if self.corners.radius == 0:
                     return Rectangle(self.width, self.height)
                 case RoundedCorners():
-                    return RectangleRounded(self.width, self.height, self.corners.radius)
+                    return RectangleRounded(
+                        self.width, self.height, self.corners.radius
+                    )
                 case _:
                     return complex_corners()
 
@@ -261,13 +263,23 @@ class TrapezoidFigure(Figure):
         if minor_width is not None:
             # Calculate angle1 or angle2 based on minor_width
             if angle1 is not None and angle2 is None:
-                reduction_left = 0 if angle1 == 90 else height / math.tan(math.radians(angle1))
-                angle2 = math.degrees(math.atan(height / (width - minor_width - reduction_left)))
+                reduction_left = (
+                    0 if angle1 == 90 else height / math.tan(math.radians(angle1))
+                )
+                angle2 = math.degrees(
+                    math.atan(height / (width - minor_width - reduction_left))
+                )
             elif angle1 is None and angle2 is not None:
-                reduction_right = 0 if angle2 == 90 else height / math.tan(math.radians(angle2))
-                angle1 = math.degrees(math.atan(height / (width - minor_width - reduction_right)))
+                reduction_right = (
+                    0 if angle2 == 90 else height / math.tan(math.radians(angle2))
+                )
+                angle1 = math.degrees(
+                    math.atan(height / (width - minor_width - reduction_right))
+                )
             else:
-                angle1 = angle2 = math.degrees(math.atan(2 * height / (width - minor_width)))
+                angle1 = angle2 = math.degrees(
+                    math.atan(2 * height / (width - minor_width))
+                )
         if angle2 is not None and angle1 is None:
             angle1 = angle2
         assert angle1 is not None, "angle1 could not be calculated"
@@ -286,7 +298,10 @@ class TrapezoidFigure(Figure):
     @override
     def sketch(self) -> Sketch:
         sk = Trapezoid(
-            self.width, self.height, left_side_angle=self.angle1, right_side_angle=self.angle2
+            self.width,
+            self.height,
+            left_side_angle=self.angle1,
+            right_side_angle=self.angle2,
         )
         if self.holes is not None:
             sk = fill_holes(sk, self.size, self.holes)
@@ -302,7 +317,11 @@ class TriangleFigure(Figure):
     holes: HolePattern | None
 
     def __init__(
-        self, width: Mm, height: Mm, tip_ratio: float = 0.0, holes: HolePattern | None = None
+        self,
+        width: Mm,
+        height: Mm,
+        tip_ratio: float = 0.0,
+        holes: HolePattern | None = None,
     ) -> None:
         """
         Args:
@@ -355,10 +374,17 @@ class CombinedFigure(Figure):
         for op in self.ops:
             if op.cut:
                 sk = Sketch(
-                    sk - (Location(op.pos.to_vector(), angle=op.angle) * op.figure.sketch())
+                    sk
+                    - (
+                        Location(op.pos.to_vector(), angle=op.angle)
+                        * op.figure.sketch()
+                    )
                 )
             else:
-                sk = Sketch(sk + Location(op.pos.to_vector(), angle=op.angle) * op.figure.sketch())
+                sk = Sketch(
+                    sk
+                    + Location(op.pos.to_vector(), angle=op.angle) * op.figure.sketch()
+                )
         return Sketch(sk)
 
 

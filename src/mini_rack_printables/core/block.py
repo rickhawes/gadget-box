@@ -254,7 +254,9 @@ class ImportBlock(Block):
         Returns the size of the import. Cached to avoid recomputing.
         """
         bbox = self.shape.bounding_box()
-        assert bbox.center() == Vector(0, 0, 0), f"Imported part is not centered: {bbox.center()}"
+        assert bbox.center() == Vector(0, 0, 0), (
+            f"Imported part is not centered: {bbox.center()}"
+        )
         return Vec3(bbox.size.X, bbox.size.Y, bbox.size.Z)
 
     @override
@@ -284,7 +286,8 @@ class StackBlock(Block):
         stack_dz = -size.z / 2
         stack = Part()
         for blk in self.blocks:
-            stack += Location((0, 0, stack_dz + blk.size.z / 2)) * blk.render(cut=False).part
+            loc = Location((0, 0, stack_dz + blk.size.z / 2))
+            stack += loc * blk.render(cut=False).part
             stack_dz += blk.size.z
         return Piece(stack, cut=cut)
 

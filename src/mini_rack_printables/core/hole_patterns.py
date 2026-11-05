@@ -128,16 +128,23 @@ class SquareFill(HolePattern):
             math.floor((size - 2 * inset).y / self.spacing),
         )
         return (
-            GridLocations(self.spacing, self.spacing, cx, cy).locations if cx > 0 and cy > 0 else []
+            GridLocations(self.spacing, self.spacing, cx, cy).locations
+            if cx > 0 and cy > 0
+            else []
         )
 
     @override
     def sketch(self) -> Sketch:
-        return Rectangle(width=self.spacing - self.width, height=self.spacing - self.width)
+        return Rectangle(
+            width=self.spacing - self.width, height=self.spacing - self.width
+        )
 
 
 def fill_holes(
-    base: Sketch, base_size: Vec2, hole_pattern: HolePattern, interior_rc: Rc | None = None
+    base: Sketch,
+    base_size: Vec2,
+    hole_pattern: HolePattern,
+    interior_rc: Rc | None = None,
 ) -> Sketch:
     """Core algorithm to fill a general outline with a hole pattern.
 
@@ -149,7 +156,9 @@ def fill_holes(
     # for this algorithm to work, the base shape must be simple 1 closed-wire shape
     base_wires = base.wires()
     if len(base_wires) != 1 and not base_wires[0].is_closed:
-        raise ValueError("The base figure for a WithHolesFigure must be a simple 1-wire figure.")
+        raise ValueError(
+            "The base figure for a WithHolesFigure must be a simple 1-wire figure."
+        )
 
     # seperate the holes that are on the interior
     inset = hole_pattern.inset

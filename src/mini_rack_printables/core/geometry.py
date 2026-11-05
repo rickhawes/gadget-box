@@ -102,7 +102,9 @@ class Dir2(Enum):
     @staticmethod
     def sides() -> frozenset[Dir2]:
         """A set of Dir2's which correspond to the sides of a rectangle."""
-        return frozenset({Dir2.SIDE_BOTTOM, Dir2.SIDE_LEFT, Dir2.SIDE_RIGHT, Dir2.SIDE_TOP})
+        return frozenset(
+            {Dir2.SIDE_BOTTOM, Dir2.SIDE_LEFT, Dir2.SIDE_RIGHT, Dir2.SIDE_TOP}
+        )
 
     @property
     def is_corner(self) -> bool:
@@ -155,7 +157,12 @@ class AxDir2(Enum):
     TOP = Y_PLUS
 
     def __init__(self, x: AxDir, y: AxDir) -> None:
-        if x == AxDir.CENTER and y == AxDir.CENTER or x != AxDir.CENTER and y != AxDir.CENTER:
+        if (
+            x == AxDir.CENTER
+            and y == AxDir.CENTER
+            or x != AxDir.CENTER
+            and y != AxDir.CENTER
+        ):
             raise ValueError("x == CENTER and y == CENTER must be exclusive")
         self.x = x
         self.y = y
@@ -273,7 +280,9 @@ class Rc:
             case 2 if isinstance(args[0], tuple) and isinstance(args[1], tuple):
                 object.__setattr__(self, "size", Vec2(args[0][0], args[0][1]))
                 object.__setattr__(self, "center", Vec2(args[1][0], args[1][1]))
-            case 2 if isinstance(args[0], int | float) and isinstance(args[1], int | float):
+            case 2 if isinstance(args[0], int | float) and isinstance(
+                args[1], int | float
+            ):
                 object.__setattr__(self, "size", Vec2(args[0], args[1]))
             case 4 if (
                 isinstance(args[0], int | float)
@@ -388,10 +397,16 @@ class Rc:
         bottom: Mm | None = None,
         top: Mm | None = None,
     ) -> Bx:
-        if (dz is not None or z is not None) and (bottom is not None or top is not None):
-            raise ValueError("Over specified, either (dz, z) or (front or back) must be None")
+        if (dz is not None or z is not None) and (
+            bottom is not None or top is not None
+        ):
+            raise ValueError(
+                "Over specified, either (dz, z) or (front or back) must be None"
+            )
         if (bottom is not None and top is None) or (bottom is None and top is not None):
-            raise ValueError("Both top and bottom must be specified if one is specified")
+            raise ValueError(
+                "Both top and bottom must be specified if one is specified"
+            )
         if bottom is not None and top is not None:
             dz = top - bottom
             z = (top + bottom) / 2
@@ -424,23 +439,31 @@ class Rc:
         output: list[Rc] = []
         if axis == Ax2.X:
             bounds = Rc(
-                Vec2(sum(item.size.x for item in items), max(item.size.y for item in items))
+                Vec2(
+                    sum(item.size.x for item in items),
+                    max(item.size.y for item in items),
+                )
             )
             edge = bounds.left
             for item in items:
-                item_bounds = Rc.from_edges(edge, edge + item.size.x, bounds.bottom, bounds.top)
-                arranged_item = item_bounds.place(other=item, place=Dir2(AxDir.CENTER, align))
+                edge_right = edge + item.size.x
+                item_bounds = Rc.from_edges(edge, edge_right, bounds.bottom, bounds.top)
+                arranged_item = item_bounds.place(item, Dir2(AxDir.CENTER, align))
                 output.append(arranged_item)
                 edge = item_bounds.right
             return output
         elif axis == Ax2.Y:
             bounds = Rc(
-                Vec2(max(item.size.x for item in items), sum(item.size.y for item in items))
+                Vec2(
+                    max(item.size.x for item in items),
+                    sum(item.size.y for item in items),
+                )
             )
             edge = bounds.bottom
             for item in items:
-                item_bounds = Rc.from_edges(bounds.left, bounds.right, edge, edge + item.size.y)
-                arranged_item = item_bounds.place(other=item, place=Dir2(align, AxDir.CENTER))
+                edge_top = edge + item.size.y
+                item_bounds = Rc.from_edges(bounds.left, bounds.right, edge, edge_top)
+                arranged_item = item_bounds.place(item, Dir2(align, AxDir.CENTER))
                 output.append(arranged_item)
                 edge = item_bounds.top
             return output
@@ -786,13 +809,19 @@ class Bx:
             case 1 if isinstance(args[0], Vec3):
                 object.__setattr__(self, "size", args[0])
             case 1 if isinstance(args[0], tuple):
-                object.__setattr__(self, "size", Vec3(args[0][0], args[0][1], args[0][2]))
+                object.__setattr__(
+                    self, "size", Vec3(args[0][0], args[0][1], args[0][2])
+                )
             case 2 if isinstance(args[0], Vec3):
                 object.__setattr__(self, "size", args[0])
                 object.__setattr__(self, "center", args[1])
             case 2 if isinstance(args[0], tuple) and isinstance(args[1], tuple):
-                object.__setattr__(self, "size", Vec3(args[0][0], args[0][1], args[0][2]))
-                object.__setattr__(self, "center", Vec3(args[1][0], args[1][1], args[1][2]))
+                object.__setattr__(
+                    self, "size", Vec3(args[0][0], args[0][1], args[0][2])
+                )
+                object.__setattr__(
+                    self, "center", Vec3(args[1][0], args[1][1], args[1][2])
+                )
             case 3 if (
                 isinstance(args[0], int | float)
                 and isinstance(args[1], int | float)

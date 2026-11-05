@@ -61,9 +61,9 @@ class PuckHolder(Feature):
         self.device_size = device_size
         self.device_rounding = device_rounding
         self.style = style
-        assert self.device_size.x > 0 and self.device_size.y > 0 and self.device_size.z > 0, (
-            "device_size must be positive"
-        )
+        assert (
+            self.device_size.x > 0 and self.device_size.y > 0 and self.device_size.z > 0
+        ), "device_size must be positive"
         assert 2 * self.device_rounding < self.device_size.x, (
             "device_rounding must not exceed the width of the device"
         )
@@ -91,18 +91,25 @@ class PuckHolder(Feature):
             Make the block of the holder by sketching the device block + extra for the corners.
             """
             block = ExtrudedBlock(
-                RectangleFigure(front_size.x + 2 * w, front_size.y + 2 * w, w), front_size.z
+                RectangleFigure(front_size.x + 2 * w, front_size.y + 2 * w, w),
+                front_size.z,
             )
             plate_asm.place_block(block)
 
         def sub_device_cutout(asm: Assembler) -> None:
-            device_center = Vec3(0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2))
-            device_cutout_bx = Bx(self.device_size, device_center).side_bx(AxDir3.Y_MINUS)
+            device_center = Vec3(
+                0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2)
+            )
+            device_cutout_bx = Bx(self.device_size, device_center).side_bx(
+                AxDir3.Y_MINUS
+            )
             device_cutout_asm = asm.make_sub(
                 device_cutout_bx, z_dir=AxDir3.Y_PLUS, cutout_mode=True
             )
             # puck shape by selectively using rounded corners
-            corners = SelectedCorners(RoundedCorners(r), bottom_left=True, bottom_right=True)
+            corners = SelectedCorners(
+                RoundedCorners(r), bottom_left=True, bottom_right=True
+            )
             cutout = ExtrudedBlock(RectangleFigure(dx, dz, corners), dy)
             device_cutout_asm.place_block(cutout)
 

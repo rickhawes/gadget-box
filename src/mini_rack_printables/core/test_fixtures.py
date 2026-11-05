@@ -37,7 +37,9 @@ class TestLogger:
 
     entries: dict[str, list[LogEntry]] = {}
 
-    def log(self, part: TestLogger.LogableType | Rendering, group: str | None = None) -> None:
+    def log(
+        self, part: TestLogger.LogableType | Rendering, group: str | None = None
+    ) -> None:
         frame = sys._getframe(1)
         assert frame is not None
         group_name = group if group is not None else frame.f_globals["__name__"]

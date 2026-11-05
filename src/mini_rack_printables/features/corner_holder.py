@@ -73,7 +73,9 @@ class CornerHolder(Feature):
         size = self.shape.size
 
         # sketch the holder shape
-        cross = RectangleFigure(size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w))
+        cross = RectangleFigure(
+            size.x + 2 * w, size.y + 2 * w, InsetCorners(cw + 2 * w)
+        )
         holder = RingFigure(self.shape, w)
         co = CutoutFigure(holder, cross)
         asm.place_block(ExtrudedBlock(co, d))

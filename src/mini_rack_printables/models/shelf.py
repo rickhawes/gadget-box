@@ -107,12 +107,16 @@ def shelf(
             wall_size.y,
             corners=SquareCorners(wall_size.z),  # insets the fill area a bit
         )
-        wall_figure = AlignedFigure([wall_back, wall_trap, wall_holes], Ax2.X, AxDir.MINUS)
+        wall_figure = AlignedFigure(
+            [wall_back, wall_trap, wall_holes], Ax2.X, AxDir.MINUS
+        )
         wall = ExtrudedBlock(wall_figure, wall_size.z)
 
         # Place the walls on the plate
         wall_plate_bx_minus = interior_bx.side_bx(AxDir3.X_MINUS)
-        wall_plate_bx_plus = wall_plate_bx_minus.move(Vec3(interior_bx.size.x + wall_size.z, 0, 0))
+        wall_plate_bx_plus = wall_plate_bx_minus.move(
+            Vec3(interior_bx.size.x + wall_size.z, 0, 0)
+        )
         for plate_bx in [wall_plate_bx_minus, wall_plate_bx_plus]:
             wall_sub = plate_asm.make_sub(plate_bx, AxDir3.X_MINUS)
             wall_sub.place_block(wall)
@@ -121,7 +125,9 @@ def shelf(
     def build_faceplate(base_asm: Assembler) -> None:
         size = Vec3(RackDims.WIDTH_10INCH, exterior_dz, style.face_thickness)
         holes = RackHolePattern(rack_units)
-        figure = RectangleFigure(size.x, size.y, corners=style.face_rounding, holes=holes)
+        figure = RectangleFigure(
+            size.x, size.y, corners=style.face_rounding, holes=holes
+        )
         if style.open_face:
             open_dx = ShelfTabDims.MAX_DX_TABS - 2 * style.wall_thickness
             figure = CutoutFigure(figure, RectangleFigure(open_dx, size.y))

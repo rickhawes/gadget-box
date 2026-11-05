@@ -103,7 +103,9 @@ class RowLayout(Layout):
         if self.row_heights is not None:
             # use caller-defined row heights
             if len(self.row_heights) != rc:
-                raise ValueError("row_heights must have the same length as the number of rows")
+                raise ValueError(
+                    "row_heights must have the same length as the number of rows"
+                )
             specified_height = sum(self.row_heights) + (rc + 1) * s
             if not (plate_height - E <= specified_height <= plate_height + E):
                 raise ValueError(
@@ -121,7 +123,11 @@ class RowLayout(Layout):
 
         # distribute excess space evenly between expanding rows
         def expanded_height(row: int) -> Mm:
-            return m.min_y[row] + (excess / expand_count) if m.more_y[row] else m.min_y[row]
+            return (
+                m.min_y[row] + (excess / expand_count)
+                if m.more_y[row]
+                else m.min_y[row]
+            )
 
         return [expanded_height(i) for i in range(rc)]
 
@@ -146,12 +152,18 @@ class RowLayout(Layout):
 
             if expand_count == 0:
                 # distribute excess space evenly between all columns
-                return [p.desired_size().min_size.x + (excess / cc) for p in row_features]
+                return [
+                    p.desired_size().min_size.x + (excess / cc) for p in row_features
+                ]
 
             # distribute excess space evenly between expanding columns
             def expanded_width(p: Feature) -> Mm:
                 ds = p.desired_size()
-                return ds.min_size.x + (excess / expand_count) if ds.more_x else ds.min_size.x
+                return (
+                    ds.min_size.x + (excess / expand_count)
+                    if ds.more_x
+                    else ds.min_size.x
+                )
 
             return [expanded_width(p) for p in row_features]
 
@@ -207,7 +219,9 @@ class GridLayout(RowLayout):
             expand_count = sum(1 for more in m.more_x if more)
             excess: Mm = plate_width - total_width - s * (cc + 1)
             if excess < 0:
-                raise ValueError(f"Part total width {total_width} is larger than available space")
+                raise ValueError(
+                    f"Part total width {total_width} is larger than available space"
+                )
 
             if self.col_widths is not None:
                 # use caller-defined column widths, check the supplied widths
@@ -215,7 +229,9 @@ class GridLayout(RowLayout):
                     raise ValueError("col_widths does not match number of columns")
                 specified_width = sum(self.col_widths) + (cc + 1) * s
                 if not (plate_width - E <= specified_width <= plate_width + E):
-                    raise ValueError(f"Specified {specified_width} != plate width {plate_width}")
+                    raise ValueError(
+                        f"Specified {specified_width} != plate width {plate_width}"
+                    )
                 return self.col_widths
 
             if self.equal_widths:
@@ -228,7 +244,11 @@ class GridLayout(RowLayout):
 
             # distribute excess space evenly between expanding columns
             def expanded_width(col: int) -> Mm:
-                return m.min_x[col] + (excess / expand_count) if m.more_x[col] else m.min_x[col]
+                return (
+                    m.min_x[col] + (excess / expand_count)
+                    if m.more_x[col]
+                    else m.min_x[col]
+                )
 
             return [expanded_width(i) for i in range(cc)]
 

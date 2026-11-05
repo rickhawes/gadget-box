@@ -79,7 +79,9 @@ class RowColumnCollection[T]:
 
     def apply[U](self, func: Callable[[T], U]) -> RowColumnCollection[U]:
         """Apply the given function to each item in this collection, returning a new collection with the results, keeping the shape of this collection."""
-        new_rows: Sequence[Sequence[U]] = [[func(item) for item in row] for row in self.rows]
+        new_rows: Sequence[Sequence[U]] = [
+            [func(item) for item in row] for row in self.rows
+        ]
         return RowColumnCollection[U](new_rows)
 
     def flatten(self) -> Sequence[T]:

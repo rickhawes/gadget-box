@@ -70,9 +70,9 @@ class BoxHolder(Feature):
         self.device_size = device_size
         self.device_rounding = device_rounding
         self.style = style
-        assert self.device_size.x > 0 and self.device_size.y > 0 and self.device_size.z > 0, (
-            "device_size must be positive"
-        )
+        assert (
+            self.device_size.x > 0 and self.device_size.y > 0 and self.device_size.z > 0
+        ), "device_size must be positive"
 
     @override
     def desired_size(self) -> Feature.DesiredSize:
@@ -106,7 +106,9 @@ class BoxHolder(Feature):
                             self.style.front_lip.depth,
                             corners=r,
                         ),
-                        PlateBlock(dx, dy, asm.plate_depth - self.style.front_lip.depth, r),
+                        PlateBlock(
+                            dx, dy, asm.plate_depth - self.style.front_lip.depth, r
+                        ),
                     ]
                 )
                 cutout_sub.place_block(stack)

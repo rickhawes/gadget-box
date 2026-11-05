@@ -41,8 +41,14 @@ def layout_rack_screw_holes(
 
     def y_layout() -> list[Mm]:
         bottom_half_units = 1 if half_height_bottom else 0
-        full_units = math.floor(rack_units - 0.5) if half_height_bottom else math.floor(rack_units)
-        top_half_units = 1 if (rack_units - bottom_half_units * 0.5 - full_units > 0) else 0
+        full_units = (
+            math.floor(rack_units - 0.5)
+            if half_height_bottom
+            else math.floor(rack_units)
+        )
+        top_half_units = (
+            1 if (rack_units - bottom_half_units * 0.5 - full_units > 0) else 0
+        )
         offsets: list[float] = []
 
         # Construct the y values for the holes from 0 to height
@@ -71,13 +77,17 @@ def layout_rack_screw_holes(
                     ]
                 )
             else:
-                offsets.extend([RackScrewDims.BOTTOM + y_slot, RackScrewDims.TOP + y_slot])
+                offsets.extend(
+                    [RackScrewDims.BOTTOM + y_slot, RackScrewDims.TOP + y_slot]
+                )
 
         # top half units
         if top_half_units == 1:
             y_slot = rack_units_to_mm(full_units + bottom_half_units * 0.5)
             if middle_holes:
-                offsets.extend([RackScrewDims.BOTTOM + y_slot, RackScrewDims.MIDDLE + y_slot])
+                offsets.extend(
+                    [RackScrewDims.BOTTOM + y_slot, RackScrewDims.MIDDLE + y_slot]
+                )
             else:
                 offsets.extend([RackScrewDims.BOTTOM + y_slot])
 
@@ -114,7 +124,9 @@ class RackHolePattern(HolePattern):
         return 0
 
     def locations(self, size: Vec2) -> Sequence[Location]:
-        locs = layout_rack_screw_holes(self.rack_units, self.middle_holes, self.half_height_bottom)
+        locs = layout_rack_screw_holes(
+            self.rack_units, self.middle_holes, self.half_height_bottom
+        )
         return [Location(l.to_vector()) for l in locs]
 
     def sketch(self) -> Sketch:

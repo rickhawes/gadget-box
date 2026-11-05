@@ -88,7 +88,9 @@ def faceplate(
             # place the sub assembly on the side
             rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
             rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)
-            rib_elem = ExtrudedBlock(TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y)
+            rib_elem = ExtrudedBlock(
+                TrapezoidFigure(rib_size.x, rib_size.z, 30), rib_size.y
+            )
             rib_asm.place_block(rib_elem)
 
         add_rib(Dir2.Y_PLUS)

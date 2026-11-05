@@ -49,7 +49,9 @@ class ImportFeature(Feature):
         if self.cutout:
             # Cutout the plate first
             cutout_asm = asm.make_cutout_sub()
-            box = BoxBlock(dx=self.block.size.x, dy=self.block.size.y, dz=asm.plate_depth)
+            box = BoxBlock(
+                dx=self.block.size.x, dy=self.block.size.y, dz=asm.plate_depth
+            )
             cutout_asm.place_block(box)
             # Add the import block in the cutout (explicitly override the cut mode)
             cutout_asm.place_block(self.block, cut=False)

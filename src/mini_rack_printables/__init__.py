@@ -29,7 +29,20 @@ from .core.figures import (
     TrapezoidFigure,
     TriangleFigure,
 )
-from .core.geometry import Ax2, Ax3, AxDir, AxDir2, AxDir3, Bx, Degree, Dir2, Mm, Rc, Vec2, Vec3
+from .core.geometry import (
+    Ax2,
+    Ax3,
+    AxDir,
+    AxDir2,
+    AxDir3,
+    Bx,
+    Degree,
+    Dir2,
+    Mm,
+    Rc,
+    Vec2,
+    Vec3,
+)
 from .core.hole_patterns import (
     CircleFill,
     HexFill,

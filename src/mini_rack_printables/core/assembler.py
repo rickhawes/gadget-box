@@ -49,7 +49,8 @@ class Assembler:
         """The base bx (Assembler coordinates)"""
         rc = self.plate_rc
         d = self.plate_depth
-        return Bx((rc.size.x, rc.size.y, d), (0, 0, d / 2 if self.cutout_mode else -d / 2))
+        z = d / 2 if self.cutout_mode else -d / 2
+        return Bx((rc.size.x, rc.size.y, d), (0, 0, z))
 
     @property
     def plate_rc(self) -> Rc:
@@ -189,11 +190,15 @@ class Assembler:
     def place_bounds(self, size: Vec3, place: Place = Place()) -> Bx:
         """The bounding box of `size` relative the assembler's plane"""
         origin = self.plate_rc.place_center(Rc(size.x, size.y), place.origin).to_vec3()
-        offset = place.offset if isinstance(place.offset, Vec3) else place.offset.to_vec3()
+        offset = (
+            place.offset if isinstance(place.offset, Vec3) else place.offset.to_vec3()
+        )
         center = origin + offset + Vec3(0, 0, size.z / 2)
         return Bx(size, center)
 
-    def place_block(self, block: Block, places: Places = Place(), cut: bool | None = None) -> None:
+    def place_block(
+        self, block: Block, places: Places = Place(), cut: bool | None = None
+    ) -> None:
         """Place an block"""
         if isinstance(places, Assembler.Place):
             places = [places]
