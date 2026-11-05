@@ -154,6 +154,16 @@ def test_bx_init() -> None:
     assert bx3.size == Vec3(3, 3, 1)
 
 
+def test_bx_from_corners() -> None:
+    bx1 = Bx(10, 10, 10, 0, 0, 5)
+    c1 = Vec3(5, 5, 10)
+    c2 = Vec3(-5, -5, 0)
+    bx2 = Bx.from_corners(c1, c2)
+    assert bx1 == bx2
+    bx3 = Bx.from_corners(c2, c1)
+    assert bx1 == bx3
+
+
 def test_bx_props() -> None:
     bx = Bx.from_values(4, 6, 3, 1, 1, 1)
     assert bx.size == Vec3(4, 6, 3)

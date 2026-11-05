@@ -1,10 +1,9 @@
-from mini_rack_printables import CornerHolder, RectangleFigure, feature_xray
+"""Shows a corner holder feature."""
 
-#
-# This example demonstrates a corner holder part.
-#
-holder = CornerHolder(RectangleFigure(100, 100, 5), corner_width=12, corner_height=12)
-plate = feature_xray(holder)
+from mini_rack_printables import CircleFigure, GeneralCornerHolder, Vec2, feature_xray
 
-# Show the plate in the OCP viewer
-plate.show()
+holder = GeneralCornerHolder(CircleFigure(50), opening=Vec2(10, 10))
+model = feature_xray(holder)
+
+# Show the model in the OCP viewer
+model.show()

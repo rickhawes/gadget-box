@@ -1,3 +1,5 @@
+"""Declare public types"""
+
 from .core.assembler import Assembler
 from .core.block import (
     Block,
@@ -55,8 +57,8 @@ from .core.rendering import Rendering
 from .core.row_column_collection import RowColumnCollection
 from .core.test_fixtures import TestLogger, XRayShow, feature_xray
 from .features.box_holder import BoxHolder
-from .features.corner_holder import CornerHolder
-from .features.cutout import Cutout
+from .features.corner_holder import CornerHolder, GeneralCornerHolder
+from .features.cutout import CircleCutout, Cutout
 from .features.import_feature import ImportFeature
 from .features.jetkvm import JetKVM
 from .features.keystone import Keystone
@@ -83,8 +85,10 @@ __all__ = [
     "CircleFill",
     "ConeBlock",
     "CornerHolder",
+    "GeneralCornerHolder",
     "Corners",
     "Cutout",
+    "CircleCutout",
     "CutoutFigure",
     "CylinderBlock",
     "Degree",

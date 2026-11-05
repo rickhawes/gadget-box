@@ -1,7 +1,9 @@
-from dataclasses import dataclass
-from typing import ClassVar, final, override
+"""A 10-inch rack shelf model."""
 
-from mini_rack_printables.core.layouts import GridLayout
+from dataclasses import dataclass
+from typing import ClassVar
+
+from mini_rack_printables.core.layouts import GridLayout, RowLayout
 
 from ..core.assembler import Assembler
 from ..core.block import ExtrudedBlock, PlateBlock
@@ -14,7 +16,8 @@ from ..core.figures import (
     RotatedFigure,
     TrapezoidFigure,
 )
-from ..core.geometry import Ax2, AxDir, AxDir3, Bx, Mm, Vec3
+from ..core.geometry import Ax2, AxDir, AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
+from ..core.hole_patterns import HexFill, HolePattern
 from ..core.layouts import Layout
 from ..core.rendering import Rendering
 from .rack_dims import RackDims, ShelfTabDims, rack_units_to_mm
@@ -27,24 +30,52 @@ class ShelfStyle:
     Parameters for the style of the rack shelf.
     """
 
-    base_thickness: Mm = 4.0
-    """Thickness of the base of the rack shelf."""
-    wall_thickness: Mm = 3.0
-    """Thickness of the wall of the rack shelf."""
-    face_thickness: Mm = 3.0
-    """Thickness of the face of the rack shelf."""
-    face_rounding: Mm = 3.0
-    """Rounding of the face of the rack shelf."""
-    shelf_depth: Mm = RackDims.DEPTH_8INCH
-    """Whether the rack shelf has a ten inch depth."""
-    shelf_back_depth: float = 20
-    """The back of the shelf has a small inset."""
-    open_face: bool = True
-    """Whether the face of the rack shelf is open or closed."""
-    middle_holes: bool = True
-    """Whether the rack shelf plate has middle holes."""
-    half_height_bottom: bool = False
-    """Whether the rack shelf plate has half-height bottom holes."""
+    @dataclass(frozen=True)
+    class Face:
+        """The face sytle."""
+
+        is_open: bool = True
+        """Whether the face of the rack shelf is open or closed."""
+        middle_holes: bool = True
+        """Whether the rack shelf plate has middle holes."""
+        half_height_bottom: bool = False
+        """Whether the rack shelf plate has half-height bottom holes."""
+        thickness: Mm = 3.0
+        """Thickness of the face of the rack shelf."""
+        rounding: Mm = 3.0
+        """Rounding of the face of the rack shelf."""
+        feature_inset: Vec2 = Vec2(3.0, 0.0)
+        """The amount of inset for features."""
+        layout: Layout = RowLayout()
+        """The layout of the faceplate"""
+
+    @dataclass(frozen=True)
+    class Base:
+        """The style for the base."""
+
+        thickness: Mm = 4.0
+        """Thickness of the base of the rack shelf."""
+        depth: Mm = RackDims.DEPTH_8INCH
+        """Whether the rack shelf has a ten inch depth."""
+        back_inset: float = 20
+        """The back of the shelf has a small inset."""
+        layout: Layout = GridLayout()
+        """The layout of the base plate"""
+
+    @dataclass(frozen=True)
+    class Wall:
+        """The style for the walls"""
+
+        thickness: Mm = 3.0
+        """Thickness of the wall of the rack shelf."""
+        hole_pattern: HolePattern | None = HexFill()
+
+    face: Face = Face()
+    """Style elements for the face of the shelf."""
+    base: Base = Base()
+    """Style elements for the base of the shelf."""
+    wall: Wall = Wall()
+    """Style elements for the walls of the shelf."""
 
     OPEN_FACE: ClassVar["ShelfStyle"]
     """A rack shelf with an open face."""
@@ -53,15 +84,15 @@ class ShelfStyle:
     """A rack shelf with a closed face."""
 
 
-ShelfStyle.OPEN_FACE = ShelfStyle(open_face=True)
-ShelfStyle.CLOSE_FACE = ShelfStyle(open_face=False)
+ShelfStyle.OPEN_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=True))
+ShelfStyle.CLOSE_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=False))
 
 
 def shelf(
     rack_units: float = 1.0,
     style: ShelfStyle = ShelfStyle.OPEN_FACE,
-    features: FeatureList | None = None,
-    layout: Layout | None = None,
+    base_features: FeatureList | None = None,
+    face_features: FeatureList | None = None,
 ) -> Rendering:
     """Render a rack shelf
 
@@ -74,38 +105,43 @@ def shelf(
     Returns:
         Rendering of a rack shelf.
     """
-    if features is not None and layout is None:
-        layout = GridLayout()
+    # Normalize args
+    if face_features is not None and style.face.is_open:
+        raise ValueError("Cannot have a open face style with face features.")
 
     # geometry
     plate_size = Vec3(
         RackDims.SHELF_WIDTH,
-        style.shelf_depth,
-        style.base_thickness,
+        style.base.depth,
+        style.base.thickness,
     )
     exterior_dz = rack_units_to_mm(rack_units)
     exterior_bx = Bx(plate_size.x, plate_size.y, exterior_dz, 0, 0, exterior_dz / 2)
     interior_dz = rack_units_to_mm(rack_units) - plate_size.z
-    interior_dx = plate_size.x - 2 * style.wall_thickness
+    interior_dx = plate_size.x - 2 * style.wall.thickness
     interior_bx = Bx(interior_dx, plate_size.y, interior_dz, 0, 0, interior_dz / 2)
 
     # wall
-    def build_walls() -> None:
+    def build_walls(plate_asm: Assembler) -> None:
+        """Add walls to the left and right top of the base."""
         # Make a wall block that is a combination of figures
-        wall_size = Vec3(plate_size.y, interior_dz, style.wall_thickness)
-        shelf_back = style.shelf_back_depth
+        wall_size = Vec3(plate_size.y, interior_dz, style.wall.thickness)
+        shelf_back = style.base.back_inset
         wall_back = RectangleFigure(shelf_back, 2 * plate_size.z)
         wall_trap = TrapezoidFigure(
             wall_size.y,
             wall_size.x / 2 - shelf_back,
             angle1=90,
-            minor_width=2 * plate_size.z,
+            angle2=TrapezoidFigure.angle_from_widths(
+                wall_size.y, 2 * plate_size.z, wall_size.x / 2 - shelf_back, angle1=90
+            ),
         )
         wall_trap = RotatedFigure(wall_trap, angle=90)
         wall_holes = RectangleFigure(
             wall_size.x / 2,
             wall_size.y,
-            corners=SquareCorners(wall_size.z),  # insets the fill area a bit
+            corners=SquareCorners(wall_size.z),
+            holes=style.wall.hole_pattern,
         )
         wall_figure = AlignedFigure(
             [wall_back, wall_trap, wall_holes], Ax2.X, AxDir.MINUS
@@ -122,28 +158,42 @@ def shelf(
             wall_sub.place_block(wall)
 
     # add face
-    def build_faceplate(base_asm: Assembler) -> None:
-        size = Vec3(RackDims.WIDTH_10INCH, exterior_dz, style.face_thickness)
+    def build_faceplate(base_asm: Assembler, face_features: FeatureList | None) -> None:
+        """Add the faceplate to the exterior-bottom assembler"""
+        size = Vec3(RackDims.WIDTH_10INCH, exterior_dz, style.face.thickness)
+
+        # build the faceplate block with rack holes
         holes = RackHolePattern(rack_units)
         figure = RectangleFigure(
-            size.x, size.y, corners=style.face_rounding, holes=holes
+            size.x, size.y, corners=style.face.rounding, holes=holes
         )
-        if style.open_face:
-            open_dx = ShelfTabDims.MAX_DX_TABS - 2 * style.wall_thickness
+        open_dx = ShelfTabDims.MAX_DX_TABS - 2 * style.wall.thickness
+        if style.face.is_open:
             figure = CutoutFigure(figure, RectangleFigure(open_dx, size.y))
         face = ExtrudedBlock(figure, size.z)
-        sub = base_asm.make_sub(exterior_bx, AxDir3.Y_MINUS)
-        sub.place_block(face)
+
+        # position the block
+        plane_bx = base_asm.place_bounds(
+            Vec3(size.x, 0, size.y), Assembler.Place(Dir2.Y_MINUS, Vec2(0, -size.z))
+        )
+        face_sub = base_asm.make_sub(plane_bx, AxDir3.Y_PLUS)
+        feature_sub = face_sub.stack_block(face)
+        if face_features is not None:
+            # work in base coordinates
+            area = Rc(
+                open_dx - 2 * style.face.feature_inset.x,
+                size.y - 2 * style.base.thickness - 2 * style.face.feature_inset.y,
+            )
+            style.face.layout.render_features(face_features, feature_sub, area=area)
 
     # shelf
-    asm = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
-    build_faceplate(asm)
+    bottom_asm = Assembler.make(exterior_bx.side_bx(AxDir3.BOTTOM))
     plate = PlateBlock(plate_size.x, plate_size.y, plate_size.z)
-    plate_asm = asm.stack_block(plate)
-    build_walls()
-    build_faceplate(asm)
-    if features is not None:
-        assert layout is not None
-        layout.render_features(features, asm)
+    plate_asm = bottom_asm.stack_block(plate)
+    if base_features is not None:
+        style.base.layout.render_features(base_features, plate_asm)
 
-    return asm.make_rendering()
+    build_walls(plate_asm)
+    build_faceplate(bottom_asm, face_features)
+
+    return bottom_asm.make_rendering()

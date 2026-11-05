@@ -1,4 +1,4 @@
-"""Facplate function and its parameter types"""
+"""A Facplate model for a 10-inch rack."""
 
 from dataclasses import dataclass
 from typing import ClassVar
@@ -28,6 +28,8 @@ class FaceplateStyle:
     """Start the bottom with a half unit"""
     rib: Rib = Rib(2.0, 1.0)
     """Rib size for the plate"""
+    layout: Layout = RowLayout()
+    """The layout of the face plate."""
 
     PLAIN: ClassVar["FaceplateStyle"]
     """Plain or default style"""
@@ -48,22 +50,21 @@ def faceplate(
     rack_units: float,
     style: FaceplateStyle = FaceplateStyle.PLAIN,
     features: FeatureList | None = None,
-    layout: Layout | None = None,
 ) -> Rendering:
     """
     Render the faceplate according to the parameters.
 
     Args:
         rack_units (float): the height of the plate in rack units.
-        style (FaceplateSytle): the sytle used to render the plate, with PLAIN as the default.
+        style (FaceplateSytle): the sytle used to render the plate,
+            with PLAIN as the default.
         features (FeatureList): the features to place on the plate.
-        layout (Layout): the layout to use for features. Default is RowLayout.
+        layout (Layout): the layout to use for features. Default is
+            RowLayout.
 
     Returns:
         A rendering of the faceplate.
     """
-    if features is not None and layout is None:
-        layout = RowLayout()
     plate_size = Vec2(RackDims.WIDTH_10INCH, rack_units * RackDims.HEIGHT_1U)
     feature_area = Rc(ShelfTabDims.MAX_DX_TABS, plate_size.y - 2 * style.rib.width)
 
@@ -98,7 +99,6 @@ def faceplate(
 
     # features
     if features is not None:
-        assert layout is not None
-        layout.render_features(features, asm, feature_area)
+        style.layout.render_features(features, asm, feature_area)
 
     return asm.make_rendering()

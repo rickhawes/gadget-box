@@ -41,12 +41,14 @@ tasks:
       - uv run ruff check --select I --fix .
 
   lint:
-    desc: "Check linting and formatting with ruff"
+    desc: "Check linting and formatting of src, tests, examples."
     deps: [init]
     cmds:
       - uv run pyrefly check .
       - uv run ruff format --check .
       - uv run ruff check --select I
+      - uv run pylint src
+      - uv run pylint examples 
 
   format:
     desc: "Fix linting issues and auto-format code with ruff"
@@ -63,6 +65,11 @@ tasks:
       - python -m ocp_viewer &
       - sleep 5
       - open -a "OCP Viewer"
+
+  stop-viewer:
+    desc: "Stop the viewer application"
+    cmds:
+      - kill $(lsof -t -i :3939 -sTCP:LISTEN)
 
   run:
     desc: "Run example program"

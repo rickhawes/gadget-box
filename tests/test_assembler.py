@@ -1,7 +1,7 @@
 from typing import override
 
+import build123d as bd
 import pytest
-from build123d import Vector
 
 from mini_rack_printables import (
     Assembler,
@@ -26,18 +26,18 @@ def test_make() -> None:
     assert m1.origin == Vec3(0, 0, 10)
     assert m1.plate_rc == Rc(100, 100)
     assert m1.plate_depth == 10
-    assert m1.plate_side == AxDir3.Z_PLUS
-    assert m1._plane.location.position == Vector(0, 0, 10)
-    assert m1._plane.z_dir == Vector(0, 0, 1)
+    assert m1._plate.side == AxDir3.Z_PLUS
+    assert m1._plate.plane.location.position == bd.Vector(0, 0, 10)
+    assert m1._plate.z_dir == AxDir3.Z_PLUS
 
     # on the right side of the base pointing outward
     m2 = Assembler.make(base, z_dir=AxDir3.X_PLUS)
     assert m2.origin == Vec3(50, 0, 5)
     assert m2.plate_rc == Rc(100, 10)
     assert m2.plate_depth == 100
-    assert m2.plate_side == AxDir3.X_PLUS
-    assert m2._plane.location.position == m2.origin.to_vector()
-    assert m2._plane.z_dir == Vector(1, 0, 0)
+    assert m2._plate.side == AxDir3.X_PLUS
+    assert m2._plate.plane.location.position == m2.origin.to_vector()
+    assert m2._plate.z_dir == AxDir3.X_PLUS
 
 
 def test_make_with_block() -> None:
@@ -47,18 +47,17 @@ def test_make_with_block() -> None:
     assert m1.origin == Vec3(0, 0, 10)
     assert m1.plate_rc == Rc(100, 100)
     assert m1.plate_depth == 10
-    assert m1.plate_side == AxDir3.Z_PLUS
-    assert m1._plane.location.position == Vector(0, 0, 10)
-    assert m1._plane.z_dir == Vector(0, 0, 1)
+    assert m1._plate.side == AxDir3.Z_PLUS
+    assert m1._plate.plane.location.position == bd.Vector(0, 0, 10)
 
     # on the right side of the base pointing outward
     m2 = Assembler.make_with_block(base, z_dir=AxDir3.X_PLUS)
     assert m2.origin == Vec3(50, 0, 5)
     assert m2.plate_rc == Rc(100, 10)
     assert m2.plate_depth == 100
-    assert m2.plate_side == AxDir3.X_PLUS
-    assert m2._plane.location.position == m2.origin.to_vector()
-    assert m2._plane.z_dir == Vector(1, 0, 0)
+    assert m2._plate.side == AxDir3.X_PLUS
+    assert m2._plate.plane.location.position == m2.origin.to_vector()
+    assert m2.z_dir == AxDir3.X_PLUS
 
 
 def test_assemble_two_boxes(viewer_logger: TestLogger) -> None:
@@ -134,6 +133,19 @@ def test_cutout_mode(viewer_logger: TestLogger) -> None:
     viewer_logger.log(r1.part)
 
 
+def test_stack_block() -> None:
+    base = Bx(100, 100, 10, 0, 0, 5)
+    block = BoxBlock(30, 30, 30)
+    m1 = Assembler.make(base)
+    assert m1._plate.z_dir == AxDir3.Z_PLUS
+    s1 = m1.stack_block(block)
+    assert s1.origin == Vec3(0, 0, 40)
+    s2 = s1.stack_block(block, sub_z_dir=AxDir3.Y_MINUS)
+    assert s2.origin == Vec3(0, -15, 55)
+    s3 = s2.stack_block(block)
+    assert s3.origin == Vec3(0, -45, 55)
+
+
 class TestFeature(Feature):
     @override
     def desired_size(self) -> Feature.DesiredSize:
@@ -153,8 +165,8 @@ def test_add_feature(viewer_logger: TestLogger) -> None:
     r1 = m1.make_rendering()
     assert m1._pieces is not None and len(m1._pieces) == 2
     assert m1.origin == Vec3(0, 0, 10)
-    assert m1._pieces[0]._bbox.center() == Vector(0, 0, 5)
-    assert m1._pieces[1]._bbox.center() == Vector(0, 0, 5)
+    assert m1._pieces[0]._bbox.center() == bd.Vector(0, 0, 5)
+    assert m1._pieces[1]._bbox.center() == bd.Vector(0, 0, 5)
     viewer_logger.log(r1.part)
 
 

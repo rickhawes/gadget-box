@@ -1,5 +1,6 @@
 """
-Constants for the dimensions of the hardware including 10-inch racks and screws.
+Constants for the dimensions of the hardware including 10-inch
+racks and screws.
 """
 
 from enum import Enum
@@ -65,7 +66,8 @@ class ShelfTabDims(float, Enum):
     WIDTH_MIN = 15.875
     """Minimal width of the rack tab from the standard"""
     HOLE_WIDTH_TECMOJO = 9.28
-    """Measured width of the tab hole (use 10-24 screw hole diameter for height)"""
+    """Measured width of the tab hole (use 10-24 screw hole 
+        diameter for height)"""
     MAX_DX_TABS = 222.25
     """Maximal inner distance from left to the right tab"""
 

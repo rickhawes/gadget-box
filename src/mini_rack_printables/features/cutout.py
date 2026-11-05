@@ -1,11 +1,14 @@
+"""A plate cutout feature."""
+
 from typing import override
+
+from mini_rack_printables.core.figures import CircleFigure
 
 from ..core.assembler import Assembler
 from ..core.block import ExtrudedBlock, TubeBlock
 from ..core.feature import Feature, Rib
 from ..core.figures import Figure
-from ..core.geometry import Bx, Vec2
-from ..core.piece import Piece
+from ..core.geometry import Mm, Vec2
 
 
 class Cutout(Feature):
@@ -40,3 +43,17 @@ class Cutout(Feature):
         if self.rib is not None:
             rib = TubeBlock(self.shape, self.rib.width, self.rib.depth)
             asm.place_block(rib)
+
+
+class CircleCutout(Cutout):
+    """
+    A circle cutout of a plate. It can also be outlined with a rib.
+    """
+
+    def __init__(self, radius: Mm, rib: Rib | None = None) -> None:
+        """
+        Args:
+            radius: The radius of the circle
+            rib (Rib | None): The rib to outline the cutout with.
+        """
+        super().__init__(CircleFigure(radius), rib)

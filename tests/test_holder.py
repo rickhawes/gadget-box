@@ -1,6 +1,6 @@
 from mini_rack_printables import (
     BoxHolder,
-    CornerHolder,
+    GeneralCornerHolder,
     PuckHolder,
     RectangleFigure,
     TestLogger,
@@ -40,6 +40,6 @@ def test_puck_holder(viewer_logger: TestLogger) -> None:
 
 
 def test_corner_holder(viewer_logger: TestLogger) -> None:
-    holder = CornerHolder(RectangleFigure(80, 30, 2))
+    holder = GeneralCornerHolder(RectangleFigure(80, 30, 2))
     rendering = feature_xray(holder)
     viewer_logger.log(rendering)

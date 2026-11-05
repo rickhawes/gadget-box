@@ -1,11 +1,12 @@
 """
-Functions to draw and layout shapes for the common holes and patterns.
+Functions to draw and layout shapes for the common holes
+and patterns.
 """
 
 import math
 from typing import Sequence
 
-from build123d import Location, Sketch
+import build123d as bd
 
 from mini_rack_printables.models.rack_dims import (
     RackDims,
@@ -26,17 +27,21 @@ def layout_rack_screw_holes(
     half_height_bottom: bool = False,
 ) -> list[Vec2]:
     """
-    Layout the screw holes for a faceplate on a rack according to the pattern established
-    in the dimensions' module.
+    Layout the screw holes for a faceplate on a rack according
+    to the pattern established in the dimensions' module.
 
     Args:
-        rack_units: Number of rack units of the plate with half units being acceptable
+        rack_units: Number of rack units of the plate with
+            half units being acceptable
         middle_holes: draw middle screw holes
-        half_height_bottom: The bottom will start on the middle hole
+        half_height_bottom: The bottom will start on the
+            middle hole
 
     Returns:
-            A list of vecs from the bottom of  from the bottom of the rack. A single rack unit will have a
-            top and bottom hole and if `middle_holes` is `True`, a middle hole will be returned as well.
+            A list of vecs from the bottom of  from the bottom of
+            the rack. A single rack unit will have a
+            top and bottom hole and if `middle_holes` is `True`,
+            a middle hole will be returned as well.
     """
 
     def y_layout() -> list[Mm]:
@@ -102,13 +107,15 @@ def layout_rack_screw_holes(
 
 
 class RackHoleFigure(SlotFigure):
-    """A single hole for a rack faceplate"""
+    """A single hole for a rack faceplate."""
 
     def __init__(self) -> None:
         super().__init__(ShelfTabDims.HOLE_WIDTH_TECMOJO, Screw1032Dims.HOLE)
 
 
 class RackHolePattern(HolePattern):
+    """HolePattern for the holes of a rack faceplate."""
+
     def __init__(
         self,
         rack_units: float,
@@ -123,11 +130,11 @@ class RackHolePattern(HolePattern):
     def inset(self) -> Mm:
         return 0
 
-    def locations(self, size: Vec2) -> Sequence[Location]:
+    def locations(self, size: Vec2) -> Sequence[bd.Location]:
         locs = layout_rack_screw_holes(
             self.rack_units, self.middle_holes, self.half_height_bottom
         )
-        return [Location(l.to_vector()) for l in locs]
+        return [bd.Location(l.to_vector()) for l in locs]
 
-    def sketch(self) -> Sketch:
+    def sketch(self) -> bd.Sketch:
         return RackHoleFigure().sketch()
