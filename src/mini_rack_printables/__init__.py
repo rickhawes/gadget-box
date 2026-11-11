@@ -64,10 +64,10 @@ from .features.jetkvm import JetKVM
 from .features.keystone import Keystone
 from .features.puck_holder import PuckHolder
 from .features.spacer import Spacer
-from .models.faceplate import FaceplateStyle, faceplate
 from .models.rack_dims import RackDims, RackScrewDims, Screw1032Dims, rack_units_to_mm
+from .models.rack_faceplate import FaceplateStyle, rack_faceplate
 from .models.rack_holes import RackHoleFigure, RackHolePattern, layout_rack_screw_holes
-from .models.shelf import ShelfStyle, shelf
+from .models.rack_shelf import ShelfStyle, rack_shelf
 
 __all__ = [
     "Assembler",
@@ -95,7 +95,6 @@ __all__ = [
     "Dir2",
     "Figure",
     "Block",
-    "faceplate",
     "FaceplateStyle",
     "Feature",
     "feature_xray",
@@ -117,6 +116,8 @@ __all__ = [
     "TestLogger",
     "ExtrudedBlock",
     "PuckHolder",
+    "rack_faceplate",
+    "rack_shelf",
     "rack_units_to_mm",
     "RackDims",
     "RackScrewDims",
@@ -134,7 +135,6 @@ __all__ = [
     "RowLayout",
     "Screw1032Dims",
     "SelectedCorners",
-    "shelf",
     "ShelfStyle",
     "SlotFigure",
     "Spacer",

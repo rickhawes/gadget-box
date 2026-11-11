@@ -1,7 +1,7 @@
 """Classes to generate a fill pattern of holes in a plate.
 
 See Also:
-    `Figure` - Main user of holes
+    `Figure` - Main user of holes.
 """
 
 import math

@@ -9,11 +9,11 @@ from mini_rack_printables import (
     FaceplateStyle,
     RectangleFigure,
     SlotFigure,
-    faceplate,
+    rack_faceplate,
 )
 
 # A faceplate in with features a declarative style.
-plate = faceplate(
+plate = rack_faceplate(
     rack_units=1.0,
     features=[
         [

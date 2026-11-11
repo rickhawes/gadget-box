@@ -1,10 +1,10 @@
 """
 3D blocks for models and features.
 
-A core concept is the stacking of blocks to construct features and models.
+The stacking of blocks is core contruction technique for features and models.
 
 See Also:
-    `Figure` - for the 2d equivalent
+    `Figure` - for the 2d primatives used to make blocks.
     `Assembler` - to place blocks on top of each other
 """
 

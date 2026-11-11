@@ -1,7 +1,9 @@
-"""
-Part Layouts
+"""Layout features on a plate.
 
-Place parts on a model's plate. Used by most models.
+Place features on a model's plate. Used by most models.
+
+See Also:
+    `Feature` - A set of device specific classes that `Layout` place.
 """
 
 from abc import ABC, abstractmethod

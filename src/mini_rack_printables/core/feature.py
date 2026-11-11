@@ -1,6 +1,10 @@
-"""
-Classes for specifying features of a `Model`. Features may be related to specific
-devices or general concepts like cutouts.
+"""Classes for specifying features of a `Model`.
+
+Features are generally related to specific devices. Features are
+laid out on a plate, a flat area on a model.
+
+See Also:
+    `Layout` - Classes to place features on a plate.
 """
 
 from abc import ABC, abstractmethod

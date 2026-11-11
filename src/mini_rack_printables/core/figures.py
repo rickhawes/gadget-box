@@ -1,6 +1,11 @@
-"""
-2d figures for models. Figures are the primitives that make up models and parts.
-They are built to be easily combined and rendered.
+"""2d figures for blocks.
+
+Figures are the primitives that make up models and parts. They are built to be
+easily combined and rendered. Figures are usually
+made in 3d blocks.
+
+See Also:
+    `Block` - The 3d extrusion of a `Figure`
 """
 
 import math

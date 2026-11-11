@@ -1,4 +1,11 @@
-"""Assembler places blocks into models."""
+"""Assembler places blocks into models.
+
+The stacking of blocks is core contruction technique for features and models. The
+Assembler is used to do this.
+
+See Also:
+    `Block` - 3D primatives for construction
+"""
 
 from dataclasses import dataclass
 from typing import Sequence, cast, final
@@ -179,13 +186,9 @@ class Assembler:
         if plate is not None:
             # Convert the passed in plate to global taking into account
             # the plane direction
-            gbl_min = cast(
-                bd.Vector, self._plate.plane.from_local_coords(plate.min.to_vector())
-            )
-            gbl_max = cast(
-                bd.Vector, self._plate.plane.from_local_coords(plate.max.to_vector())
-            )
-            base = Bx.from_corners(Vec3.from_vector(gbl_min), Vec3.from_vector(gbl_max))
+            gbl_min = self.to_global(plate.min)
+            gbl_max = self.to_global(plate.max)
+            base = Bx.from_corners(gbl_min, gbl_max)
         else:
             base = self._plate.bx
         if z_dir is None:
@@ -225,7 +228,7 @@ class Assembler:
 
     type Places = Assembler.Place | Sequence[Assembler.Place]
 
-    def place_bounds(self, size: Vec3, place: Place = Place()) -> Bx:
+    def place_bx(self, size: Vec3, place: Place = Place()) -> Bx:
         """The bounding box of `size` relative the assembler's plane"""
         origin = self.plate_rc.place_center(Rc(size.x, size.y), place.origin).to_vec3()
         offset = (
@@ -244,7 +247,7 @@ class Assembler:
             raise ValueError("`place` must not be an empty list")
         resolved_cut = cut if cut is not None else self.cutout_mode
         for p in places:
-            center = self.place_bounds(block.size, p).center
+            center = self.place_bx(block.size, p).center
             piece = block.render(resolved_cut)
             self.add_piece(piece, center)
 
@@ -252,7 +255,7 @@ class Assembler:
         self, block: Block, place: Place = Place(), sub_z_dir: AxDir3 | None = None
     ) -> Assembler:
         """Place an block and create a sub-assembler on the placed."""
-        center = self.place_bounds(block.size, place).center
+        center = self.place_bx(block.size, place).center
         piece = block.render(cut=False)
         self.add_piece(piece, center)
         if sub_z_dir is None:
@@ -283,11 +286,14 @@ class Assembler:
 
     def to_global(self, local: Vec3) -> Vec3:
         """Convert a local vector to a global coordinate vector"""
-        return local + self.origin
+        # use the plane to handle axis translations
+        gbl = cast(bd.Vector, self._plate.plane.from_local_coords(local.to_vector()))
+        return Vec3.from_vector(gbl)
 
     def to_local(self, gbl: Vec3) -> Vec3:
         """Convert a global vector to a local coordinate vector"""
-        return gbl - self.origin
+        local = cast(bd.Vector, self._plate.plane.to_local_coords(gbl.to_vector()))
+        return Vec3.from_vector(local)
 
     def all_pieces(self) -> list[Piece]:
         """All the pieces in the top and sub assemblers."""

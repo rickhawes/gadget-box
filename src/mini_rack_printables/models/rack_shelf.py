@@ -88,7 +88,7 @@ ShelfStyle.OPEN_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=True))
 ShelfStyle.CLOSE_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=False))
 
 
-def shelf(
+def rack_shelf(
     rack_units: float = 1.0,
     style: ShelfStyle = ShelfStyle.OPEN_FACE,
     base_features: FeatureList | None = None,
@@ -173,7 +173,7 @@ def shelf(
         face = ExtrudedBlock(figure, size.z)
 
         # position the block
-        plane_bx = base_asm.place_bounds(
+        plane_bx = base_asm.place_bx(
             Vec3(size.x, 0, size.y), Assembler.Place(Dir2.Y_MINUS, Vec2(0, -size.z))
         )
         face_sub = base_asm.make_sub(plane_bx, AxDir3.Y_PLUS)

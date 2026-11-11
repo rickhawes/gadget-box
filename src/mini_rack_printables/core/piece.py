@@ -1,4 +1,4 @@
-"""The parts of a rendering a model."""
+"""Hold the output of rendering a model."""
 
 from typing import Self
 
@@ -14,7 +14,8 @@ class Piece:
     This is a mutable class which wraps a build123d primative.
 
     Attributes:
-        part: Part - the build123d Part
+        part (bd.Part) - the build123d Part
+        bounds (Bx) - the bounding box in global coordinates
         cut: bool - subtract the part instead of the normal add
     """
 

@@ -46,7 +46,7 @@ FaceplateStyle.PLAIN = FaceplateStyle()
 FaceplateStyle.WITH_RIB = FaceplateStyle(rib=FaceplateStyle.STD_RIB)
 
 
-def faceplate(
+def rack_faceplate(
     rack_units: float,
     style: FaceplateStyle = FaceplateStyle.PLAIN,
     features: FeatureList | None = None,
@@ -85,7 +85,7 @@ def faceplate(
 
         def add_rib(dir2: Dir2) -> None:
             rib_size = Vec3(feature_area.size.x, style.rib.width, style.rib.depth)
-            rib_bx = asm.place_bounds(rib_size, Assembler.Place(origin=dir2))
+            rib_bx = asm.place_bx(rib_size, Assembler.Place(origin=dir2))
             # place the sub assembly on the side
             rib_plane_bx = rib_bx.side_bx(AxDir3.Y_MINUS)
             rib_asm = asm.make_sub(rib_plane_bx, AxDir3.Y_PLUS)

@@ -53,7 +53,7 @@ def build_basic_holder(
 
     # add walls
     # build around a box defined by the device
-    device_bx = asm.place_bounds(size=device_size)
+    device_bx = asm.place_bx(size=device_size)
     for side in [AxDir3.X_PLUS, AxDir3.X_MINUS, AxDir3.Y_PLUS, AxDir3.Y_MINUS]:
         size = device_bx.side_size(side) - Vec2(2 * dc, 0)
         block = PlateBlock(size.x, size.y, w, holes=style.holes)
