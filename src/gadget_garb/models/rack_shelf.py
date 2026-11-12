@@ -86,7 +86,7 @@ ShelfStyle.OPEN_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=True))
 ShelfStyle.CLOSE_FACE = ShelfStyle(face=ShelfStyle.Face(is_open=False))
 
 
-def rack_shelf(
+def render_rack_shelf(
     rack_units: float = 1.0,
     style: ShelfStyle = ShelfStyle.OPEN_FACE,
     base_features: FeatureList | None = None,

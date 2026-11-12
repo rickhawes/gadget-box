@@ -46,7 +46,7 @@ FaceplateStyle.PLAIN = FaceplateStyle()
 FaceplateStyle.WITH_RIB = FaceplateStyle(rib=FaceplateStyle.STD_RIB)
 
 
-def rack_faceplate(
+def render_rack_faceplate(
     rack_units: float,
     style: FaceplateStyle = FaceplateStyle.PLAIN,
     features: FeatureList | None = None,

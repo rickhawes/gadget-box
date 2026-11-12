@@ -6,7 +6,7 @@ See Also:
 """
 
 from abc import ABC, abstractmethod
-from typing import override
+from typing import TypeAlias, override
 
 import build123d as bd
 
@@ -24,7 +24,7 @@ class Corners(ABC):
     BOTTOM_LEFT: str = "bottom_left"
     BOTTOM_RIGHT: str = "bottom_right"
 
-    type SelectedCorner = str
+    SelectedCorner: TypeAlias = str
 
     def __init__(self, width: Mm, height: Mm | None = None) -> None:
         self.width = width

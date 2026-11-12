@@ -9,7 +9,7 @@ See Also:
 
 from dataclasses import dataclass
 from enum import Enum, IntEnum, auto
-from typing import Self
+from typing import Self, TypeAlias
 
 import build123d as bd
 
@@ -17,10 +17,10 @@ import build123d as bd
 # 1D Classes and Enums
 # ------------------------------------------------------------------------------
 
-type Mm = float | int
+Mm: TypeAlias = float | int
 """A millimeter measurement value. Used for all length measurements in the library."""
 
-type Degree = float | int
+Degree: TypeAlias = float | int
 """A angle in degree. Used for angle specifications."""
 
 

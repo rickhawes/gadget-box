@@ -40,6 +40,14 @@ tasks:
     cmds:
       - uv run ruff check --select I --fix .
 
+  gen-init: 
+    desc: "Generate __init__.py files."
+    deps: [init]
+    cmds:
+      - uv run mkinit --recursive --black -w --nomod src/gadget_garb
+      - uv run ruff format .  
+      - uv run ruff check --select I --fix .
+       
   lint:
     desc: "Check linting and formatting of src, tests, examples."
     deps: [init]

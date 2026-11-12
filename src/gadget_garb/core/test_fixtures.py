@@ -5,6 +5,7 @@ Common test fixtures defined in core to be in the import path for tests.
 import sys
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import TypeAlias
 
 import build123d as bd
 
@@ -22,7 +23,7 @@ class TestLogger:
     Part of the core package to allow it to be included in tests.
     """
 
-    type LogableType = bd.Part | bd.Compound | bd.Sketch
+    LogableType: TypeAlias = bd.Part | bd.Compound | bd.Sketch
 
     @dataclass(init=False)
     class LogEntry:

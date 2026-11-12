@@ -10,6 +10,7 @@ See Also:
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TypeAlias
 
 from .assembler import Assembler
 from .geometry import Mm, Vec2
@@ -56,7 +57,7 @@ class Feature(ABC):
         """
 
 
-type FeatureList = Sequence[Sequence[Feature]]
+FeatureList: TypeAlias = Sequence[Sequence[Feature]]
 """A row-column sequence of features."""
 
 
