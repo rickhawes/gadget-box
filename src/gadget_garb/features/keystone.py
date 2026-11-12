@@ -1,6 +1,6 @@
 """Add Network Keystone cutouts to a plate."""
 
-from ..features.import_feature import ImportFeature
+from .import_feature import ImportFeature
 
 
 class Keystone(ImportFeature):

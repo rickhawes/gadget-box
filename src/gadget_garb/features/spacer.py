@@ -2,9 +2,7 @@
 
 from typing import override
 
-from ..core.assembler import Assembler
-from ..core.feature import Feature
-from ..core.geometry import Mm, Vec2
+from gadget_garb.core import Assembler, Feature, Mm, Vec2
 
 
 class Spacer(Feature):

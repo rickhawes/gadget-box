@@ -1,8 +1,8 @@
 """A 10-inch rack shelf example with features."""
 
-from gadget_garb import CornerHolder, Keystone, ShelfStyle, Spacer, rack_shelf
+from gadget_garb import CornerHolder, Keystone, ShelfStyle, Spacer, render_rack_shelf
 
-shelf = rack_shelf(
+shelf = render_rack_shelf(
     rack_units=1.0,
     style=ShelfStyle.CLOSE_FACE,
     base_features=[[CornerHolder(100, 100, 10)]],

@@ -3,13 +3,24 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock, PlateBlock
-from ..core.feature import FeatureList, Rib
-from ..core.figures import TrapezoidFigure
-from ..core.geometry import AxDir3, Dir2, Mm, Rc, Vec2, Vec3
-from ..core.layouts import Layout, RowLayout
-from ..core.rendering import Rendering
+from gadget_garb.core import (
+    Assembler,
+    AxDir3,
+    Dir2,
+    ExtrudedBlock,
+    FeatureList,
+    Layout,
+    Mm,
+    PlateBlock,
+    Rc,
+    Rendering,
+    Rib,
+    RowLayout,
+    TrapezoidFigure,
+    Vec2,
+    Vec3,
+)
+
 from .rack_dims import RackDims, ShelfTabDims
 from .rack_holes import RackHolePattern
 

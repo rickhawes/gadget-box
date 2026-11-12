@@ -1,6 +1,6 @@
 """A holder for the Jet KVM device."""
 
-from ..features.import_feature import ImportFeature
+from .import_feature import ImportFeature
 
 
 class JetKVM(ImportFeature):

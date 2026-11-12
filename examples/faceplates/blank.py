@@ -1,8 +1,8 @@
 """This example demonstrates a blank faceplate with a rib."""
 
-from gadget_garb import rack_faceplate
+from gadget_garb import render_rack_faceplate
 
-plate = rack_faceplate(rack_units=1.0)
+plate = render_rack_faceplate(rack_units=1.0)
 
 # Show the plate in the viewer. Run 'task viewer' before.
 plate.show()

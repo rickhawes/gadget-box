@@ -34,6 +34,9 @@ line-length = 88
 # Set the line length to match your Black configuration (usually 88)
 line-length = 88
 
+[tool.ruff.lint]
+extend-select = ["TID252"] # no parent imports
+
 [tool.ruff.format]
 # Use double quotes for stringstas
 quote-style = "double"

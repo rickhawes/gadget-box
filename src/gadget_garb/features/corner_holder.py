@@ -7,12 +7,19 @@ a general device shape.
 from dataclasses import dataclass
 from typing import override
 
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock
-from ..core.corners import Corners, InsetCorners
-from ..core.feature import Feature
-from ..core.figures import CutoutFigure, Figure, RectangleFigure, RingFigure
-from ..core.geometry import Mm, Vec2
+from gadget_garb.core import (
+    Assembler,
+    Corners,
+    CutoutFigure,
+    ExtrudedBlock,
+    Feature,
+    Figure,
+    InsetCorners,
+    Mm,
+    RectangleFigure,
+    RingFigure,
+    Vec2,
+)
 
 
 class GeneralCornerHolder(Feature):

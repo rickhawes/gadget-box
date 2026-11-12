@@ -1,8 +1,8 @@
 """This example demonstrates a basic shelf with default settings."""
 
-from gadget_garb import rack_shelf
+from gadget_garb import render_rack_shelf
 
-shelf = rack_shelf(rack_units=1.0)
+shelf = render_rack_shelf(rack_units=1.0)
 
 # Show the shelf in the viewer. Run 'task viewer' before.
 shelf.show()

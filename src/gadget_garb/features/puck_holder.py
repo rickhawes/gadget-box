@@ -3,12 +3,20 @@
 from dataclasses import dataclass
 from typing import override
 
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock
-from ..core.corners import RoundedCorners, SelectedCorners
-from ..core.feature import Feature
-from ..core.figures import RectangleFigure
-from ..core.geometry import AxDir3, Bx, Mm, Vec2, Vec3
+from gadget_garb.core import (
+    Assembler,
+    AxDir3,
+    Bx,
+    ExtrudedBlock,
+    Feature,
+    Mm,
+    RectangleFigure,
+    RoundedCorners,
+    SelectedCorners,
+    Vec2,
+    Vec3,
+)
+
 from .basic_holder import BasicHolderStyle, build_basic_holder
 
 

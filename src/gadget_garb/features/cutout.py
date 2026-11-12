@@ -2,13 +2,17 @@
 
 from typing import override
 
-from gadget_garb.core.figures import CircleFigure
-
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock, TubeBlock
-from ..core.feature import Feature, Rib
-from ..core.figures import Figure
-from ..core.geometry import Mm, Vec2
+from gadget_garb.core import (
+    Assembler,
+    CircleFigure,
+    ExtrudedBlock,
+    Feature,
+    Figure,
+    Mm,
+    Rib,
+    TubeBlock,
+    Vec2,
+)
 
 
 class Cutout(Feature):

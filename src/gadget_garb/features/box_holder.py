@@ -3,11 +3,21 @@
 from dataclasses import dataclass
 from typing import override
 
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock, PlateBlock, StackBlock
-from ..core.feature import Feature, Rib
-from ..core.figures import CutoutFigure, OutsetFigure, RectangleFigure
-from ..core.geometry import Mm, Vec2, Vec3
+from gadget_garb.core import (
+    Assembler,
+    CutoutFigure,
+    ExtrudedBlock,
+    Feature,
+    Mm,
+    OutsetFigure,
+    PlateBlock,
+    RectangleFigure,
+    Rib,
+    StackBlock,
+    Vec2,
+    Vec3,
+)
+
 from .basic_holder import BasicHolderStyle, build_basic_holder
 
 

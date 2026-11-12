@@ -2,12 +2,20 @@
 
 from dataclasses import dataclass
 
-from ..core.assembler import Assembler
-from ..core.block import ExtrudedBlock, PlateBlock
-from ..core.corners import InsetCorners
-from ..core.figures import CutoutFigure, RectangleFigure
-from ..core.geometry import AxDir3, Mm, Vec2, Vec3
-from ..core.hole_patterns import HexFill, HolePattern
+from gadget_garb.core import (
+    Assembler,
+    AxDir3,
+    CutoutFigure,
+    ExtrudedBlock,
+    HexFill,
+    HolePattern,
+    InsetCorners,
+    Mm,
+    PlateBlock,
+    RectangleFigure,
+    Vec2,
+    Vec3,
+)
 
 
 @dataclass(frozen=True)

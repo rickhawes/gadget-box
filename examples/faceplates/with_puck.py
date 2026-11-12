@@ -1,13 +1,13 @@
 """This example demonstrates a faceplate with a puck holder."""
 
-from gadget_garb import PuckHolder, Vec3, rack_faceplate
+from gadget_garb import PuckHolder, Vec3, render_rack_faceplate
 
 holder = PuckHolder(
     device_size=Vec3(60, 30, 60),
     device_rounding=10,
     style=PuckHolder.Style(has_cutout=True),
 )
-plate = rack_faceplate(rack_units=1.0, features=[[holder]])
+plate = render_rack_faceplate(rack_units=1.0, features=[[holder]])
 
 # Show the plate in the OCP viewer
 plate.show()

@@ -3,9 +3,7 @@
 from pathlib import Path
 from typing import override
 
-from ..core.assembler import Assembler
-from ..core.block import BoxBlock, ImportBlock
-from ..core.feature import Feature
+from gadget_garb.core import Assembler, BoxBlock, Feature, ImportBlock
 
 
 class ImportFeature(Feature):

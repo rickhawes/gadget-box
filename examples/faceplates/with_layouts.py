@@ -9,11 +9,11 @@ from gadget_garb import (
     FaceplateStyle,
     RectangleFigure,
     SlotFigure,
-    rack_faceplate,
+    render_rack_faceplate,
 )
 
 # A faceplate in with features a declarative style.
-plate = rack_faceplate(
+plate = render_rack_faceplate(
     rack_units=1.0,
     features=[
         [

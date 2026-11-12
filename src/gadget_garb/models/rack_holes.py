@@ -8,9 +8,8 @@ from typing import Sequence
 
 import build123d as bd
 
-from ..core.figures import SlotFigure
-from ..core.geometry import Mm, Vec2
-from ..core.hole_patterns import HolePattern
+from gadget_garb.core import HolePattern, Mm, SlotFigure, Vec2
+
 from .rack_dims import (
     RackDims,
     RackScrewDims,

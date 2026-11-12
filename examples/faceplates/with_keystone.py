@@ -1,10 +1,10 @@
 """This example demonstrates a 10-inch rack faceplate with a 3 network
 keystone cutouts."""
 
-from gadget_garb import FaceplateStyle, Keystone, rack_faceplate
+from gadget_garb import FaceplateStyle, Keystone, render_rack_faceplate
 
 # A 1u faceplace with ribs and one row with 3 network keystone cutouts.
-plate = rack_faceplate(
+plate = render_rack_faceplate(
     rack_units=1.0,
     style=FaceplateStyle(rib=FaceplateStyle.STD_RIB),
     features=[[Keystone()] * 3],

@@ -8,14 +8,14 @@ See Also:
 """
 
 from dataclasses import dataclass
-from typing import Sequence, cast, final
+from typing import Sequence, TypeAlias, cast, final
 
 import build123d as bd
 
-from .block import Block
-from .geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
-from .piece import Piece
-from .rendering import Rendering
+from gadget_garb.core.block import Block
+from gadget_garb.core.geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
+from gadget_garb.core.piece import Piece
+from gadget_garb.core.rendering import Rendering
 
 
 @final
@@ -226,7 +226,7 @@ class Assembler:
         offset: Vec2 | Vec3 = Vec2(0, 0)
         """The offset of the center."""
 
-    type Places = Assembler.Place | Sequence[Assembler.Place]
+    Places: TypeAlias = Place | Sequence[Place]
 
     def place_bx(self, size: Vec3, place: Place = Place()) -> Bx:
         """The bounding box of `size` relative the assembler's plane"""
