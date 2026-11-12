@@ -1,6 +1,6 @@
 """A holder for the Jet KVM device."""
 
-from mini_rack_printables.features.import_feature import ImportFeature
+from ..features.import_feature import ImportFeature
 
 
 class JetKVM(ImportFeature):

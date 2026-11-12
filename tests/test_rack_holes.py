@@ -1,6 +1,6 @@
 # Layout tests
 #
-from mini_rack_printables import (
+from gadget_garb import (
     RackDims,
     RackScrewDims,
     Vec2,

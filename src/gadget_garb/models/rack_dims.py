@@ -5,7 +5,7 @@ racks and screws.
 
 from enum import Enum
 
-from mini_rack_printables.core.geometry import Mm
+from ..core.geometry import Mm
 
 # ------------------------------------------------
 # Rack Dimensions

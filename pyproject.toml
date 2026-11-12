@@ -1,5 +1,5 @@
 [project]
-name = "mini-rack-printables"
+name = "gadget-garb"
 readme = "readme.md"
 description = "A Python library for generating 3d-printer models for a 10-inch server rack"
 authors = [

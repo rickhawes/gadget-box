@@ -1,6 +1,6 @@
 """This example demonstrates a faceplate with a Jet KVM cutout."""
 
-from mini_rack_printables import JetKVM, rack_faceplate
+from gadget_garb import JetKVM, rack_faceplate
 
 plate = rack_faceplate(rack_units=1.5, features=[[JetKVM()]])
 

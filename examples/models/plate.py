@@ -1,6 +1,6 @@
 """Make a plate with holes using an Assembler."""
 
-from mini_rack_printables import (
+from gadget_garb import (
     Assembler,
     BoxBlock,
     CylinderBlock,

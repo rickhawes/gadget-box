@@ -1,6 +1,6 @@
 """This example shows a PuckHolder."""
 
-from mini_rack_printables import PuckHolder, Vec3, feature_xray
+from gadget_garb import PuckHolder, Vec3, feature_xray
 
 holder = PuckHolder(
     device_size=Vec3(100, 40, 100),

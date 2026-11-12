@@ -11,7 +11,7 @@ from ..core.feature import Feature
 class ImportFeature(Feature):
     """A Feature formed using a STL or BREP file"""
 
-    ASSET_PATH: str = "mini_rack_printables.assets"
+    ASSET_PATH: str = "gadget_garb.assets"
 
     cutout: bool = True
     block: ImportBlock

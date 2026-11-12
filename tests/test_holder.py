@@ -1,4 +1,4 @@
-from mini_rack_printables import (
+from gadget_garb import (
     BoxHolder,
     GeneralCornerHolder,
     PuckHolder,

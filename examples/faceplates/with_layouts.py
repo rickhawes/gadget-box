@@ -3,7 +3,7 @@ This example demonstrates a faceplate with a RowLayout containing 3 cutouts.
 Each cutout has a different alignment and padding and shift amount.
 """
 
-from mini_rack_printables import (
+from gadget_garb import (
     CircleFigure,
     Cutout,
     FaceplateStyle,

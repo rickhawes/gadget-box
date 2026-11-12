@@ -1,6 +1,6 @@
 import pytest
 
-from mini_rack_printables import Ax2, AxDir, AxDir2, AxDir3, Bx, Dir2, Rc, Vec2, Vec3
+from gadget_garb import Ax2, AxDir, AxDir2, AxDir3, Bx, Dir2, Rc, Vec2, Vec3
 
 
 def test_dir2() -> None:

@@ -13,7 +13,7 @@ To use look at the model and feature packages for existing support devices. Defi
 model wanted by adjusting the parameters. 
 
 ```python
-from mini_rack_printables import Keystone, faceplate, FaceplateStyle
+from gadget_garb import Keystone, faceplate, FaceplateStyle
 #
 # This example demonstrates a 10-inch rack faceplate with a 3 network keystone cutouts.
 #
@@ -36,11 +36,11 @@ model.export_step("outputs/faceplate_with_keystone.step")
 
 The project directory structure is as follows:
 
-- `src/mini_rack_printables/` - the main library source code
-- `src/mini_rack_printables/models/` - models are the starting point for creating 3d printable models.
-- `src/mini_rack_printables/features/` - reusable building blocks that enhance models.
-- `src/mini_rack_printables/core` - core code used by models and features
-- `src/mini_rack_printables/assets/` - Assets for common 3d printable models in this space. 
+- `src/gadget_garb/` - the main library source code
+- `src/gadget_garb/models/` - models are the starting point for creating 3d printable models.
+- `src/gadget_garb/features/` - reusable building blocks that enhance models.
+- `src/gadget_garb/core` - core code used by models and features
+- `src/gadget_garb/assets/` - Assets for common 3d printable models in this space. 
 - `examples/` - example scripts for creating 3d printable models that use the library
 - `scripts/` - scripts for building and testing the library.
 - `tests/` - test scripts for verifying the library's functionality

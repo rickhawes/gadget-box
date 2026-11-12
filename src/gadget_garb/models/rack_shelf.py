@@ -3,8 +3,6 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from mini_rack_printables.core.layouts import GridLayout, RowLayout
-
 from ..core.assembler import Assembler
 from ..core.block import ExtrudedBlock, PlateBlock
 from ..core.corners import SquareCorners
@@ -18,7 +16,7 @@ from ..core.figures import (
 )
 from ..core.geometry import Ax2, AxDir, AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
 from ..core.hole_patterns import HexFill, HolePattern
-from ..core.layouts import Layout
+from ..core.layouts import GridLayout, Layout, RowLayout
 from ..core.rendering import Rendering
 from .rack_dims import RackDims, ShelfTabDims, rack_units_to_mm
 from .rack_holes import RackHolePattern

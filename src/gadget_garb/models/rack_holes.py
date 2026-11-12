@@ -8,17 +8,16 @@ from typing import Sequence
 
 import build123d as bd
 
-from mini_rack_printables.models.rack_dims import (
+from ..core.figures import SlotFigure
+from ..core.geometry import Mm, Vec2
+from ..core.hole_patterns import HolePattern
+from .rack_dims import (
     RackDims,
     RackScrewDims,
     Screw1032Dims,
     ShelfTabDims,
     rack_units_to_mm,
 )
-
-from ..core.figures import SlotFigure
-from ..core.geometry import Mm, Vec2
-from ..core.hole_patterns import HolePattern
 
 
 def layout_rack_screw_holes(

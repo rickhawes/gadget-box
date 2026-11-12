@@ -1,7 +1,7 @@
 """This example demonstrates a 10-inch rack faceplate with a 3 network
 keystone cutouts."""
 
-from mini_rack_printables import FaceplateStyle, Keystone, rack_faceplate
+from gadget_garb import FaceplateStyle, Keystone, rack_faceplate
 
 # A 1u faceplace with ribs and one row with 3 network keystone cutouts.
 plate = rack_faceplate(

@@ -1,6 +1,6 @@
 """Build a block with nodes placed on it using an Assembler."""
 
-from mini_rack_printables import Assembler, AxDir3, BoxBlock, Dir2
+from gadget_garb import Assembler, AxDir3, BoxBlock, Dir2
 
 base = BoxBlock(30, 20, 10)
 node = BoxBlock(2, 1.5, 1)

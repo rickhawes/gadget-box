@@ -3,7 +3,7 @@ from typing import override
 import build123d as bd
 import pytest
 
-from mini_rack_printables import (
+from gadget_garb import (
     Assembler,
     AxDir3,
     BoxBlock,

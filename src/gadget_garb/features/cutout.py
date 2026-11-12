@@ -2,7 +2,7 @@
 
 from typing import override
 
-from mini_rack_printables.core.figures import CircleFigure
+from gadget_garb.core.figures import CircleFigure
 
 from ..core.assembler import Assembler
 from ..core.block import ExtrudedBlock, TubeBlock

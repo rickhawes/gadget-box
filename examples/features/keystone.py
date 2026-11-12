@@ -1,6 +1,6 @@
 """This example shows a Keystone feature."""
 
-from mini_rack_printables import Keystone, XRayShow, feature_xray
+from gadget_garb import Keystone, XRayShow, feature_xray
 
 #
 # This example demonstrates a keystone cutout.

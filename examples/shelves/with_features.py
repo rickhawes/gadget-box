@@ -1,6 +1,6 @@
 """A 10-inch rack shelf example with features."""
 
-from mini_rack_printables import CornerHolder, Keystone, ShelfStyle, Spacer, rack_shelf
+from gadget_garb import CornerHolder, Keystone, ShelfStyle, Spacer, rack_shelf
 
 shelf = rack_shelf(
     rack_units=1.0,

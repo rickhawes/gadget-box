@@ -1,4 +1,4 @@
-from mini_rack_printables import (
+from gadget_garb import (
     AlignedFigure,
     Ax2,
     AxDir,
@@ -18,7 +18,7 @@ from mini_rack_printables import (
     TrapezoidFigure,
     TriangleFigure,
 )
-from mini_rack_printables.core.figures import CombinedFigure, CutoutFigure, RingFigure
+from gadget_garb.core.figures import CombinedFigure, CutoutFigure, RingFigure
 
 # test by rendering a bunch of figures
 
