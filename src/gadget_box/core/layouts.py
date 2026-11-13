@@ -1,0 +1,354 @@
+"""Layout features on a plate.
+
+Place features on a model's plate. Used by most models.
+
+See Also:
+    `Feature` - A set of device specific classes that `Layout` place.
+"""
+
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterator, Sequence
+from dataclasses import dataclass
+from typing import override
+
+from .assembler import Assembler
+from .feature import Feature, FeatureList
+from .geometry import Dir2, Mm, Rc, Vec2
+from .print_dims import E
+from .row_column_collection import RowColumnCollection
+
+
+class Layout(ABC):
+    """Base layout classes"""
+
+    @dataclass(frozen=True)
+    class Section:
+        """The result of a layout for a single feature"""
+
+        bounds: Rc
+        """The bounds of the section. """
+        origin: Vec2
+        """The origin for rendering the feature"""
+        feature: Feature
+
+    @abstractmethod
+    def layout_features(self, features: FeatureList, area: Rc) -> list[Section]:
+        """
+        Layout the 'features' on the passed in 'area' returning
+        a list of section for each passed in part.
+
+        Args:
+            features (Feature): The features to layout
+            area (Rc): The area to place the features on
+        """
+
+    def render_features(
+        self,
+        features: FeatureList,
+        asm: Assembler,
+        area: Rc | None = None,
+    ) -> None:
+        """
+        Render all `features` using the given `plate` and `layout` algorithm.
+
+        Args:
+            `features` (FeatureList) - The features to render
+            `asm` (Assembler) - The assembler to add the features to
+            `area`: (Rc) - The area that is used for the feature, if None use
+                the area of the assembler's plate
+        """
+        if area is None:
+            area = asm.plate_rc
+        sections = self.layout_features(features, area)
+        for section in sections:
+            section_asm = asm.make_section_sub(section.bounds, section.origin)
+            section.feature.render(section_asm)
+
+    @staticmethod
+    def form_section(feature: Feature, bounds: Rc, place: Dir2) -> Layout.Section:
+        """Helper function to place a feature in a bounds."""
+        min_size = Rc(feature.desired_size().min_size)
+        origin = bounds.place_center(min_size, place)
+        relative_bounds = bounds.move_to(bounds.center - origin)
+        return Layout.Section(relative_bounds, origin, feature)
+
+    @staticmethod
+    def enumerate_rows_columns(
+        coll: RowColumnCollection[Feature],
+        vert_layout: Sequence[Mm],
+        layout_row: Callable[[Sequence[Feature]], Sequence[Mm]],
+        top_left: Vec2,
+        spacing: Mm,
+    ) -> Iterator[tuple[Feature, Rc]]:
+        """Helper iterator that enumerates the cells of the layout.
+
+        The function iterates on row and columns a left to right, top-
+        bottom fashion. Each row can have its own layout.
+
+        Args:
+            coll (RowColumnCollection): the collection of features
+            vert_layout (Sequence[Mm]): the vertical spacing of rows
+            layout_row (Callable): a function that returns horzional spacing of columns
+            top_left (Vec2): the starting top-left spot for the layout
+
+        Yields:
+            tuple[Feature, Rc]: the feature and bounds for a section
+        """
+        pos = top_left + Vec2(spacing, -spacing)
+        # iterate by row
+        for row_idx, row_height in enumerate(vert_layout):
+            row = coll.get_row(row_idx)
+            horz_layout = layout_row(row)
+            # iterate over all columns
+            for col_idx, item_width in enumerate(horz_layout):
+                bottom_right = pos + Vec2(item_width, -row_height)
+                feature = coll.get_item(row_idx, col_idx)
+                if feature is not None:
+                    yield feature, Rc.from_corners(pos, bottom_right)
+                pos = Vec2(bottom_right.x + spacing, pos.y)
+            pos = Vec2(top_left.x + spacing, pos.y - row_height - spacing)
+
+
+@dataclass(frozen=True)
+class RowLayout(Layout):
+    """
+    Layout each row independently according to the feature's desired size.
+    If desired size does not fill the area's width, then allocate space
+    according to each feature's desired size.
+    """
+
+    equal_heights: bool = False
+    """ Equal heights """
+    row_heights: list[Mm] | None = None
+    """ Row heights if not equal heights"""
+    equal_widths: bool = False
+    """ Equal widths """
+    place: Dir2 = Dir2.CENTER
+    """ Alignment of the within a cell"""
+    spacing: Mm = 0
+    """ Spacing between cells """
+
+    def __post_init__(self) -> None:
+        if self.row_heights is not None and self.equal_heights:
+            raise ValueError("Cannot set both row_heights and equal_row_heights")
+
+    def _layout_vert(
+        self, coll: RowColumnCollection[Feature], m: MeasuredRowsColumns, area: Rc
+    ) -> list[Mm]:
+        """Calculate the vertical heights of rows in the top-to-bottom direction"""
+        s = self.spacing
+        rc = coll.row_count
+        plate_height = area.size.y
+        # Calculate the excess space to distribute and how many rows can expand
+        total_height = sum(m.min_y)
+        expand_count = sum(1 for more in m.more_y if more)
+        excess = plate_height - total_height - s * (rc + 1)
+        if excess < 0:
+            raise ValueError(
+                f"Minimum total height {total_height} is larger than "
+                + f"available plate height {plate_height}"
+            )
+
+        if self.row_heights is not None:
+            # use caller-defined row heights
+            if len(self.row_heights) != rc:
+                raise ValueError(
+                    "row_heights must have the same length as the number of rows"
+                )
+            specified_height = sum(self.row_heights) + (rc + 1) * s
+            if plate_height - E > specified_height > plate_height + E:
+                raise ValueError(
+                    f"Sum of specified row_heights {specified_height} does not "
+                    + f"equal the plate height {plate_height}"
+                )
+            return self.row_heights
+
+        if self.equal_heights:
+            # distribute plate height evenly between rows
+            return [(plate_height - s * (rc + 1)) / rc] * rc
+
+        if expand_count == 0:
+            # distribute excess space evenly between all rows
+            return [h + (excess / rc) for h in m.min_y]
+
+        # distribute excess space evenly between expanding rows
+        def expanded_height(row: int) -> Mm:
+            return (
+                m.min_y[row] + (excess / expand_count)
+                if m.more_y[row]
+                else m.min_y[row]
+            )
+
+        return [expanded_height(i) for i in range(rc)]
+
+    @override
+    def layout_features(self, features: FeatureList, area: Rc) -> list[Layout.Section]:
+        coll = RowColumnCollection[Feature](features)
+        m = MeasuredRowsColumns.measure_parts(coll)
+        s = self.spacing
+
+        def layout_one(row_features: Sequence[Feature]) -> list[Mm]:
+            """Calculate the horizontal widths of cells of one row
+            the left-to-right direction"""
+            plate_width = area.size.x
+            cc = len(row_features)
+            total_width = sum(p.desired_size().min_size.x for p in row_features)
+            expand_count = sum(1 for p in row_features if p.desired_size().more_x)
+            excess = plate_width - total_width - s * (cc + 1)
+            if excess < 0:
+                raise ValueError(f"Part width {total_width} is too large)")
+
+            if self.equal_widths:
+                return [(plate_width - s * (cc + 1)) / cc] * cc
+
+            if expand_count == 0:
+                # distribute excess space evenly between all columns
+                return [
+                    p.desired_size().min_size.x + (excess / cc) for p in row_features
+                ]
+
+            # distribute excess space evenly between expanding columns
+            def expanded_width(p: Feature) -> Mm:
+                ds = p.desired_size()
+                return (
+                    ds.min_size.x + (excess / expand_count)
+                    if ds.more_x
+                    else ds.min_size.x
+                )
+
+            return [expanded_width(p) for p in row_features]
+
+        # Iterate over rows and columns to Rc for each part.
+        # Increment top and left with spacing to position each sub_plate correctly.
+        result: list[Layout.Section] = []
+        top_left = Vec2(area.left, area.top)
+        vert_layout = self._layout_vert(coll, m, area)
+        for feature, bounds in Layout.enumerate_rows_columns(
+            coll, vert_layout, layout_one, top_left, s
+        ):
+            section = Layout.form_section(feature, bounds, self.place)
+            result.append(section)
+
+        return result
+
+
+@dataclass(frozen=True)
+class GridLayout(RowLayout):
+    """
+    Layout the rows and columns of parts according to the parts desired and
+    minimum size. If desired size does not fill a row or column, then allocated
+    space evenly. The layout so that all rows and columns to align.
+    """
+
+    col_widths: list[Mm] | None = None
+    """ Column widths """
+
+    @override
+    def layout_features(self, features: FeatureList, area: Rc) -> list[Layout.Section]:
+        coll = RowColumnCollection(features)
+        m = MeasuredRowsColumns.measure_parts(coll)
+        s = self.spacing
+
+        def layout_horz() -> list[Mm]:
+            """Calculate the horizontal widths of cells of columns in the
+            left-to-right direction"""
+            cc = coll.col_count
+            plate_width: Mm = area.size.x
+
+            # Calculate the excess space to distribute and how many columns can expand
+            total_width: Mm = sum(m.min_x)
+            expand_count = sum(1 for more in m.more_x if more)
+            excess: Mm = plate_width - total_width - s * (cc + 1)
+            if excess < 0:
+                raise ValueError(
+                    f"Part total width {total_width} is larger than available space"
+                )
+
+            if self.col_widths is not None:
+                # use caller-defined column widths, check the supplied widths
+                if len(self.col_widths) != cc:
+                    raise ValueError("col_widths does not match number of columns")
+                specified_width = sum(self.col_widths) + (cc + 1) * s
+                if plate_width - E > specified_width > plate_width + E:
+                    raise ValueError(
+                        f"Specified {specified_width} != plate width {plate_width}"
+                    )
+                return self.col_widths
+
+            if self.equal_widths:
+                # distribute plate widths evenly between columns
+                return [(plate_width - s * (cc + 1)) / cc] * cc
+
+            if expand_count == 0:
+                # distribute excess space evenly between all columns
+                return [w + (excess / cc) for w in m.min_x]
+
+            # distribute excess space evenly between expanding columns
+            def expanded_width(col: int) -> Mm:
+                return (
+                    m.min_x[col] + (excess / expand_count)
+                    if m.more_x[col]
+                    else m.min_x[col]
+                )
+
+            return [expanded_width(i) for i in range(cc)]
+
+        result: list[Layout.Section] = []
+        top_left = Vec2(area.left, area.top)
+        vert_layout = self._layout_vert(coll, m, area)
+        horz_layout = layout_horz()
+        for feature, bounds in Layout.enumerate_rows_columns(
+            coll, vert_layout, lambda row: horz_layout, top_left, s
+        ):
+            section = Layout.form_section(feature, bounds, self.place)
+            result.append(section)
+        return result
+
+
+@dataclass(frozen=True)
+class MeasuredRowsColumns:
+    """Accumulate by row and column of the row-column collection the
+    desired_size of each feature."""
+
+    min_x: list[Mm]
+    """The min width of a column that will accomdate the min 
+    width of each feature in column."""
+    more_x: list[bool]
+    """Does any feature in a column want more space if available."""
+    min_y: list[Mm]
+    """The min height that will accomodate the min height of each feature in a row."""
+    more_y: list[bool]
+    """Does any feature in a row that wants more space if available."""
+
+    @classmethod
+    def measure_parts(cls, parts: RowColumnCollection[Feature]) -> MeasuredRowsColumns:
+        """Measure the features of the collection."""
+        min_x = [
+            max(
+                part.desired_size().min_size.x if part is not None else 0
+                for part in parts.get_column(col_idx)
+            )
+            for col_idx in range(parts.col_count)
+        ]
+        min_y = [
+            max(part.desired_size().min_size.y for part in parts.get_row(row_idx))
+            for row_idx in range(parts.row_count)
+        ]
+        more_x = [
+            any(
+                part.desired_size().more_x if part is not None else False
+                for part in parts.get_column(col_idx)
+            )
+            for col_idx in range(parts.col_count)
+        ]
+        more_y = [
+            any(part.desired_size().more_y for part in parts.get_row(row_idx))
+            for row_idx in range(parts.row_count)
+        ]
+
+        return cls(
+            min_x=min_x,
+            more_x=more_x,
+            min_y=min_y,
+            more_y=more_y,
+        )

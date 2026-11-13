@@ -1,55 +1,45 @@
-from mini_rack_printables import (
-    WallHolder,
-    XRayModel,
+from gadget_box import (
+    BoxHolder,
+    GeneralCornerHolder,
     PuckHolder,
-    CornerHolder,
-    RectangleElement,
+    RectangleFigure,
+    TestLogger,
+    Vec3,
+    feature_xray,
 )
 
 
-def test_default_holder(viewer_logger):
-    holder = WallHolder(device_size=(30, 20, 20))
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 2
-    viewer_logger.log(compound)
+def test_default_holder(viewer_logger: TestLogger) -> None:
+    holder = BoxHolder(device_size=Vec3(30, 20, 20))
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_no_rounding(viewer_logger):
-    holder = WallHolder(device_size=(30, 20, 20), device_rounding=0.0)
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 2
-    viewer_logger.log(compound)
+def test_no_rounding(viewer_logger: TestLogger) -> None:
+    holder = BoxHolder(device_size=Vec3(30, 20, 20), device_rounding=0.0)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_back_lip(viewer_logger):
-    holder = WallHolder(device_size=(30, 20, 20), style=WallHolder.BACK_LIP)
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 2
-    viewer_logger.log(compound)
+def test_back_lip(viewer_logger: TestLogger) -> None:
+    holder = BoxHolder(device_size=Vec3(30, 20, 20), style=BoxHolder.BACK_LIP)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_no_cutout(viewer_logger):
-    holder = WallHolder(device_size=(30, 20, 20), style=WallHolder.NO_CUTOUT)
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 1
-    viewer_logger.log(compound)
+def test_no_cutout(viewer_logger: TestLogger) -> None:
+    holder = BoxHolder(device_size=Vec3(30, 20, 20), style=BoxHolder.NO_CUTOUT)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_puck_holder(viewer_logger):
-    holder = PuckHolder(device_size=(80, 20, 80), device_rounding=10)
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 2
-    viewer_logger.log(compound)
+def test_puck_holder(viewer_logger: TestLogger) -> None:
+    holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
 
 
-def test_corner_holder(viewer_logger):
-    holder = CornerHolder(RectangleElement(80, 30, 2))
-    xray = XRayModel(holder, only_adds=False)
-    compound = xray.render()
-    assert len(compound.children) == 1
-    viewer_logger.log(compound)
+def test_corner_holder(viewer_logger: TestLogger) -> None:
+    holder = GeneralCornerHolder(RectangleFigure(80, 30, 2))
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)

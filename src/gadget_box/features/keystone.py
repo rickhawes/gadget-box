@@ -1,0 +1,12 @@
+"""Add Network Keystone cutouts to a plate."""
+
+from .import_feature import ImportFeature
+
+
+class Keystone(ImportFeature):
+    """
+    Add Network Keystone cutouts to a plate.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(asset="keystone.brep", cutout=True)

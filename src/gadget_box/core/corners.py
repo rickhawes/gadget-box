@@ -1,0 +1,136 @@
+"""
+A collection of classes to render the corners of a rectangle figure.
+
+See Also:
+    `RectangleBlock` for the corner parameter
+"""
+
+from abc import ABC, abstractmethod
+from typing import TypeAlias, override
+
+import build123d as bd
+
+from .geometry import Mm, Vec2
+
+
+class Corners(ABC):
+    """Base class for classes that draw corners of a rectangle"""
+
+    width: Mm
+    height: Mm
+
+    TOP_LEFT: str = "top_left"
+    TOP_RIGHT: str = "top_right"
+    BOTTOM_LEFT: str = "bottom_left"
+    BOTTOM_RIGHT: str = "bottom_right"
+
+    SelectedCorner: TypeAlias = str
+
+    def __init__(self, width: Mm, height: Mm | None = None) -> None:
+        self.width = width
+        self.height = height if height is not None else width
+
+    @property
+    def size(self) -> Vec2:
+        """The dimensions of the corner"""
+        return Vec2(self.width, self.height)
+
+    @abstractmethod
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        """draw the lines or arcs in the context of `BuildLine`"""
+
+
+class RoundedCorners(Corners):
+    """Rounded corners"""
+
+    radius: Mm
+
+    def __init__(self, radius: Mm) -> None:
+        super().__init__(radius, radius)
+        self.radius = radius
+
+    @override
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        _ = bd.RadiusArc(start_point=start, end_point=end, radius=self.radius)
+
+
+class SquareCorners(Corners):
+    """
+    Square corners. Square corners are not visible on a rectangle, but they do
+    affect the insets in fills.
+    """
+
+    @override
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        match where:
+            case Corners.TOP_LEFT | Corners.BOTTOM_RIGHT:
+                _ = bd.Polyline(start, (start.X, end.Y), end)
+            case Corners.TOP_RIGHT | Corners.BOTTOM_LEFT:
+                _ = bd.Polyline(start, (end.X, start.Y), end)
+            case _:
+                raise ValueError(f"Corners.draw called with {where}")
+
+
+class InsetCorners(Corners):
+    """Inset corners make the rectangle a cross"""
+
+    @override
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        match where:
+            case Corners.TOP_LEFT | Corners.BOTTOM_RIGHT:
+                _ = bd.Polyline([start, (end.X, start.Y), end])
+            case Corners.TOP_RIGHT | Corners.BOTTOM_LEFT:
+                _ = bd.Polyline([start, (start.X, end.Y), end])
+            case _:
+                raise ValueError(f"Corners.draw called with {where}")
+
+
+class BeveledCorners(Corners):
+    """Beveled corners"""
+
+    @override
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        _ = bd.Line(start, end)
+
+
+class SelectedCorners(Corners):
+    """Only draw the selected corners. Use a square corner for the unselected corners"""
+
+    corners: Corners
+    is_selected: dict[Corners.SelectedCorner, bool]
+    square_corners: SquareCorners
+
+    def __init__(
+        self,
+        corners: Corners,
+        top_left: bool = False,
+        top_right: bool = False,
+        bottom_left: bool = False,
+        bottom_right: bool = False,
+    ) -> None:
+        super().__init__(corners.size.x, corners.size.y)
+        self.corners = corners
+        self.is_selected = {
+            Corners.TOP_LEFT: top_left,
+            Corners.TOP_RIGHT: top_right,
+            Corners.BOTTOM_LEFT: bottom_left,
+            Corners.BOTTOM_RIGHT: bottom_right,
+        }
+        self.square_corners = SquareCorners(corners.size.x, corners.size.y)
+
+    @override
+    def draw(self, start: bd.Vector, end: bd.Vector, where: str) -> None:
+        if self.is_selected.get(where, False):
+            self.corners.draw(start, end, where)
+        else:
+            self.square_corners.draw(start, end, where)

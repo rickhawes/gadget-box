@@ -1,16 +1,11 @@
-import build123d as bd
-from ocp_vscode import show
+"""This example demonstrates a basic shelf with default settings."""
 
-from mini_rack_printables import Shelf
+from gadget_box import render_rack_shelf
 
-#
-# This example demonstrates a basic shelf with default settings.
-#
-
-shelf = Shelf(rack_units=1.0).render()
+shelf = render_rack_shelf(rack_units=1.0)
 
 # Show the shelf in the viewer. Run 'task viewer' before.
-show(shelf)
+shelf.show()
 
-# Export the plate to a STEP file
-bd.export_step(shelf, "outputs/basic_shelf.step")
+# Export the shelf to a STEP file
+shelf.export_step("outputs/basic_shelf.step")

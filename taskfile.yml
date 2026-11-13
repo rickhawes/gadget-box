@@ -1,6 +1,6 @@
 version: '3'
 # 
-# Taskfile for the mini-rack-printables project
+# Task file for the mini-rack-printables project
 # 
 # Install task: https://taskfile.dev/#/installation
 # brew install go-task  
@@ -20,8 +20,10 @@ tasks:
       - pyproject.toml
     generates:
       - uv.lock
+      - outputs 
     cmds:
       - uv sync --python {{.PYTHON_VERSION}}
+      - mkdir -p outputs
 
   test:
     desc: "Run pytest test suite (pass flags using --)"
@@ -32,27 +34,50 @@ tasks:
     cmds:
       - uv run pytest --durations=5 {{.CLI_ARGS}}
 
-  lint:
-    desc: "Check linting and formatting with ruff"
+  fix-imports:
+    desc: "ISort the import statements"
     deps: [init]
     cmds:
-      - uv run ruff check .
+      - uv run ruff check --select I --fix .
+
+  gen-init: 
+    desc: "Generate __init__.py files."
+    deps: [init]
+    cmds:
+      - uv run mkinit --recursive --black -w --nomod src/gadget_box
+      - uv run ruff format .  
+      - uv run ruff check --select I --fix .
+       
+  lint:
+    desc: "Check linting and formatting of src, tests, examples."
+    deps: [init]
+    cmds:
+      - uv run pyrefly check .
       - uv run ruff format --check .
+      - uv run ruff check --select I
+      - uv run pylint src
+      - uv run pylint examples 
 
   format:
     desc: "Fix linting issues and auto-format code with ruff"
     deps: [init]
     cmds:
       - uv run ruff format .  
+      - uv run ruff check --select I --fix .
 
   viewer:
     desc: "Run the viewer application"
     deps: [init]
     if: '! lsof -Pi :3939 -sTCP:LISTEN -t >/dev/null;' # check if port is not in use
     cmds:
-      - python -m ocp_vscode &
+      - python -m ocp_viewer &
       - sleep 5
-      - open http://localhost:3939
+      - open -a "OCP Viewer"
+
+  stop-viewer:
+    desc: "Stop the viewer application"
+    cmds:
+      - kill $(lsof -t -i :3939 -sTCP:LISTEN)
 
   run:
     desc: "Run example program"
@@ -61,7 +86,7 @@ tasks:
       Example: task run -- examples/face_plate_with_cutout.py
     deps: [viewer]
     cmds:
-      - uv run {{.CLI_ARGS}}
+      - time uv run {{.CLI_ARGS}}
 
   run-all:
       desc: Run all files in a directory using uv run. Used to run examples.
@@ -75,7 +100,7 @@ tasks:
           for file in {{.DIR}}/**/*.py; do
             if [ -f "$file" ]; then
               echo "Executing: $file"
-              uv run "$file"
+              time uv run "$file"
             fi
           done 
 
