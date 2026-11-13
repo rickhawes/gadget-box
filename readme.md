@@ -1,6 +1,8 @@
-# Mini-Rack Printables
+# Gadget Box
 
-A Python library for creating 3d printable models for enclosing many different gadgets. As many good models already exist, this project provides more customizilibilty through a library of cutouts and holders with a flexible layout system. The envisioned composible system include:
+A Python library to create a custom box for your gadget. 
+
+As many good models already exist, this project provides more customizilibilty through a library of cutouts and holders with a flexible layout system. The envisioned composible system include:
 
 - Shelves, face plates, and enclosures
 - Rectangular and circular cutouts as well as arbritary shapes described an SVG file
@@ -13,16 +15,17 @@ To use look at the model and feature packages for existing support devices. Defi
 model wanted by adjusting the parameters. 
 
 ```python
-from gadget_garb import Keystone, faceplate, FaceplateStyle
+import gadget_box as gb
+
 #
 # This example demonstrates a 10-inch rack faceplate with a 3 network keystone cutouts.
 #
 
 # A 1u faceplace with ribs and one row with 3 network keystone cutouts. 
-model = faceplate(
+model = gb.render_rack_faceplate(
     rack_units=1.0, 
-    style=FaceplateSytle(rib=FaceplateSytle.STD_RIB),
-    features=[[Keystone()] * 3]
+    style=gb.FaceplateSytle(rib=gb.FaceplateSytle.STD_RIB),
+    features=[[gb.Keystone()] * 3]
 )
 
 # Show the model in the OCP viewer
@@ -36,11 +39,11 @@ model.export_step("outputs/faceplate_with_keystone.step")
 
 The project directory structure is as follows:
 
-- `src/gadget_garb/` - the main library source code
-- `src/gadget_garb/models/` - models are the starting point for creating 3d printable models.
-- `src/gadget_garb/features/` - reusable building blocks that enhance models.
-- `src/gadget_garb/core` - core code used by models and features
-- `src/gadget_garb/assets/` - Assets for common 3d printable models in this space. 
+- `src/gadget_box/` - the main library source code
+- `src/gadget_box/models/` - models are the starting point for creating 3d printable models.
+- `src/gadget_box/features/` - reusable building blocks that enhance models.
+- `src/gadget_box/core` - core code used by models and features
+- `src/gadget_box/assets/` - Assets for common 3d printable models in this space. 
 - `examples/` - example scripts for creating 3d printable models that use the library
 - `scripts/` - scripts for building and testing the library.
 - `tests/` - test scripts for verifying the library's functionality

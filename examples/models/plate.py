@@ -1,6 +1,6 @@
 """Make a plate with holes using an Assembler."""
 
-from gadget_garb import (
+from gadget_box import (
     Assembler,
     BoxBlock,
     CylinderBlock,

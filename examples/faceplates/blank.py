@@ -1,6 +1,6 @@
 """This example demonstrates a blank faceplate with a rib."""
 
-from gadget_garb import render_rack_faceplate
+from gadget_box import render_rack_faceplate
 
 plate = render_rack_faceplate(rack_units=1.0)
 

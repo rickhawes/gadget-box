@@ -1,6 +1,6 @@
 # Layout tests
 #
-from gadget_garb import (
+from gadget_box import (
     RackDims,
     RackScrewDims,
     Vec2,

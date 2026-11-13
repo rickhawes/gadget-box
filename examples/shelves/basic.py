@@ -1,6 +1,6 @@
 """This example demonstrates a basic shelf with default settings."""
 
-from gadget_garb import render_rack_shelf
+from gadget_box import render_rack_shelf
 
 shelf = render_rack_shelf(rack_units=1.0)
 

@@ -3,7 +3,7 @@ from typing import override
 import build123d as bd
 import pytest
 
-from gadget_garb import (
+from gadget_box import (
     Assembler,
     AxDir3,
     BoxBlock,
@@ -11,7 +11,6 @@ from gadget_garb import (
     Dir2,
     Feature,
     Rc,
-    RowLayout,
     TestLogger,
     Vec2,
     Vec3,

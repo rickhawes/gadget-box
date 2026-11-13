@@ -1,4 +1,4 @@
-from gadget_garb import (
+from gadget_box import (
     AlignedFigure,
     Ax2,
     AxDir,
@@ -18,7 +18,7 @@ from gadget_garb import (
     TrapezoidFigure,
     TriangleFigure,
 )
-from gadget_garb.core.figures import CombinedFigure, CutoutFigure, RingFigure
+from gadget_box.core.figures import CombinedFigure, CutoutFigure, RingFigure
 
 # test by rendering a bunch of figures
 

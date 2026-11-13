@@ -1,4 +1,4 @@
-from gadget_garb import (
+from gadget_box import (
     BoxHolder,
     GeneralCornerHolder,
     PuckHolder,

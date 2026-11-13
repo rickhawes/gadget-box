@@ -1,5 +1,5 @@
 [project]
-name = "gadget-garb"
+name = "gadget-box"
 readme = "readme.md"
 description = "A Python library for generating 3d-printer models for a 10-inch server rack"
 authors = [

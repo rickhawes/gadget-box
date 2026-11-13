@@ -5,7 +5,7 @@ racks and screws.
 
 from enum import Enum
 
-from gadget_garb.core import Mm
+from gadget_box.core import Mm
 
 # ------------------------------------------------
 # Rack Dimensions

@@ -7,7 +7,7 @@ a general device shape.
 from dataclasses import dataclass
 from typing import override
 
-from gadget_garb.core import (
+from gadget_box.core import (
     Assembler,
     Corners,
     CutoutFigure,

@@ -1,6 +1,6 @@
 """Shows a BoxHolder feature."""
 
-from gadget_garb import BoxHolder, Vec3, feature_xray
+from gadget_box import BoxHolder, Vec3, feature_xray
 
 holder = BoxHolder(
     device_size=Vec3(60, 30, 40), device_rounding=1.0, style=BoxHolder.BACK_LIP

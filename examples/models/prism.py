@@ -1,6 +1,6 @@
 """Make  a box with an assembler."""
 
-from gadget_garb import Assembler, BoxBlock
+from gadget_box import Assembler, BoxBlock
 
 bx = BoxBlock(20, 20, 10)
 asm = Assembler.make_with_block(bx)

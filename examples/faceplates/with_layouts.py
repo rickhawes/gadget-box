@@ -3,7 +3,7 @@ This example demonstrates a faceplate with a RowLayout containing 3 cutouts.
 Each cutout has a different alignment and padding and shift amount.
 """
 
-from gadget_garb import (
+from gadget_box import (
     CircleFigure,
     Cutout,
     FaceplateStyle,

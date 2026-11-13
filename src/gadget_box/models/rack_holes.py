@@ -8,7 +8,7 @@ from typing import Sequence
 
 import build123d as bd
 
-from gadget_garb.core import HolePattern, Mm, SlotFigure, Vec2
+from gadget_box.core import HolePattern, Mm, SlotFigure, Vec2
 
 from .rack_dims import (
     RackDims,

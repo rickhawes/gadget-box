@@ -12,10 +12,10 @@ from typing import Sequence, TypeAlias, cast, final
 
 import build123d as bd
 
-from gadget_garb.core.block import Block
-from gadget_garb.core.geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
-from gadget_garb.core.piece import Piece
-from gadget_garb.core.rendering import Rendering
+from gadget_box.core.block import Block
+from gadget_box.core.geometry import AxDir3, Bx, Dir2, Mm, Rc, Vec2, Vec3
+from gadget_box.core.piece import Piece
+from gadget_box.core.rendering import Rendering
 
 
 @final

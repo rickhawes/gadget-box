@@ -11,7 +11,7 @@ import build123d as bd
 import pytest
 from ocp_vscode import Camera, push_object, reset_show, show_objects
 
-from gadget_garb import TestLogger
+from gadget_box import TestLogger
 
 STD_SPACING = 80
 MIN_SPACING = 10

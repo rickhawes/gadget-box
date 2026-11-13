@@ -1,9 +1,9 @@
 # pylint: disable=missing-module-docstring, duplicate-code
 # <AUTOGEN_INIT>
-from gadget_garb.core.assembler import (
+from gadget_box.core.assembler import (
     Assembler,
 )
-from gadget_garb.core.block import (
+from gadget_box.core.block import (
     Block,
     BoxBlock,
     ConeBlock,
@@ -14,7 +14,7 @@ from gadget_garb.core.block import (
     StackBlock,
     TubeBlock,
 )
-from gadget_garb.core.corners import (
+from gadget_box.core.corners import (
     BeveledCorners,
     Corners,
     InsetCorners,
@@ -22,12 +22,12 @@ from gadget_garb.core.corners import (
     SelectedCorners,
     SquareCorners,
 )
-from gadget_garb.core.feature import (
+from gadget_box.core.feature import (
     Feature,
     FeatureList,
     Rib,
 )
-from gadget_garb.core.figures import (
+from gadget_box.core.figures import (
     AlignedFigure,
     CircleFigure,
     CombinedFigure,
@@ -42,7 +42,7 @@ from gadget_garb.core.figures import (
     TrapezoidFigure,
     TriangleFigure,
 )
-from gadget_garb.core.geometry import (
+from gadget_box.core.geometry import (
     Ax2,
     Ax3,
     AxDir,
@@ -57,33 +57,33 @@ from gadget_garb.core.geometry import (
     Vec2,
     Vec3,
 )
-from gadget_garb.core.hole_patterns import (
+from gadget_box.core.hole_patterns import (
     CircleFill,
     HexFill,
     HolePattern,
     SquareFill,
     fill_holes,
 )
-from gadget_garb.core.layouts import (
+from gadget_box.core.layouts import (
     GridLayout,
     Layout,
     MeasuredRowsColumns,
     RowLayout,
 )
-from gadget_garb.core.piece import (
+from gadget_box.core.piece import (
     Piece,
 )
-from gadget_garb.core.print_dims import (
+from gadget_box.core.print_dims import (
     MIN_SPAN_WIDTH,
     E,
 )
-from gadget_garb.core.rendering import (
+from gadget_box.core.rendering import (
     Rendering,
 )
-from gadget_garb.core.row_column_collection import (
+from gadget_box.core.row_column_collection import (
     RowColumnCollection,
 )
-from gadget_garb.core.test_fixtures import (
+from gadget_box.core.test_fixtures import (
     STD_PLATE_SIZE,
     TestLogger,
     XRayShow,

@@ -1,22 +1,22 @@
 # pylint: disable=missing-module-docstring, duplicate-code
 # <AUTOGEN_INIT>
-from gadget_garb.models.rack_dims import (
+from gadget_box.models.rack_dims import (
     RackDims,
     RackScrewDims,
     Screw1032Dims,
     ShelfTabDims,
     rack_units_to_mm,
 )
-from gadget_garb.models.rack_faceplate import (
+from gadget_box.models.rack_faceplate import (
     FaceplateStyle,
     render_rack_faceplate,
 )
-from gadget_garb.models.rack_holes import (
+from gadget_box.models.rack_holes import (
     RackHoleFigure,
     RackHolePattern,
     layout_rack_screw_holes,
 )
-from gadget_garb.models.rack_shelf import (
+from gadget_box.models.rack_shelf import (
     ShelfStyle,
     render_rack_shelf,
 )

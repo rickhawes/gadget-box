@@ -1,33 +1,33 @@
 # pylint: disable=missing-module-docstring, duplicate-code
 # <AUTOGEN_INIT>
-from gadget_garb.features.basic_holder import (
+from gadget_box.features.basic_holder import (
     BasicHolderStyle,
     build_basic_holder,
 )
-from gadget_garb.features.box_holder import (
+from gadget_box.features.box_holder import (
     BoxHolder,
 )
-from gadget_garb.features.corner_holder import (
+from gadget_box.features.corner_holder import (
     CornerHolder,
     GeneralCornerHolder,
 )
-from gadget_garb.features.cutout import (
+from gadget_box.features.cutout import (
     CircleCutout,
     Cutout,
 )
-from gadget_garb.features.import_feature import (
+from gadget_box.features.import_feature import (
     ImportFeature,
 )
-from gadget_garb.features.jetkvm import (
+from gadget_box.features.jetkvm import (
     JetKVM,
 )
-from gadget_garb.features.keystone import (
+from gadget_box.features.keystone import (
     Keystone,
 )
-from gadget_garb.features.puck_holder import (
+from gadget_box.features.puck_holder import (
     PuckHolder,
 )
-from gadget_garb.features.spacer import (
+from gadget_box.features.spacer import (
     Spacer,
 )
 

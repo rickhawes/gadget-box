@@ -6,7 +6,7 @@ Block constructions - A model is constructed using blocks placed on other blocks
 
 ## Layers
 
-The package is built into three layers: Core primatives and Models built on those core primatives. 
+The package is built into three layers: Core primatives and Models and Features built on those core primatives. 
 
 
 | Layer    | Abstractions                                                  | Knowledge Needed   |
@@ -19,10 +19,14 @@ The package is built into three layers: Core primatives and Models built on thos
 
 ## Concepts
 
-Models are 
-
 A model is constructed using blocks placed on other blocks. An assembler class assists in placing
 blocks on other blocks. 
+
+Features are associated with specific device. They are placed on a plate, or a flat area of block. For
+example, the rack faceplate model has an area where different features can be placed. In this case, 
+example features include cutouts and network keystone. 
+
+Features are placed on models using layouts. Layouts 
 
 ## Terminology 
 

@@ -1,6 +1,6 @@
 # pylint: disable=missing-module-docstring, duplicate-code
 # <AUTOGEN_INIT>
-from gadget_garb.core import (
+from gadget_box.core import (
     MIN_SPAN_WIDTH,
     STD_PLATE_SIZE,
     AlignedFigure,
@@ -65,7 +65,7 @@ from gadget_garb.core import (
     feature_xray,
     fill_holes,
 )
-from gadget_garb.features import (
+from gadget_box.features import (
     BasicHolderStyle,
     BoxHolder,
     CircleCutout,
@@ -79,7 +79,7 @@ from gadget_garb.features import (
     Spacer,
     build_basic_holder,
 )
-from gadget_garb.models import (
+from gadget_box.models import (
     FaceplateStyle,
     RackDims,
     RackHoleFigure,

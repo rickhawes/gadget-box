@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from gadget_garb.core import (
+from gadget_box.core import (
     Assembler,
     AxDir3,
     CutoutFigure,

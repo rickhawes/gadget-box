@@ -1,6 +1,6 @@
 """This example demonstrates a faceplate with a puck holder."""
 
-from gadget_garb import PuckHolder, Vec3, render_rack_faceplate
+from gadget_box import PuckHolder, Vec3, render_rack_faceplate
 
 holder = PuckHolder(
     device_size=Vec3(60, 30, 60),

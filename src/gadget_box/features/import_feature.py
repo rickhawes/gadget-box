@@ -3,13 +3,13 @@
 from pathlib import Path
 from typing import override
 
-from gadget_garb.core import Assembler, BoxBlock, Feature, ImportBlock
+from gadget_box.core import Assembler, BoxBlock, Feature, ImportBlock
 
 
 class ImportFeature(Feature):
     """A Feature formed using a STL or BREP file"""
 
-    ASSET_PATH: str = "gadget_garb.assets"
+    ASSET_PATH: str = "gadget_box.assets"
 
     cutout: bool = True
     block: ImportBlock

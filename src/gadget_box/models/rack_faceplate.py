@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from gadget_garb.core import (
+from gadget_box.core import (
     Assembler,
     AxDir3,
     Dir2,

@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import build123d as bd
 import pytest
 
-from gadget_garb import (
+from gadget_box import (
     Assembler,
     BoxBlock,
     Cutout,
