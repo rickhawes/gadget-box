@@ -11,6 +11,7 @@ from gadget_box import (
     RectangleFigure,
     RotatedFigure,
     RoundedCorners,
+    RoundedInsetCorners,
     SelectedCorners,
     SlotFigure,
     SquareFill,
@@ -40,6 +41,11 @@ def test_rounded_corners(viewer_logger: TestLogger) -> None:
 
 def test_inset_corners(viewer_logger: TestLogger) -> None:
     fig = RectangleFigure(40, 20, InsetCorners(5))
+    viewer_logger.log(fig.sketch(), RECT)
+
+
+def test_rounded_inset_corners(viewer_logger: TestLogger) -> None:
+    fig = RectangleFigure(40, 20, RoundedInsetCorners(6))
     viewer_logger.log(fig.sketch(), RECT)
 
 

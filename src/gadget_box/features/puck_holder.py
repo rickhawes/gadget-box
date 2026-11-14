@@ -108,7 +108,7 @@ class PuckHolder(Feature):
                 0, 0, (dz / 2) - pd if self.style.has_cutout else (dz / 2)
             )
             device_cutout_bx = Bx(self.device_size, device_center).side_bx(
-                AxDir3.Y_MINUS
+                AxDir3.Y_PLUS
             )
             device_cutout_asm = asm.make_sub(
                 device_cutout_bx, z_dir=AxDir3.Y_PLUS, cutout_mode=True

@@ -19,6 +19,7 @@ from gadget_box.core.corners import (
     Corners,
     InsetCorners,
     RoundedCorners,
+    RoundedInsetCorners,
     SelectedCorners,
     SquareCorners,
 )
@@ -79,6 +80,7 @@ from gadget_box.core.print_dims import (
 )
 from gadget_box.core.rendering import (
     Rendering,
+    show_multiple,
 )
 from gadget_box.core.row_column_collection import (
     RowColumnCollection,
@@ -137,6 +139,7 @@ __all__ = [
     "RingFigure",
     "RotatedFigure",
     "RoundedCorners",
+    "RoundedInsetCorners",
     "RowColumnCollection",
     "RowLayout",
     "STD_PLATE_SIZE",
@@ -154,5 +157,6 @@ __all__ = [
     "XRayShow",
     "feature_xray",
     "fill_holes",
+    "show_multiple",
 ]
 # </AUTOGEN_INIT>

@@ -112,4 +112,4 @@ def render_rack_faceplate(
     if features is not None:
         style.layout.render_features(features, asm, feature_area)
 
-    return asm.make_rendering()
+    return asm.render(label="faceplate")

@@ -30,6 +30,11 @@ from gadget_box.features.puck_holder import (
 from gadget_box.features.spacer import (
     Spacer,
 )
+from gadget_box.features.through_holes import (
+    FourHoles,
+    MultipleHoles,
+    StandardScrewDiameters,
+)
 
 __all__ = [
     "BasicHolderStyle",
@@ -37,12 +42,15 @@ __all__ = [
     "CircleCutout",
     "CornerHolder",
     "Cutout",
+    "FourHoles",
     "GeneralCornerHolder",
     "ImportFeature",
     "JetKVM",
     "Keystone",
+    "MultipleHoles",
     "PuckHolder",
     "Spacer",
+    "StandardScrewDiameters",
     "build_basic_holder",
 ]
 # </AUTOGEN_INIT>

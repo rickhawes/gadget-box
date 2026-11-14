@@ -207,4 +207,4 @@ def render_rack_shelf(
     build_walls(plate_asm)
     build_faceplate(bottom_asm, face_features)
 
-    return bottom_asm.make_rendering()
+    return bottom_asm.render(label="rack_shelf")

@@ -10,21 +10,20 @@ bin/
 .cache
 .ruff_cache
 
-# pycharm
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/usage.statistics.xml
-.idea/shelf/
-.idea/caches/
-.idea/libraries/
-.idea/sonarlint/
-
 # Direnv
 .direnv
 .claude
 
 # Mac
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
+.idea
+.vscode
+.zed
+
 
 # Outputs
 outputs/

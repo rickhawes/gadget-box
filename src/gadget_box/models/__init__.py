@@ -1,5 +1,9 @@
 # pylint: disable=missing-module-docstring, duplicate-code
 # <AUTOGEN_INIT>
+from gadget_box.models.device_box import (
+    DeviceBoxStyle,
+    render_device_box,
+)
 from gadget_box.models.rack_dims import (
     RackDims,
     RackScrewDims,
@@ -22,6 +26,7 @@ from gadget_box.models.rack_shelf import (
 )
 
 __all__ = [
+    "DeviceBoxStyle",
     "FaceplateStyle",
     "RackDims",
     "RackHoleFigure",
@@ -32,6 +37,7 @@ __all__ = [
     "ShelfTabDims",
     "layout_rack_screw_holes",
     "rack_units_to_mm",
+    "render_device_box",
     "render_rack_faceplate",
     "render_rack_shelf",
 ]

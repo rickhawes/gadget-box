@@ -8,7 +8,7 @@ See Also:
 """
 
 from dataclasses import dataclass
-from typing import Sequence, TypeAlias, cast, final
+from typing import Self, Sequence, TypeAlias, cast, final
 
 import build123d as bd
 
@@ -42,8 +42,8 @@ class Assembler:
         """The plane of the plate to place blocks (global coordinates)."""
 
         @classmethod
-        def _make(cls, base: Bx, z_dir: AxDir3, cutout_mode: bool) -> Assembler.Plate:
-            side = z_dir.to_opposite() if cutout_mode else z_dir
+        def _make(cls, base: Bx, z_dir: AxDir3) -> Assembler.Plate:
+            side = z_dir
             plane = bd.Plane(
                 origin=base.side_bx(side).center.to_vector(),
                 z_dir=z_dir.to_plane_z_dir(),
@@ -115,6 +115,8 @@ class Assembler:
     ) -> None:
         """Create an assembler or sub-assembler.
 
+        Should not be called directly, use the Assembler.make methods.
+
         Args:
             plate: the base box on which everything is placed in global.
             z_dir: the orientation for the placement (and the z_dir).
@@ -147,7 +149,7 @@ class Assembler:
             cutout_mode: the default cut value for block placement and
                 the base is above the plane.
         """
-        plate = Assembler.Plate._make(base, z_dir, cutout_mode)
+        plate = Assembler.Plate._make(base, z_dir)
         return Assembler(plate, cutout_mode, parent=None)
 
     @classmethod
@@ -195,13 +197,18 @@ class Assembler:
             z_dir = self._plate.z_dir
         if cutout_mode is None:
             cutout_mode = self.cutout_mode
-        _plate = Assembler.Plate._make(base, z_dir, cutout_mode)
+        _plate = Assembler.Plate._make(base, z_dir)
         sub = Assembler(_plate, cutout_mode, parent=self)
         self.sub_assemblers.append(sub)
         return sub
 
     def make_cutout_sub(self) -> Assembler:
-        """Make a assembler with `cutout_mode` = True on the same plate."""
+        """Make a assembler with `cutout_mode` = True on the same plate.
+
+        The origin, z-dir will not change in this mode change.
+        Cannot make_cutout_sub on a existing assembler that is in cutout mode.
+
+        """
         if self.cutout_mode:
             raise RuntimeError("Cannot make a cutout sub on a cutout sub")
         return self.make_sub(cutout_mode=True)
@@ -226,36 +233,68 @@ class Assembler:
         offset: Vec2 | Vec3 = Vec2(0, 0)
         """The offset of the center."""
 
+        @classmethod
+        def make_at_corners(cls, rc: Rc) -> list[Self]:
+            """Make four places at the corners defined by the passed in rc"""
+            return [
+                cls(offset=Vec2(x, y) + rc.center)
+                for x in [-rc.size.x / 2, rc.size.x / 2]
+                for y in [-rc.size.y / 2, rc.size.y / 2]
+            ]
+
     Places: TypeAlias = Place | Sequence[Place]
 
-    def place_bx(self, size: Vec3, place: Place = Place()) -> Bx:
-        """The bounding box of `size` relative the assembler's plane"""
+    def place_bx(
+        self, size: Vec3, place: Place = Place(), below: bool | None = None
+    ) -> Bx:
+        """The bounding box of `size` relative the assembler's plane.
+
+        Args:
+            size (Vec3): the size of output box
+            place (Place): the place on the plate to put the box
+            below (bool | None): place the box below the plate,
+                if False above the plate, if None, use the cut_mode.
+        """
         origin = self.plate_rc.place_center(Rc(size.x, size.y), place.origin).to_vec3()
         offset = (
             place.offset if isinstance(place.offset, Vec3) else place.offset.to_vec3()
         )
-        center = origin + offset + Vec3(0, 0, size.z / 2)
-        return Bx(size, center)
+        resolved_below = below if below is not None else self.cutout_mode
+        above_below = Vec3(0, 0, -size.z / 2 if resolved_below else size.z / 2)
+        return Bx(size, origin + offset + above_below)
 
     def place_block(
         self, block: Block, places: Places = Place(), cut: bool | None = None
     ) -> None:
-        """Place an block"""
+        """Place an block on top of the plate or cut it out from the top of the plate.
+
+        Args:
+            block (Block): the block to place on top of the plate
+            place (Place): the placement of the block on the plate
+            cut (bool | None): override the default of the assembler to cut.
+        """
         if isinstance(places, Assembler.Place):
             places = [places]
         if len(places) == 0:
             raise ValueError("`place` must not be an empty list")
         resolved_cut = cut if cut is not None else self.cutout_mode
         for p in places:
-            center = self.place_bx(block.size, p).center
+            center = self.place_bx(block.size, p, below=resolved_cut).center
             piece = block.render(resolved_cut)
             self.add_piece(piece, center)
 
     def stack_block(
         self, block: Block, place: Place = Place(), sub_z_dir: AxDir3 | None = None
     ) -> Assembler:
-        """Place an block and create a sub-assembler on the placed."""
-        center = self.place_bx(block.size, place).center
+        """Place a block on top of the plate and create a
+        sub-assembler on the placed block.
+
+        Args:
+            block (Block): the block to place on top of the plate
+            place (Place): the placement of the block on the plate
+            sub_z_dir (bool | None): override the default of the assembler to cut.
+        """
+        center = self.place_bx(block.size, place, below=False).center
         piece = block.render(cut=False)
         self.add_piece(piece, center)
         if sub_z_dir is None:
@@ -302,11 +341,18 @@ class Assembler:
             return self.parent.all_pieces()
         return self._pieces
 
-    def make_rendering(self) -> Rendering:
-        """Make a rendering for the assembler."""
+    def render(self, label: str | None = None) -> Rendering:
+        """Make a rendering of the pieces in the assembler.
+
+        Args:
+            label (str) : add a label the build123d part
+
+        """
         with bd.BuildPart() as builder:
             for p in self.all_pieces():
                 mode = bd.Mode.SUBTRACT if p.cut else bd.Mode.ADD
                 _ = bd.insert(p.part, mode=mode)
         assert builder.part is not None
-        return Rendering(builder.part)
+        if label is not None:
+            builder.part.label = label
+        return Rendering(builder.part, label)

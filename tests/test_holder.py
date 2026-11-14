@@ -39,6 +39,13 @@ def test_puck_holder(viewer_logger: TestLogger) -> None:
     viewer_logger.log(rendering)
 
 
+def test_puck_holder_no_cutout(viewer_logger: TestLogger) -> None:
+    style = PuckHolder.Style(has_cutout=False)
+    holder = PuckHolder(device_size=Vec3(80, 20, 80), device_rounding=10, style=style)
+    rendering = feature_xray(holder)
+    viewer_logger.log(rendering)
+
+
 def test_corner_holder(viewer_logger: TestLogger) -> None:
     holder = GeneralCornerHolder(RectangleFigure(80, 30, 2))
     rendering = feature_xray(holder)

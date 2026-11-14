@@ -214,7 +214,7 @@ class Vec2:
         return self.__class__(-self.x, -self.y)
 
     def to_vec3(self, z: Mm = 0) -> Vec3:
-        """Convert to a Vec3"""
+        """Convert to a Vec3, setting the z-coordinate."""
         return Vec3(self.x, self.y, z)
 
     def to_vector(self) -> bd.Vector:

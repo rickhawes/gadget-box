@@ -104,4 +104,4 @@ def feature_xray(
                 new_piece = piece.set(color=bd.Color("red"), label="subtract")
                 children.append(new_piece.part)
 
-    return Rendering(bd.Compound(label="xray", children=children))
+    return Rendering(bd.Compound(label="xray", children=children), label="xray")

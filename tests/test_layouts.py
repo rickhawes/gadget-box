@@ -379,11 +379,11 @@ def test_render_features(viewer_logger: TestLogger) -> None:
     m1 = Assembler.make_with_block(BoxBlock(60, 60, 10))
     l1 = RowLayout()
     l1.render_features([[c1, c1]], m1)
-    r1 = m1.make_rendering()
+    r1 = m1.render()
     viewer_logger.log(r1.part)
 
     m2 = Assembler.make_with_block(BoxBlock(60, 60, 10))
     l2 = RowLayout(place=Dir2.SIDE_BOTTOM, spacing=5)
     l2.render_features([[c1, c1]], m2)
-    r2 = m2.make_rendering()
+    r2 = m2.render()
     viewer_logger.log(r2.part)

@@ -93,6 +93,45 @@ class InsetCorners(Corners):
                 raise ValueError(f"Corners.draw called with {where}")
 
 
+class RoundedInsetCorners(Corners):
+    """Inset corners with rounding"""
+
+    def __init__(
+        self, width: Mm, height: Mm | None = None, radius: Mm | None = None
+    ) -> None:
+        """
+        Args:
+            width (Mm): The x-width of the inset
+            height (Mm): The y-height of the inset. Equal to width by default.
+            radius (Mm): The rounding amount. 1/2 width by default.
+        """
+        super().__init__(width, height)
+        self.radius = radius if radius is not None else width / 2
+
+    @override
+    def draw(
+        self, start: bd.Vector, end: bd.Vector, where: Corners.SelectedCorner
+    ) -> None:
+        match where:
+            case Corners.TOP_LEFT:
+                p1 = (end.X - self.radius, start.Y)
+                p2 = (end.X, start.Y + self.radius)
+            case Corners.TOP_RIGHT:
+                p1 = (start.X, end.Y + self.radius)
+                p2 = (start.X + self.radius, end.Y)
+            case Corners.BOTTOM_LEFT:
+                p1 = (start.X, end.Y - self.radius)
+                p2 = (start.X - self.radius, end.Y)
+            case Corners.BOTTOM_RIGHT:
+                p1 = (end.X + self.radius, start.Y)
+                p2 = (end.X, start.Y - self.radius)
+            case _:
+                raise ValueError(f"Corners.draw called with {where}")
+        _ = bd.Line(start, p1)
+        _ = bd.RadiusArc(start_point=p2, end_point=p1, radius=self.radius)
+        _ = bd.Line(p2, end)
+
+
 class BeveledCorners(Corners):
     """Beveled corners"""
 

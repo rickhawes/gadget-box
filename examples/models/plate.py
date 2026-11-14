@@ -38,5 +38,5 @@ asm.place_block(stand, [Assembler.Place(offset=p) for p in stand_centers()])
 # place the holes on the base using the cut mode
 cutout_asm.place_block(hole, [Assembler.Place(offset=p) for p in hole_centers()])
 
-rendering = asm.make_rendering()
+rendering = asm.render()
 rendering.show()
