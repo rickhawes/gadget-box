@@ -23,7 +23,7 @@ class TestLogger:
     Part of the core package to allow it to be included in tests.
     """
 
-    LogableType: TypeAlias = bd.Part | bd.Compound | bd.Sketch
+    LogableType: TypeAlias = bd.Part | bd.Compound | bd.Solid | bd.Sketch
 
     @dataclass(init=False)
     class LogEntry:

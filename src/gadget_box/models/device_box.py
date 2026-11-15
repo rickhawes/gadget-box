@@ -1,12 +1,14 @@
 """A basic device enclosure."""
 
 from dataclasses import dataclass
+from typing import Sequence
 
 from gadget_box.core import (
     Assembler,
+    AxDir3,
     CutoutFigure,
-    CylinderBlock,
     ExtrudedBlock,
+    FeatureList,
     Figure,
     GridLayout,
     HolePattern,
@@ -21,6 +23,9 @@ from gadget_box.core import (
     Vec2,
     Vec3,
 )
+from gadget_box.models.fastners import NoLidFastener
+
+from .fastners import LidFastener, NoLidFastener
 
 
 @dataclass(frozen=True)
@@ -35,17 +40,6 @@ class DeviceBoxStyle:
         """the base of the box"""
         layout: Layout = GridLayout()
         """the layout of the base of the grid"""
-
-    @dataclass(frozen=True)
-    class Magnet:
-        """Magnet style."""
-
-        diameter: Mm = 6.0
-        """The diameter """
-        depth: Mm = 2.0
-        """The depth of the """
-        gap: Mm = 0.2
-        """The extra to put arround """
 
     @dataclass(frozen=True)
     class Wall:
@@ -74,19 +68,22 @@ class DeviceBoxStyle:
     """Wall and corner parameters"""
     lid: Lid = Lid()
     """Lid and lip parameters."""
-    magnet: Magnet = Magnet()
+    fastener: LidFastener = NoLidFastener()
     """Magnet parameters for lid and corners."""
 
 
 def render_device_box(
-    device_size: Vec3, style: DeviceBoxStyle = DeviceBoxStyle()
+    interior_size: Vec3,
+    features_by_side: dict[AxDir3, FeatureList] = {},
+    style: DeviceBoxStyle = DeviceBoxStyle(),
 ) -> tuple[Rendering, Rendering]:
     """Assemble a basic device box with a base and a lid.
 
     The walls and corner posts increase the exterior volume of the box.
 
     Args:
-        device_size (Vec3): The interior volume excluding the walls and corner insets
+        interior_size (Vec3): The interior volume excluding the walls and corner insets
+        features_by_side: The feature list for side.
         style (DeviceBoxStyle): All the information about box
     """
 
@@ -94,10 +91,9 @@ def render_device_box(
         """Create the inner, lip, and outer outline figures."""
         wt = style.wall.thickness
         wtv = Vec2(wt, wt)
-        md = style.magnet.diameter
-        cx = cy = md + wt
-        inner_r = md / 2 + 0.5 * wt
-        inner_size = device_size.to_2d() + 2 * Vec2(cx, cy)
+        cx = cy = style.fastener.layout_radius * 2
+        inner_r = style.fastener.layout_radius
+        inner_size = interior_size.to_2d() + 2 * Vec2(cx, cy)
         lip_r = inner_r + 0.5 * wt
         lip_size = inner_size + wtv
         outer_r = lip_r + 0.5 * wt
@@ -105,7 +101,9 @@ def render_device_box(
 
         # common figures
         inner_outline = RectangleFigure(
-            inner_size.x, inner_size.y, RoundedInsetCorners(cx, cy)
+            inner_size.x,
+            inner_size.y,
+            RoundedInsetCorners(cx, cy) if cx > 0 and cy > 0 else None,
         )
         lip_outline = RectangleFigure(lip_size.x, lip_size.y, lip_r)
         outer_outline = RectangleFigure(outer_size.x, outer_size.y, outer_r)
@@ -113,17 +111,12 @@ def render_device_box(
 
     inner_outline, lip_outline, outer_outline = common_figures()
 
-    def place_magnets(asm: Assembler) -> None:
-        mag_depth = style.magnet.depth + style.magnet.gap
-        mag_r = style.magnet.diameter / 2 + style.magnet.gap
-        mag_block = CylinderBlock(mag_r, mag_depth)
+    def fastener_places() -> Sequence[Assembler.Place]:
         mag_rc = Rc(
-            device_size.to_2d()
-            + Vec2(style.wall.thickness, style.wall.thickness)
-            + Vec2(style.magnet.diameter, style.magnet.diameter)
+            interior_size.to_2d()
+            + Vec2(2 * style.fastener.layout_radius, 2 * style.fastener.layout_radius)
         )
-        mag_places = Assembler.Place.make_at_corners(mag_rc)
-        asm.place_block(mag_block, mag_places, cut=True)
+        return Assembler.Place.make_at_corners(mag_rc)
 
     def assemble_box() -> Assembler:
         """Create an assembler with the lid"""
@@ -131,18 +124,26 @@ def render_device_box(
         base_asm = Assembler.make_with_block(
             ExtrudedBlock(outer_outline, style.base.thickness)
         )
+        # add base features
+        if AxDir3.BOTTOM in features_by_side:
+            features = features_by_side[AxDir3.BOTTOM]
+            style.base.layout.render_features(features, base_asm, Rc(interior_size.to_2d()))
 
         # add walls
         wall_base_block = ExtrudedBlock(
             CutoutFigure(outer_outline, inner_outline),
-            device_size.z - style.Lid.lip_depth,
+            interior_size.z - style.Lid.lip_depth,
         )
         lip_asm = base_asm.stack_block(wall_base_block)
+        # add lip 
         wall_lip_block = ExtrudedBlock(
             CutoutFigure(lip_outline, inner_outline), style.Lid.lip_depth
         )
         top_asm = lip_asm.stack_block(wall_lip_block)
-        place_magnets(top_asm)
+        # add fasteners
+        style.fastener.render_base(top_asm, fastener_places())
+
+        # add wall features
         return base_asm
 
     # lid rendered with the base on the bottom
@@ -155,8 +156,12 @@ def render_device_box(
             style.lid.lip_depth,
         )
         asm = Assembler.make_with_block(base_block)
-        place_magnets(asm)  # same block and places
+        style.fastener.render_lid(asm, fastener_places())
         asm.place_block(lip_block)
+        # add features if present
+        if AxDir3.TOP in features_by_side:
+            features = features_by_side[AxDir3.TOP]
+            style.base.layout.render_features(features, asm, Rc(interior_size.to_2d()))
         return asm
 
     box_asm = assemble_box()

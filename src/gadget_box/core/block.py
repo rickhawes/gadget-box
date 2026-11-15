@@ -12,6 +12,7 @@ import functools
 import importlib.resources
 import pathlib
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Sequence, override
 
 import build123d as bd
@@ -23,12 +24,12 @@ from .hole_patterns import HolePattern
 from .piece import Piece
 
 #
-# region block interface and general Extrusion
+# region Block interface and the generic ExtrudedBlock
 #
 
 
 class Block(ABC):
-    """3d shapes that are composable by an `Assembler`"""
+    """3d shapes which are composed by an `Assembler`"""
 
     @property
     @abstractmethod
@@ -80,6 +81,7 @@ class ExtrudedBlock(Block):
 #
 
 
+@dataclass(init=False)
 class BoxBlock(ExtrudedBlock):
     """A basic box block with no rounding.
 
@@ -91,6 +93,7 @@ class BoxBlock(ExtrudedBlock):
         super().__init__(RectangleFigure(dx, dy), dz)
 
 
+@dataclass
 class ConeBlock(Block):
     """A cone block with a circular top and base.
 
@@ -101,11 +104,6 @@ class ConeBlock(Block):
     base_radius: Mm
     top_radius: Mm
     height: Mm
-
-    def __init__(self, base_radius: Mm, top_radius: Mm, height: Mm) -> None:
-        self.base_radius = base_radius
-        self.top_radius = top_radius
-        self.height = height
 
     @property
     @override
@@ -121,6 +119,7 @@ class ConeBlock(Block):
         return Piece(part, cut)
 
 
+@dataclass
 class CylinderBlock(Block):
     """A cylinder block.
 
@@ -131,10 +130,6 @@ class CylinderBlock(Block):
     radius: Mm
     height: Mm
 
-    def __init__(self, radius: Mm, height: Mm) -> None:
-        self.radius = radius
-        self.height = height
-
     @property
     @override
     def size(self) -> Vec3:
@@ -143,6 +138,61 @@ class CylinderBlock(Block):
     @override
     def render(self, cut: bool = False) -> Piece:
         return Piece(bd.Cylinder(self.radius, self.height), cut)
+
+
+@dataclass(init=False)
+class CounterSinkBlock(Block):
+    """CounterSink shaped block.
+
+    Has a top lip cylinder, a 90 degree cone, and hole. Useful
+    for countersink screw holes.
+    """
+
+    hole_diameter: Mm
+    length: Mm
+    top_diameter: Mm
+    top_length: Mm = 0
+
+    def __init__(
+        self, hole_diameter: Mm, length: Mm, top_diameter: Mm, top_length: Mm = 0
+    ):
+        if top_diameter < hole_diameter:
+            raise ValueError("top_diameter must be greater than hole_diameter")
+        if length < (top_diameter - hole_diameter):
+            raise ValueError("length must be greater than top cone height")
+
+        self.hole_diameter = hole_diameter
+        self.length = length
+        self.top_diameter = top_diameter
+        self.top_length = top_length
+
+    @property
+    @override
+    def size(self) -> Vec3:
+        return Vec3(self.top_diameter, self.top_diameter, self.length)
+
+    @override
+    def render(self, cut: bool = False) -> Piece:
+        # assume 90 angle
+        top_z = self.length / 2 - self.top_length / 2
+        if self.top_length > 0:
+            top = bd.Location((0, 0, top_z)) * bd.Cylinder(
+                self.top_diameter / 2, self.top_length
+            )
+        else:
+            top = None
+        cone_dz = (self.top_diameter - self.hole_diameter) / 2
+        cone_z = (self.length - cone_dz - 2 * self.top_length) / 2
+        cone = bd.Location((0, 0, cone_z)) * bd.Cone(
+            top_radius=self.top_diameter / 2,
+            bottom_radius=self.hole_diameter / 2,
+            height=cone_dz,
+        )
+        cyl_dz = self.length - cone_dz - self.top_length
+        cyl_z = cyl_dz / 2 - self.length / 2
+        cyl = bd.Location((0, 0, cyl_z)) * bd.Cylinder(self.hole_diameter / 2, cyl_dz)
+        parts = [cone, cyl] if top is None else [top, cone, cyl]
+        return Piece(bd.Part(parts), cut=cut)
 
 
 class PlateBlock(ExtrudedBlock):
@@ -258,13 +308,11 @@ class ImportBlock(Block):
         return Piece(self.shape.solid(), cut)
 
 
+@dataclass
 class StackBlock(Block):
     """TODO: Make dir and align work features for this stack"""
 
     blocks: Sequence[Block]
-
-    def __init__(self, blocks: Sequence[Block]) -> None:
-        self.blocks = blocks
 
     @property
     @override
@@ -278,11 +326,14 @@ class StackBlock(Block):
     def render(self, cut: bool = False) -> Piece:
         size = self.size
         stack_dz = -size.z / 2
-        stack = bd.Part()
+        locs: list[bd.Location] = []
         for blk in self.blocks:
-            loc = bd.Location((0, 0, stack_dz + blk.size.z / 2))
-            stack += loc * blk.render(cut=False).part
+            locs.append(bd.Location((0, 0, stack_dz + blk.size.z / 2)))
             stack_dz += blk.size.z
+        # merge all blocks at once to reduce build123d merge overhead
+        stack = bd.Part(
+            [loc * blk.render(cut=False).part for loc, blk in zip(locs, self.blocks)]
+        )
         return Piece(stack, cut=cut)
 
 

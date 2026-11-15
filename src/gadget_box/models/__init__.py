@@ -4,6 +4,14 @@ from gadget_box.models.device_box import (
     DeviceBoxStyle,
     render_device_box,
 )
+from gadget_box.models.fastners import (
+    LidFastener,
+    MagnetLidFastner,
+    MagnetLidFastners,
+    NoLidFastener,
+    ScrewLidFastner,
+    ScrewLidFastners,
+)
 from gadget_box.models.rack_dims import (
     RackDims,
     RackScrewDims,
@@ -28,11 +36,17 @@ from gadget_box.models.rack_shelf import (
 __all__ = [
     "DeviceBoxStyle",
     "FaceplateStyle",
+    "LidFastener",
+    "MagnetLidFastner",
+    "MagnetLidFastners",
+    "NoLidFastener",
     "RackDims",
     "RackHoleFigure",
     "RackHolePattern",
     "RackScrewDims",
     "Screw1032Dims",
+    "ScrewLidFastner",
+    "ScrewLidFastners",
     "ShelfStyle",
     "ShelfTabDims",
     "layout_rack_screw_holes",
