@@ -29,6 +29,8 @@ from gadget_box.features.puck_holder import (
 )
 from gadget_box.features.spacer import (
     Spacer,
+    XSpacer,
+    YSpacer,
 )
 from gadget_box.features.through_holes import (
     FourHoles,
@@ -51,6 +53,8 @@ __all__ = [
     "PuckHolder",
     "Spacer",
     "StandardScrewDiameters",
+    "XSpacer",
+    "YSpacer",
     "build_basic_holder",
 ]
 # </AUTOGEN_INIT>

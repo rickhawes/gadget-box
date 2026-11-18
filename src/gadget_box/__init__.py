@@ -33,6 +33,7 @@ from gadget_box.core import (
     GridLayout,
     HexFill,
     HolePattern,
+    HolePatternBlock,
     ImportBlock,
     InsetCorners,
     Layout,
@@ -83,6 +84,8 @@ from gadget_box.features import (
     PuckHolder,
     Spacer,
     StandardScrewDiameters,
+    XSpacer,
+    YSpacer,
     build_basic_holder,
 )
 from gadget_box.models import (
@@ -148,6 +151,7 @@ __all__ = [
     "GridLayout",
     "HexFill",
     "HolePattern",
+    "HolePatternBlock",
     "ImportBlock",
     "ImportFeature",
     "InsetCorners",
@@ -201,6 +205,8 @@ __all__ = [
     "Vec2",
     "Vec3",
     "XRayShow",
+    "XSpacer",
+    "YSpacer",
     "build_basic_holder",
     "feature_xray",
     "fill_holes",

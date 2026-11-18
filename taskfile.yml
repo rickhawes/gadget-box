@@ -77,7 +77,7 @@ tasks:
   stop-viewer:
     desc: "Stop the viewer application"
     cmds:
-      - kill $(lsof -t -i :3939 -sTCP:LISTEN)
+      - pkill $(lsof -t -i :3939 -sTCP:LISTEN)
 
   run:
     desc: "Run example program"

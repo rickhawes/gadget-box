@@ -19,7 +19,7 @@ import build123d as bd
 
 from .corners import Corners
 from .figures import Figure, RectangleFigure, RingFigure
-from .geometry import Degree, Mm, Vec3
+from .geometry import Degree, Mm, Vec2, Vec3
 from .hole_patterns import HolePattern
 from .piece import Piece
 
@@ -72,6 +72,33 @@ class ExtrudedBlock(Block):
     def render(self, cut: bool = False) -> Piece:
         extrusion = bd.extrude(self.figure.sketch(), self.amount, taper=self.taper)
         part = bd.Location((0, 0, -self.amount / 2)) * extrusion
+        return Piece(part, cut)
+
+
+@dataclass
+class HolePatternBlock(Block):
+    """A block that just contains the hole pattern.
+
+    Useful to cut out of a plate. Note that this operation will happen in 3d
+    which is typically less efficent than doing this in 3d.
+    """
+
+    width: Mm
+    height: Mm
+    depth: Mm
+    hole_pattern: HolePattern
+
+    @property
+    @override
+    def size(self) -> Vec3:
+        return Vec3(self.width, self.height, self.width)
+
+    @override
+    def render(self, cut: bool = False) -> Piece:
+        extrusion = bd.extrude(self.hole_pattern.sketch(), self.depth)
+        part = bd.Part(
+            self.hole_pattern.locations(Vec2(self.width, self.height)) * extrusion
+        )
         return Piece(part, cut)
 
 

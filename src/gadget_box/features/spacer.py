@@ -1,25 +1,27 @@
 """A feature to place a space in a feature layout."""
 
+from dataclasses import dataclass
 from typing import override
 
-from gadget_box.core import Assembler, Feature, Mm, Vec2
+from gadget_box.core import Assembler, Feature, HolePattern, HolePatternBlock, Mm, Vec2
 
 
+@dataclass
 class Spacer(Feature):
-    """A spacer that does nothing fill space to help with the layout of a plate."""
+    """A spacer fills space to help with the layout of a plate.
 
-    width: Mm
-    height: Mm
-    more_x: bool
-    more_y: bool
+    A spacer can have specific minimum size through the `height`
+    and `width` and be made expandable through`more_x` and
+    `more_y` parameters. A spacer can have a hole pattern or
+    be solid.
 
-    def __init__(
-        self, width: Mm, height: Mm, more_x: bool = False, more_y: bool = False
-    ) -> None:
-        self.width = width
-        self.height = height
-        self.more_x = more_x
-        self.more_y = more_y
+    """
+
+    width: Mm = 0
+    height: Mm = 0
+    more_x: bool = False
+    more_y: bool = False
+    hole_pattern: HolePattern | None = None
 
     @override
     def desired_size(self) -> Feature.DesiredSize:
@@ -29,4 +31,21 @@ class Spacer(Feature):
 
     @override
     def render(self, asm: Assembler) -> None:
-        pass
+        if self.hole_pattern is not None:
+            size = asm.plate_bx.size
+            block = HolePatternBlock(size.x, size.y, size.z, self.hole_pattern)
+            asm.place_block(block, cut=True)
+
+
+class XSpacer(Spacer):
+    """A spacer that expands horizontally."""
+
+    def __init__(self, width: Mm = 0):
+        super().__init__(width=width, more_x=True)
+
+
+class YSpacer(Spacer):
+    """A spacer that expands vertically."""
+
+    def __init__(self, height: Mm = 0):
+        super().__init__(height, more_y=True)

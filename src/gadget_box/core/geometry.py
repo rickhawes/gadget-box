@@ -636,6 +636,14 @@ class AxDir3(Enum):
         """Convert to a Dir3"""
         return Dir3(self.x, self.y, self.z)
 
+    def to_ax3(self) -> Ax3:
+        """Convert to Ax3."""
+        if self.has_x:
+            return Ax3.X
+        if self.has_y:
+            return Ax3.Y
+        return Ax3.Z
+
     def to_plane_z_dir(self) -> tuple[int, int, int]:
         """Covert to the z_dir of a Build123d Plane"""
         return self.x, self.y, self.z
@@ -883,7 +891,7 @@ class Bx:
 
     # Information about a side of a box
 
-    def side_bx(self, side: AxDir3) -> Bx:
+    def side_bx(self, side: AxDir3, depth: Mm = 0) -> Bx:
         """Return the center of the specified `side`"""
         lf, rt = self.left, self.right
         fr, bk = self.front, self.back
@@ -891,17 +899,17 @@ class Bx:
 
         match side:
             case AxDir3.LEFT:
-                rt = lf
+                rt = lf + depth
             case AxDir3.RIGHT:
-                lf = rt
+                lf = rt - depth
             case AxDir3.BACK:
-                fr = bk
+                fr = bk - depth
             case AxDir3.FRONT:
-                bk = fr
+                bk = fr + depth
             case AxDir3.TOP:
-                bt = tp
+                bt = tp - depth
             case AxDir3.BOTTOM:
-                tp = bt
+                tp = bt + depth
 
         return Bx.from_edges(left=lf, right=rt, front=fr, back=bk, bottom=bt, top=tp)
 
@@ -943,3 +951,7 @@ class Bx:
                 return Rc(size, Vec2(center.x, center.y))
             case _:
                 assert False, "Incomplete match statement"
+
+    def resize(self, amount: Vec3) -> Bx:
+        """Resize Bx by the amount. Center is preserved."""
+        return Bx(self.size + amount, self.center)
